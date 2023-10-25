@@ -1,0 +1,19 @@
+<div class="popup-overlay">
+    <div class="popup-content">
+        <button class="popup-close" (click)="closePopup()">X</button>
+        <h2>Add Comment</h2>
+        <div class="input-container">
+            <label for="input1">LCR operator:</label>
+            <input id="input1" type="text" [disabled]="true" [value]="lcroperator" />
+        </div>
+        <div class="input-container">
+            <label for="input2">Destination Name:</label>
+            <input id="input2" type="text" [disabled]="true" [value]="destinationName" />
+        </div>
+        <div class="input-container">
+            <label for="comment">Comment:</label>
+            <textarea id="comment" [(ngModel)]="comment" rows="4"></textarea>
+        </div>
+        <button class="add-button" (click)="addClicked()">Add</button>
+    </div>
+</div>
