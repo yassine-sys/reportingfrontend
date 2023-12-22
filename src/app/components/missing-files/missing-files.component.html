@@ -1,0 +1,16 @@
+<div *ngIf="!isEmptyResponse">
+  <div *ngFor="let flowName of flowData | keyvalue">
+    <app-paginated-table
+      [columns]="columns"
+      [data]="flowName.value"
+      [title]="'Missing files ' + flowName.key"
+    ></app-paginated-table>
+  </div>
+</div>
+
+<div *ngIf="isEmptyResponse">
+  <app-paginated-table
+    [columns]="columns"
+    [title]="'Missing files '"
+  ></app-paginated-table>
+</div>

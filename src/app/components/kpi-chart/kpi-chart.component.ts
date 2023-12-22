@@ -6,7 +6,7 @@ import { IxInterResp } from 'src/model/IxInterResp';
 @Component({
   selector: 'app-kpi-chart',
   templateUrl: './kpi-chart.component.html',
-  styleUrls: ['./kpi-chart.component.css']
+  styleUrls: ['./kpi-chart.component.css'],
 })
 export class KpiChartComponent implements OnInit {
   constructor(private chartService: ChartService) {}
@@ -15,7 +15,7 @@ export class KpiChartComponent implements OnInit {
   ngOnInit(): void {
     this.chartService.getCdrsMSC().subscribe((data: CdrMscOcs) => {
       this.cdrInfo = data;
-      console.log(this.cdrInfo)
+      console.log(this.cdrInfo);
     });
   }
 

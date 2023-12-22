@@ -19,30 +19,96 @@ import { TestChartsComponent } from './components/test-charts/test-charts.compon
 import { MapComponent } from './components/map/map.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { CollectStatusComponent } from './components/collect-status/collect-status.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { MissingFilesComponent } from './components/missing-files/missing-files.component';
+import { ReportsComponent } from './components/reports/reports.component';
+import { HomeChartsComponent } from './components/home-charts/home-charts.component';
+import { OrderUserChartsComponent } from './components/order-user-charts/order-user-charts.component';
+import { UserchartComponent } from './components/userchart/userchart.component';
 
 const routes: Routes = [
-  {path:'login',component:LoginComponent},
-  {path:'forgot',component:ForgotPassComponent},
-  {path:'',component:ChartComponent,canActivate:[AuthGuard]},
-  {path:'group',component:GroupComponent,canActivate:[AuthGuard]},
-  {path:'group/add',component:AddgroupComponent,canActivate:[AuthGuard]},
-  {path:'group/:id',component:AddgroupComponent,canActivate:[AuthGuard]},
-  {path:'modules',component:NestedGridComponent,canActivate:[AuthGuard]},
-  {path:'users',component:UserManagmentComponent,canActivate:[AuthGuard]},
-  {path:'collect',component:CollectStatusComponent,canActivate:[AuthGuard]},
-  {path:'test',component:HomeComponent,canActivate:[AuthGuard]},
-  {path:'error',component:ErrorComponent,canActivate:[AuthGuard]},
-  {path:'function/:id',component:FunctionDetailsComponent,canActivate:[AuthGuard]},
-  {path:'function/charts/:id',component:FunctionChartsComponent,canActivate:[AuthGuard]},
-  {path:'groupe/:id',component:GroupdetailsComponent,canActivate:[AuthGuard]},
-  {path:'testCharts',component:TestChartsComponent,canActivate:[AuthGuard]},
-  {path:'map',component:MapComponent,canActivate:[AuthGuard]},
-  {path:'profile',component:ProfileComponent,canActivate:[AuthGuard]},
-  { path: '',   redirectTo: '/', pathMatch: 'full' }
+  { path: 'login', component: LoginComponent },
+  { path: 'forgot', component: ForgotPassComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
+  { path: 'welcome', component: HomeChartsComponent },
+  {
+    path: 'dashboard',
+    component: DashboardComponent,
+    canActivate: [AuthGuard],
+    children: [
+      {
+        path: '',
+        component: UserchartComponent,
+        canActivate: [AuthGuard],
+      },
+      { path: 'group', component: GroupComponent, canActivate: [AuthGuard] },
+      {
+        path: 'group/add',
+        component: AddgroupComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'group/:id',
+        component: AddgroupComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'modules',
+        component: NestedGridComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'users',
+        component: UserManagmentComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'collect',
+        component: CollectStatusComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'missing-files',
+        component: MissingFilesComponent,
+        canActivate: [AuthGuard],
+      },
+      { path: 'test', component: HomeComponent, canActivate: [AuthGuard] },
+      { path: 'error', component: ErrorComponent, canActivate: [AuthGuard] },
+      {
+        path: 'function/:id',
+        component: FunctionDetailsComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'function/charts/:id',
+        component: ReportsComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'groupe/:id',
+        component: GroupdetailsComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'testCharts',
+        component: TestChartsComponent,
+        canActivate: [AuthGuard],
+      },
+      { path: 'map', component: MapComponent, canActivate: [AuthGuard] },
+      {
+        path: 'profile',
+        component: ProfileComponent,
+        canActivate: [AuthGuard],
+      },
+    ],
+  },
+
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes,{ useHash: true })],
-  exports: [RouterModule]
+  imports: [RouterModule.forRoot(routes, { useHash: true })],
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

@@ -1,8 +1,52 @@
-<div class="login-dark" style="height: 695px;">
-    <form>
-        <h2 class="sr-only">Forgot Password</h2>
-        <div class="illustration"><i class="icon ion-ios-locked-outline"></i></div>
-        <div class="form-group"><input class="form-control" type="text" name="email" placeholder="Email"></div>
-        <div class="form-group"><button class="btn btn-primary btn-block">Log In</button></div><a class="forgot" routerLink="login">Login</a></form>
-    <div class="toast-container position-fixed top-0 end-0" style="z-index: 9999;"></div>
+<div class="login-container" *ngIf="!showMessage">
+  <div class="login-card">
+    <div class="login-card-body">
+      <h2 class="text-center mb-4">Find Your Account</h2>
+      <p>
+        Please enter your email address or username to search for your account.
+      </p>
+      <form (ngSubmit)="submitForm()">
+        <div class="form-group">
+          <input
+            type="text"
+            class="form-control"
+            id="username"
+            [(ngModel)]="username"
+            name="username"
+            placeholder="Enter Email or username"
+          />
+        </div>
+        <div class="error-message red-text" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">
+          Reset Password
+        </button>
+        <a class="forgot" [routerLink]="['/login']">Login</a>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="login-container" *ngIf="showMessage">
+  <div class="succes-card">
+    <div class="login-card-body">
+      <i class="material-icons icon-success">check_circle</i>
+      <h2 class="text-center mb-4">Password Reset Email Sent</h2>
+      <p>
+        An email has been sent to your rescue email address ,<b>{{
+          displayedEmail
+        }}</b
+        >. Follow the directions in the email to reset your password.
+      </p>
+      <button
+        class="btn btn-primary btn-block"
+        type="submit"
+        [routerLink]="['/login']"
+      >
+        Done
+      </button>
+      <!-- <a class="forgot" [routerLink]="['/login']">Login</a> -->
+    </div>
+  </div>
 </div>

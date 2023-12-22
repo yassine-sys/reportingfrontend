@@ -1,0 +1,137 @@
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Dashboard</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+        </ol>
+      </div>
+    </div>
+    <app-kpi-chart></app-kpi-chart>
+    <div class="top-buttons">
+      <button mat-raised-button color="primary" (click)="openOrderDiag()">
+        Order Charts
+      </button>
+    </div>
+  </div>
+</div>
+<ng-container *ngFor="let reportGroup of reportIds; let i = index">
+  <div class="chart-wrapper responsive-chart">
+    <div class="chart-container" [id]="'chartc-' + i" id="chart">
+      <ng-container *ngIf="reportGroup.loading">
+        <!-- Loading skeleton -->
+        <ng-container *ngIf="reportGroup.error">
+          <p-messages
+            [(value)]="messages1"
+            [enableService]="false"
+            [closable]="true"
+          ></p-messages
+        ></ng-container>
+        <div class="card">
+          <div class="border-round border-1 surface-border p-4 surface-card">
+            <div class="flex mb-3">
+              <p-skeleton
+                shape="circle"
+                size="4rem"
+                styleClass="mr-2"
+              ></p-skeleton>
+              <div>
+                <p-skeleton width="10rem" styleClass="mb-2"></p-skeleton>
+                <p-skeleton width="5rem" styleClass="mb-2"></p-skeleton>
+                <p-skeleton height=".5rem"></p-skeleton>
+              </div>
+            </div>
+            <p-skeleton width="100%" height="150px"></p-skeleton>
+            <div class="flex justify-content-between mt-3">
+              <p-skeleton width="4rem" height="2rem"></p-skeleton>
+              <p-skeleton width="4rem" height="2rem"></p-skeleton>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="!reportGroup.loading">
+        <div class="filtre">
+          <app-filter-component
+            (filterApplied)="onFilterApplied($event, reportGroup.report[0], i)"
+          ></app-filter-component>
+        </div>
+        <highcharts-chart
+          *ngIf="!isChartOptionsEmpty(i); else tableDisplay"
+          [Highcharts]="Highcharts"
+          [options]="chartOptions[i]"
+          [constructorType]="reportGroup.constructorType"
+          style="width: 100%; display: block"
+          [runOutsideAngular]="true"
+          (chartInstance)="onChartInit($event, i)"
+        ></highcharts-chart>
+        <ng-template #tableDisplay>
+          <ng-container *ngIf="!reportGroup.report[0].isnested">
+            <app-paginated-table
+              #tableComponent
+              *ngIf="reportGroup.chartType === 'table'"
+              [columns]="reportGroup.report[0].listnamereptab"
+              [data]="reportGroup.report[0].list_de_donnees"
+              [idrep]="reportGroup.report[0].id_report"
+              [title]="reportGroup.report[0].title"
+              [iscarrier]="reportGroup.report[0].iscarrier"
+              [operator]="reportGroup.report[0].load"
+              [filter]="filtred !== undefined ? filtred : globalFilter"
+            ></app-paginated-table>
+          </ng-container>
+
+          <ng-container *ngIf="reportGroup.report[0].isnested">
+            <app-nested-table
+              *ngIf="reportGroup.chartType === 'table'"
+              [columns]="reportGroup.report[0].listnamereptab"
+              [data]="reportGroup.report[0].list_de_donnees"
+              [idrep]="reportGroup.report[0].id_report"
+              [title]="reportGroup.report[0].title"
+              [operator]="reportGroup.report[0].operator"
+              [iscarrier]="reportGroup.report[0].iscarrier"
+              [filter]="filtred !== undefined ? filtred : globalFilter"
+            ></app-nested-table>
+          </ng-container>
+        </ng-template>
+        <div class="button-container">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="removeFromDashboard(reportGroup.id)"
+          >
+            Add To Dashboard
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="
+              exportXLSX(
+                reportGroup.report[0].list_de_donnees,
+                reportGroup.report[0].listnamereptab,
+                reportGroup.report[0].title
+              )
+            "
+          >
+            Export XLSX
+          </button>
+          <mat-form-field>
+            <mat-label>Select chart type</mat-label>
+            <mat-select
+              [(value)]="reportGroup.chartType"
+              (selectionChange)="updateChartType(i, $event)"
+            >
+              <mat-option
+                *ngFor="let type of highchartsTypes"
+                [value]="type.value"
+                >{{ type.label }}</mat-option
+              >
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</ng-container>

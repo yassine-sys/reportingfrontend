@@ -21,11 +21,10 @@ import { ConfirmationDialogComponentComponent } from '../confirmation-dialog-com
 import { Subscription } from 'rxjs';
 //import { UpdatefunctionmodalComponent } from '../updatesubmodulemodal/updatesubmodulemodal.component';
 
-
 @Component({
   selector: 'app-nested-grid',
   templateUrl: './nested-grid.component.html',
-  styleUrls: ['./nested-grid.component.css']
+  styleUrls: ['./nested-grid.component.css'],
 })
 export class NestedGridComponent implements OnInit, AfterViewInit {
   @ViewChild(Table) table: Table | undefined;
@@ -33,37 +32,38 @@ export class NestedGridComponent implements OnInit, AfterViewInit {
   modules: Module[] = [];
   dataSource: any;
   private subscriptions: Subscription[] = [];
-  
 
-  constructor(private primengConfig: PrimeNGConfig,
+  constructor(
+    private primengConfig: PrimeNGConfig,
     private dataService: ModuleServicesService,
-    private submoduleService:SubmoduleService,
-    private functionService:FunctionService,
+    private submoduleService: SubmoduleService,
+    private functionService: FunctionService,
     public dialog: MatDialog,
-    private router:Router) {}
+    private router: Router
+  ) {}
 
-    onSelect(func:any){
-      this.router.navigate(['/function',func.id])
-    }
+  onSelect(func: any) {
+    this.router.navigate(['/dashboard/function/', func.id]);
+  }
 
-    ngOnInit(): void {
-      this.submoduleService.getAllSubModules().subscribe(data=>{
-        console.log(data)
-      })
+  ngOnInit(): void {
+    this.submoduleService.getAllSubModules().subscribe((data) => {
+      console.log(data);
+    });
 
-      this.functionService.getAllFunction().subscribe(data=>console.log(data))
+    this.functionService
+      .getAllFunction()
+      .subscribe((data) => console.log(data));
 
-
-      this.dataService.getAllModules().subscribe(data => {
-        this.modules = data;
-        this.dataSource = new MatTableDataSource(this.modules);
-        if (this.paginator) {
-          this.dataSource.paginator = this.paginator;
-        }
-        console.log(this.modules)      
-      });
-    }
-  
+    this.dataService.getAllModules().subscribe((data) => {
+      this.modules = data;
+      this.dataSource = new MatTableDataSource(this.modules);
+      if (this.paginator) {
+        this.dataSource.paginator = this.paginator;
+      }
+      console.log(this.modules);
+    });
+  }
 
   ngAfterViewInit(): void {
     this.primengConfig.ripple = true;
@@ -74,127 +74,136 @@ export class NestedGridComponent implements OnInit, AfterViewInit {
   }
 
   editElement(module: Module) {
-    const dialogRef = this.dialog.open(ModuleFormComponent, {
-      width: '350px', 
-      data: { module: module }
-    }).afterClosed().subscribe(() => {
-      this.ngOnInit();
-    });
-    console.log(module)
+    const dialogRef = this.dialog
+      .open(ModuleFormComponent, {
+        width: '350px',
+        data: { module: module },
+      })
+      .afterClosed()
+      .subscribe(() => {
+        this.ngOnInit();
+      });
+    console.log(module);
   }
-  
-  deleteElement(id:any){
+
+  deleteElement(id: any) {
     const dialogRef = this.dialog.open(ConfirmationDialogComponentComponent, {
       width: '350px',
-      data: 'Are you sure you want to delete this Module?'
+      data: 'Are you sure you want to delete this Module?',
     });
-  
-    dialogRef.afterClosed().subscribe(result => {
+
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.dataService.deleteModule(id).subscribe(
-          res=>{this.ngOnInit()},
-          err=>{console.log(err);}
-        )
+          (res) => {
+            this.ngOnInit();
+          },
+          (err) => {
+            console.log(err);
+          }
+        );
       }
     });
-    
   }
 
-  deleteSubmodule(id:any){
+  deleteSubmodule(id: any) {
     const dialogRef = this.dialog.open(ConfirmationDialogComponentComponent, {
       width: '350px',
-      data: 'Are you sure you want to delete this SubModule?'
+      data: 'Are you sure you want to delete this SubModule?',
     });
-  
-    dialogRef.afterClosed().subscribe(result => {
+
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.submoduleService.deleteSubModule(id).subscribe(res=>{
-          this.ngOnInit()
-        })
+        this.submoduleService.deleteSubModule(id).subscribe((res) => {
+          this.ngOnInit();
+        });
       }
-    });   
+    });
   }
 
-
-  deleteFunction(id:any){
+  deleteFunction(id: any) {
     const dialogRef = this.dialog.open(ConfirmationDialogComponentComponent, {
       width: '350px',
-      data: 'Are you sure you want to delete this Function?'
+      data: 'Are you sure you want to delete this Function?',
     });
-  
-    dialogRef.afterClosed().subscribe(result => {
+
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.functionService.deleteFonction(id).subscribe(res=>{
-          this.ngOnInit()
-        })
+        this.functionService.deleteFonction(id).subscribe((res) => {
+          this.ngOnInit();
+        });
       }
-    }); 
-    
+    });
   }
 
-  openUpdateSubmoduleModal(row:any) {
+  openUpdateSubmoduleModal(row: any) {
     const dialogRef = this.dialog.open(UpdatesubmodulemodalComponent, {
       width: '400px',
-      data: row
-     
+      data: row,
     });
-  
-   
+
     dialogRef.afterClosed().subscribe(() => {
       this.ngOnInit();
     });
   }
 
-  openUpdateFunctionModal(row:any) {
+  openUpdateFunctionModal(row: any) {
     const dialogRef = this.dialog.open(UpdatefunctionmodalComponent, {
       width: '400px',
-      data: row
-     
+      data: row,
     });
-  
-   
+
     dialogRef.afterClosed().subscribe(() => {
       this.ngOnInit();
     });
   }
 
-  openModuleForm(): void { 
-    const dialogRef = this.dialog.open(ModuleFormComponent, {
-      width: '350px', 
-      data: {}
-    }).afterClosed().subscribe(() => {
-      this.ngOnInit();
-    });
+  openModuleForm(): void {
+    const dialogRef = this.dialog
+      .open(ModuleFormComponent, {
+        width: '350px',
+        data: {},
+      })
+      .afterClosed()
+      .subscribe(() => {
+        this.ngOnInit();
+      });
   }
 
-  openSubModuleForm(): void { 
-    const dialogRef = this.dialog.open(SubmoduleformComponent, {
-      width: '400px', 
-      data: {}
-    }).afterClosed().subscribe(() => {
-      this.ngOnInit();
-    });
+  openSubModuleForm(): void {
+    const dialogRef = this.dialog
+      .open(SubmoduleformComponent, {
+        width: '400px',
+        data: {},
+      })
+      .afterClosed()
+      .subscribe(() => {
+        this.ngOnInit();
+      });
   }
 
-  openRapportForm():void {
-    const dialogRef=this.dialog.open(RapportComponent,{
-      width: '400px', 
-      data: {}
-    }).afterClosed().subscribe(() => {
-      this.ngOnInit();
-    });
-    }
-  
-
-  openFonctionForm(): void { 
-    const dialogRef = this.dialog.open(FonctionformComponent, {
-      width: '350px', 
-      height: '250px',
-      data: {}
-    }).afterClosed().subscribe(() => {
-      this.ngOnInit();
-    });
+  openRapportForm(): void {
+    const dialogRef = this.dialog
+      .open(RapportComponent, {
+        width: '400px',
+        data: {},
+      })
+      .afterClosed()
+      .subscribe(() => {
+        this.ngOnInit();
+      });
   }
 
-  
+  openFonctionForm(): void {
+    const dialogRef = this.dialog
+      .open(FonctionformComponent, {
+        width: '350px',
+        height: '250px',
+        data: {},
+      })
+      .afterClosed()
+      .subscribe(() => {
+        this.ngOnInit();
+      });
+  }
 }

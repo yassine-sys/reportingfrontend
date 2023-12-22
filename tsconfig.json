@@ -19,11 +19,14 @@
     "target": "ES2022",
     "module": "ES2022",
     "useDefineForClassFields": false,
-    "lib": [
-      "ES2022",
-      "dom"
+    "lib": ["ES2022", "dom"],
+    "types": [
+      "@types/node",
+      "@types/d3-shape",
+      "@types/d3-scale",
+      "@types/d3-selection"
     ],
-    "types": ["@types/node", "@types/d3-shape", "@types/d3-scale", "@types/d3-selection"]
+    "allowJs": true
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

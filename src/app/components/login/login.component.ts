@@ -43,7 +43,7 @@ export class LoginComponent {
     // Redirect to dashboard if already logged in
     const jwtToken = this.cookieService.get('jwtToken');
     if (jwtToken) {
-      this.router.navigate(['/']);
+      this.router.navigate(['/dashboard']);
     }
   }
 
@@ -54,9 +54,10 @@ export class LoginComponent {
     }
     this.authService.generateToken2(this.user).subscribe((resp:any)=>{
       if(this.cookieService.get('jwtToken')){
+        this.cookieService.set('jwtToken', this.cookieService.get('jwtToken'));
         this.toastr.success('Success.');
-        this.router.navigate(['/'])
-        this.reloadPage()
+        this.router.navigate(['/dashboard'])
+        //this.reloadPage()
       }
     }, error => {
       this.invalidLogin = true;

@@ -1,27 +1,27 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import {MatTableModule} from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ModuleComponent } from './components/module/module.component';
 import { HttpClientModule } from '@angular/common/http';
 import { GroupComponent } from './components/group/group.component';
-import {MatPaginatorModule} from '@angular/material/paginator';
-import{FontAwesomeModule} from '@fortawesome/angular-fontawesome'
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { MatIconModule } from '@angular/material/icon';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
-import {MatDialogModule} from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { GroupFormComponent } from './components/groupform/groupform.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import {MatInputModule} from '@angular/material/input';
-import {MatButtonModule} from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatOptionModule} from '@angular/material/core';
-import {MatCheckboxModule} from '@angular/material/checkbox';
-import {MatSelectModule} from '@angular/material/select';
-import {CommonModule, DatePipe} from '@angular/common';
+import { MatOptionModule } from '@angular/material/core';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSelectModule } from '@angular/material/select';
+import { CommonModule, DatePipe } from '@angular/common';
 import { NestedGridComponent } from './components/nested-grid/nested-grid.component';
 import { SubmoduleformComponent } from './components/submoduleform/submoduleform.component';
 import { TableModule } from 'primeng/table';
@@ -37,7 +37,7 @@ import { HomeComponent } from './components/home/home.component';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ErrorComponent } from './components/error/error.component';
 import { UpdatesubmodulemodalComponent } from './components/updatesubmodulemodal/updatesubmodulemodal.component';
-import {FonctionformComponent} from './components/fonctionform/fonctionform.component';
+import { FonctionformComponent } from './components/fonctionform/fonctionform.component';
 import { UpdatefunctionmodalComponent } from './components/updatefunctionmodal/updatefunctionmodal.component';
 import { RapportComponent } from './components/rapport/rapport.component';
 import { FunctionDetailsComponent } from './components/function-details/function-details.component';
@@ -83,6 +83,27 @@ import { CollectStatusComponent } from './components/collect-status/collect-stat
 import { TagModule } from 'primeng/tag';
 import { DropdownModule } from 'primeng/dropdown';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { NestedTableComponent } from './components/nested-table/nested-table.component';
+import { ButtonModule } from 'primeng/button';
+import { SkeletonModule } from 'primeng/skeleton';
+import { InputTextModule } from 'primeng/inputtext';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { MissingFilesComponent } from './components/missing-files/missing-files.component';
+import { MessagesModule } from 'primeng/messages';
+import { DuplicatedCdrComponent } from './components/duplicated-cdr/duplicated-cdr.component';
+import { ReportsComponent } from './components/reports/reports.component';
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { FilterComponentComponent } from './components/filter-component/filter-component.component';
+import { CalendarModule } from 'primeng/calendar';
+import { DialogModule } from 'primeng/dialog';
+import { MenuModule } from 'primeng/menu';
+import { Menu } from 'primeng/menu';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { HomeChartsComponent } from './components/home-charts/home-charts.component';
+import { UserchartComponent } from './components/userchart/userchart.component';
 
 @NgModule({
   declarations: [
@@ -124,7 +145,16 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
     ProfileComponent,
     KpiChartComponent,
     CommentFormComponent,
-    CollectStatusComponent
+    CollectStatusComponent,
+    DashboardComponent,
+    NestedTableComponent,
+    ResetPasswordComponent,
+    MissingFilesComponent,
+    DuplicatedCdrComponent,
+    ReportsComponent,
+    FilterComponentComponent,
+    HomeChartsComponent,
+    UserchartComponent,
   ],
   imports: [
     BrowserModule,
@@ -156,12 +186,23 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
     DragDropModule,
     MatAutocompleteModule,
     ToastrModule.forRoot(),
-    TimepickerModule.forRoot() ,
-    PaginatorModule ,
+    TimepickerModule.forRoot(),
+    PaginatorModule,
     MultiSelectModule,
     TagModule,
     DropdownModule,
-    NgxChartsModule
+    NgxChartsModule,
+    ButtonModule,
+    SkeletonModule,
+    InputTextModule,
+    ProgressSpinnerModule,
+    ProgressBarModule,
+    MessagesModule,
+    NgxSkeletonLoaderModule.forRoot(),
+    CalendarModule,
+    DialogModule,
+    MenuModule,
+    OverlayPanelModule,
   ],
   providers: [
     CookieService,
@@ -173,8 +214,8 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
       useClass: LoaderInterceptor,
       multi: true,
     },
-    DatePipe
+    DatePipe,
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

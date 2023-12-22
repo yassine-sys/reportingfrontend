@@ -1,0 +1,22 @@
+.head {
+  display: flex;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.flex1 {
+  background: #f8f9fa;
+  color: #343a40;
+  border: 1px solid #dee2e6;
+  border-width: 1px 0 1px 0;
+  padding: 1rem 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

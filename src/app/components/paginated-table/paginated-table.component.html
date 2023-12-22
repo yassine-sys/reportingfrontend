@@ -1,30 +1,80 @@
-<h5><b>{{title}}</b></h5>
-
-<div class="mat-elevation-z8 table-container">
-    <div class="search-container">
-        <button mat-icon-button (click)="toggleSearch()">
-            <mat-icon>search</mat-icon>
-        </button>
-        <mat-form-field appearance="outline" class="search-input" [class.active]="searchActive">
-
-            <input matInput (input)="applyFilter($event)" placeholder="Search" />
-        </mat-form-field>
-    </div>
-
-    <table mat-table [dataSource]="dataSource" matSort>
-        <!-- Columns definition -->
-        <ng-container *ngFor="let column of columns" [matColumnDef]="column">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{column}} </th>
-            <td mat-cell *matCellDef="let element"> {{formatNumber(element[column]) }} </td>
-        </ng-container>
-
-        <!-- Header row -->
-        <tr mat-header-row *matHeaderRowDef="columns"></tr>
-
-        <!-- Data rows -->
-        <tr mat-row *matRowDef="let row; columns: columns;" (click)="openDialog(row); selectRow(row)" [class.selected]="selectedRow === row" [ngStyle]="{'cursor': 'pointer', 'background-color': selectedRow === row ? '#e0e0e0' : ''}">
-        </tr>
-    </table>
-
-    <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+<div class="card">
+  <p-table
+    #dt2
+    [value]="jsonData"
+    [rows]="5"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[5, 10, 25, 50]"
+    [paginator]="true"
+    [globalFilterFields]="columns"
+    selectionMode="single"
+    (onRowSelect)="onRowSelect($event)"
+  >
+    <ng-template pTemplate="caption">
+      <div class="head">
+        <h5 class="title">{{ title }}</h5>
+        <div class="flex">
+          <button
+            pButton
+            label="Clear"
+            class="p-button-outlined"
+            icon="pi pi-filter-slash"
+            (click)="clear(dt2)"
+          ></button>
+          <span class="p-input-icon-left ml-auto">
+            <i class="pi pi-search"></i>
+            <input
+              pInputText
+              type="text"
+              #searchInput
+              (input)="applyFilterGlobal($event)"
+              placeholder="Search keyword"
+            />
+          </span>
+        </div>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <th
+          *ngFor="let column of columns"
+          [pSortableColumn]="column"
+          style="width: 10%"
+        >
+          <div class="flex align-items-center">
+            {{ column }} <p-sortIcon [field]="column"></p-sortIcon>
+            <p-columnFilter
+              type="text"
+              [field]="column"
+              display="menu"
+              [showClearButton]="true"
+              [showOperator]="true"
+              [showAddButton]="true"
+            ></p-columnFilter>
+          </div>
+        </th>
+        <!-- <th style="width: 10%">Details</th> -->
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowData>
+      <tr [pSelectableRow]="rowData">
+        <td *ngFor="let column of columns" style="width: 10%">
+          {{ formatNumber(rowData[column]) }}
+        </td>
+        <!-- <td>
+          <button
+            pButton
+            icon="pi-external-link"
+            (click)="openDialog(rowData)"
+          ></button>
+        </td> -->
+      </tr></ng-template
+    >
+  </p-table>
+  <ng-container *ngIf="showProgressBar">
+    <p-progressBar
+      mode="indeterminate"
+      [style]="{ height: '6px' }"
+    ></p-progressBar>
+  </ng-container>
 </div>

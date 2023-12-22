@@ -1,100 +1,17 @@
-<div class="container">
-    <div class="table-container">
-        <h5><b>Daily Flow Status</b></h5>
-        <div class="card">
-            <p-table #dataTable [value]="data" [rows]="5" [paginator]="true" [rowsPerPageOptions]="[5, 10, 25, 50]"
-                responsiveLayout="stack"
-                [globalFilterFields]="['date', 'name_flow', 'nbfiles', 'nbrecord', 'nbfileprocessed', 'nbfilecorrupted', 'average', 'severity']">
-                <ng-template pTemplate="header" let-columns>
-                    <tr>
-                        <ng-container *ngFor="let col of cols">
-                            <th>
-                                <div class="flex align-items-center">
-                                    {{ col.header }}
-                                    <p-columnFilter *ngIf="col.field !== 'severity'"
-                                        [type]="col.field === 'date' ? 'date' : 'text'" [field]="col.field"
-                                        display="menu"></p-columnFilter>
-                                </div>
-                            </th>
-                        </ng-container>
-                        <th>
-                            <div class="flex align-items-center">
-                                Status
-                                <p-columnFilter type="text" field="severity" display="menu">
-                                    <p-dropdown [options]="statuses" placeholder="Any"
-                                        [(ngModel)]="selectedStatus"></p-dropdown>
-                                    <button pButton label="Apply" class="p-button-outlined"
-                                        (click)="applyStatusFilter()"></button>
-                                </p-columnFilter>
-                            </div>
-                        </th>
+<app-paginated-table
+  *ngIf="columnNames.length > 0"
+  [columns]="columnNames"
+  [data]="data1"
+  [idrep]="idrep"
+  [title]="'Daily Flow Status'"
+  [collect]="true"
+></app-paginated-table>
 
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-data let-columns="columns">
-                    <tr>
-                        <ng-container *ngFor="let col of cols">
-                            <td>
-                                <span class="p-column-title">{{ col.header }}</span>
-                                {{ data[col.field] }}
-                            </td>
-                        </ng-container>
-                        <td>
-                            <p-tag [value]="data.severity === 'DOWN' ? 'DOWN' : 'UP'"
-                                [severity]="data.severity === 'DOWN' ? 'danger' : 'success'"></p-tag>
-                        </td>
-                    </tr>
-                </ng-template>
-            </p-table>
-        </div>
-    </div>
-    <div class="table-container">
-        <h5><b>Monthly Flow Status</b></h5>
-        <div class="card">
-            <p-table #dataTable [value]="dataM" [rows]="5" [paginator]="true" [rowsPerPageOptions]="[5, 10, 25, 50]"
-                responsiveLayout="stack"
-                [globalFilterFields]="['date', 'name_flow', 'nbfiles', 'nbrecord', 'nbfileprocessed', 'nbfilecorrupted', 'average', 'severity']">
-                <ng-template pTemplate="header" let-columns>
-                    <tr>
-                        <ng-container *ngFor="let col of cols">
-                            <th>
-                                <div class="flex align-items-center">
-                                    {{ col.header }}
-                                    <p-columnFilter *ngIf="col.field !== 'severity'"
-                                        [type]="col.field === 'date' ? 'date' : 'text'" [field]="col.field"
-                                        display="menu"></p-columnFilter>
-                                </div>
-                            </th>
-                        </ng-container>
-                        <th>
-                            <div class="flex align-items-center">
-                                Status
-                                <p-columnFilter type="text" field="severity" display="menu">
-                                    <p-dropdown [options]="statuses" placeholder="Any"
-                                        [(ngModel)]="selectedStatus"></p-dropdown>
-                                    <button pButton label="Apply" class="p-button-outlined"
-                                        (click)="applyStatusFilter()"></button>
-                                </p-columnFilter>
-                            </div>
-                        </th>
-
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-data let-columns="columns">
-                    <tr>
-                        <ng-container *ngFor="let col of cols">
-                            <td>
-                                <span class="p-column-title">{{ col.header }}</span>
-                                {{ data[col.field] }}
-                            </td>
-                        </ng-container>
-                        <td>
-                            <p-tag [value]="data.severity === 'DOWN' ? 'DOWN' : 'UP'"
-                                [severity]="data.severity === 'DOWN' ? 'danger' : 'success'"></p-tag>
-                        </td>
-                    </tr>
-                </ng-template>
-            </p-table>
-        </div>
-    </div>
-</div>
+<app-paginated-table
+  *ngIf="columns.length > 0"
+  [columns]="columns"
+  [data]="data"
+  [idrep]="idrep"
+  [title]="'Last Day Flow Status'"
+  [collect]="true"
+></app-paginated-table>

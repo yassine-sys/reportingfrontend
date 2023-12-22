@@ -1,0 +1,10 @@
+.filter-menu {
+  display: flex;
+  align-items: center;
+}
+
+p-calendar,
+p-dropdown,
+button {
+  margin-right: 10px;
+}

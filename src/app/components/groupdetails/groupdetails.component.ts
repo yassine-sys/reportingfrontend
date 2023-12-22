@@ -1,4 +1,4 @@
-import { Component ,OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { GroupModuleService } from 'src/app/services/group-module.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -9,103 +9,97 @@ import { ConfirmationDialogComponentComponent } from '../confirmation-dialog-com
 @Component({
   selector: 'app-groupdetails',
   templateUrl: './groupdetails.component.html',
-  styleUrls: ['./groupdetails.component.css']
+  styleUrls: ['./groupdetails.component.css'],
 })
-export class GroupdetailsComponent implements OnInit{
+export class GroupdetailsComponent implements OnInit {
   groupId!: any;
   moduleId!: any;
-  modules:any;
-  fonctions:any;
+  modules: any;
+  fonctions: any;
 
-  constructor(private route:ActivatedRoute,
-    private groupService:GroupModuleService,
-    public dialog: MatDialog){}
+  constructor(
+    private route: ActivatedRoute,
+    private groupService: GroupModuleService,
+    public dialog: MatDialog
+  ) {}
 
-    openDialog() {
-      const dialogRef = this.dialog.open(AssignModuleDialogComponent, {
-        width: '500px',
-        data: { groupId: this.groupId },
-        
-      });
-      
-  
-      dialogRef.afterClosed().subscribe((result) => {
-        this.ngOnInit()
-        console.log('The dialog was closed');
-      });
-    }
+  openDialog() {
+    const dialogRef = this.dialog.open(AssignModuleDialogComponent, {
+      width: '500px',
+      data: { groupId: this.groupId },
+    });
 
-    openFctDialog() {
-      const dialogRef = this.dialog.open(AssignfunctiondialogComponent, {
-        width: '500px',
-        data: { groupId: this.groupId },
-        
-      });
-      
-  
-      dialogRef.afterClosed().subscribe((result) => {
-        this.ngOnInit()
-        console.log('The dialog was closed');
-      });
-    }
+    dialogRef.afterClosed().subscribe((result) => {
+      this.ngOnInit();
+      console.log('The dialog was closed');
+    });
+  }
 
-    onDeleteFonction(groupId:any,  functionId:any){
-      const dialogRef = this.dialog.open(ConfirmationDialogComponentComponent, {
-        width: '350px',
-        data: 'Are you sure you want to delete this Function?'
-      });
-      dialogRef.afterClosed().subscribe(result => {
-        if (result) {
-          this.groupService.removeFunctionFromGroup(groupId,functionId).subscribe(
-            response => {
+  openFctDialog() {
+    const dialogRef = this.dialog.open(AssignfunctiondialogComponent, {
+      width: '500px',
+      data: { groupId: this.groupId },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      this.ngOnInit();
+      console.log('The dialog was closed');
+    });
+  }
+
+  onDeleteFonction(groupId: any, functionId: any) {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponentComponent, {
+      width: '350px',
+      data: 'Are you sure you want to delete this Function?',
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.groupService
+          .removeFunctionFromGroup(groupId, functionId)
+          .subscribe(
+            (response) => {
               console.log('Function removed from Group successfully.');
-              this.ngOnInit()
+              this.ngOnInit();
               // Do something else here if needed, like refreshing the page
             },
-            error => {
+            (error) => {
               console.log('Error removing Function from Group:', error);
             }
           );
-        }
-      });
-      
-    }
-
-
-    onDeleteModule(groupId:any,  moduleId:any){
-      const dialogRef = this.dialog.open(ConfirmationDialogComponentComponent, {
-        width: '350px',
-        data: 'Are you sure you want to delete this Module?'
-      });
-      dialogRef.afterClosed().subscribe(result => {
-        if (result) {
-          this.groupService.removeModuleFromGroup(groupId,moduleId).subscribe(
-            response => {
-              console.log('Module removed from Group successfully.');
-              this.ngOnInit()
-              // Do something else here if needed, like refreshing the page
-            },
-            error => {
-              console.log('Error removing Module from Group:', error);
-            }
-          );
-
-        }})
-    
-    }
-
-
-
-  ngOnInit(): void{
-    this.groupId =this.route.snapshot.paramMap.get('id');
-    this.groupService.getModulesByGroup(this.groupId).subscribe(data=>{
-      this.modules=data
-    })
-
-    this.groupService.getFunctionsByGroup(this.groupId).subscribe(data=>{
-      this.fonctions=data
-    })
-
+      }
+    });
   }
 
+  onDeleteModule(groupId: any, moduleId: any) {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponentComponent, {
+      width: '350px',
+      data: 'Are you sure you want to delete this Module?',
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.groupService.removeModuleFromGroup(groupId, moduleId).subscribe(
+          (response) => {
+            console.log('Module removed from Group successfully.');
+            this.ngOnInit();
+            // Do something else here if needed, like refreshing the page
+          },
+          (error) => {
+            console.log('Error removing Module from Group:', error);
+          }
+        );
+      }
+    });
+  }
+
+  ngOnInit(): void {
+    this.groupId = this.route.snapshot.paramMap.get('id');
+    this.groupService.getModulesByGroup(this.groupId).subscribe((data) => {
+      this.modules = data;
+      console.log(this.modules);
+    });
+
+    this.groupService.getFunctionsByGroup(this.groupId).subscribe((data) => {
+      this.fonctions = data;
+    });
+  }
 }
