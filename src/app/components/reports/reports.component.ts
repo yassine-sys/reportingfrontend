@@ -57,7 +57,7 @@ import { MatSelectChange } from '@angular/material/select';
 import { HighchartsChartComponent } from 'highcharts-angular';
 import { PaginatedTableComponent } from '../paginated-table/paginated-table.component';
 import { CommentService } from 'src/app/services/comment.service';
-import { Message } from 'primeng/api';
+import { MenuItem, Message } from 'primeng/api';
 import IndicatorsAll from 'highcharts/indicators/indicators-all';
 import HDragPanes from 'highcharts/modules/drag-panes';
 import HAnnotationsAdvanced from 'highcharts/modules/annotations-advanced';
@@ -119,7 +119,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
   private filtredSubscription!: Subscription;
 
-  private updateSubscription!: Subscription;
+  private updateSubscription: Subscription | null = null;
 
   expandableReport: string[] = [
     'ASR by Incoming  Trunck',
@@ -131,6 +131,10 @@ export class ReportsComponent implements OnInit, OnDestroy {
     'global report By country by operator by carrier ( outgoing )',
   ];
 
+  liveUpdateActive: boolean = false;
+  items!: MenuItem[];
+  items1!: MenuItem[];
+  playListIds: any[] = [];
   constructor(
     private dataUpdateService: DataUpdateService,
     private chartService: ChartService,
@@ -146,9 +150,27 @@ export class ReportsComponent implements OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private commentService: CommentService,
     private ngZone: NgZone
-  ) {}
+  ) {
+    this.items = [
+      {
+        label: 'Add To Playlist',
+        icon: 'pi pi-plus',
+        command: () => {},
+      },
+    ];
+    this.items1 = [
+      {
+        label: 'Remove From Playlist',
+        icon: 'pi pi-times',
+        command: () => {},
+      },
+    ];
+  }
 
   ngOnInit(): void {
+    this.chartService.getRepByFunctionId(929).subscribe((response: any) => {
+      this.playListIds = response;
+    });
     this.route.params.subscribe((params) => {
       this.funcId = params['id'];
       //console.log(this.filtredSubscription);
@@ -203,8 +225,20 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
     //this.filterService.clearFilters();
     //this.globalFilter.idfunction = 0;
-    this.startLiveUpdate();
+    //this.startLiveUpdate();
     this.changeDetectorRef.detectChanges();
+  }
+
+  toggleLiveUpdate() {
+    this.liveUpdateActive = !this.liveUpdateActive;
+    console.log(this.liveUpdateActive);
+
+    if (this.liveUpdateActive) {
+      this.startLiveUpdate();
+    } else if (this.updateSubscription) {
+      this.updateSubscription.unsubscribe();
+      this.updateSubscription = null; // Reset it to null if needed
+    }
   }
 
   private loadData(): void {
@@ -1062,5 +1096,38 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
   fetchReport(reportId: number) {
     return this.chartService.getRepById(reportId);
+  }
+
+  getItemsForReportGroup(reportGroupId: number): any[] {
+    const isAddedToPlaylist = this.playListIds.includes(reportGroupId);
+    return [
+      {
+        label: isAddedToPlaylist ? 'Remove From Playlist' : 'Add To Playlist',
+        icon: isAddedToPlaylist ? 'pi pi-times' : 'pi pi-plus',
+        command: () => {
+          if (isAddedToPlaylist) {
+          } else {
+          }
+        },
+      },
+    ];
+  }
+
+  addToPlayList(reportGroupId: number) {
+    this.functionService
+      .assignRepRapportToFunction(929, reportGroupId)
+      .subscribe(() => {
+        this.toastr.success('Repport added To PlayList!', 'Success');
+        this.ngOnInit();
+      });
+  }
+
+  removeFromPlaylist(reportGroupId: number) {
+    this.functionService
+      .removeRepRapportFromFunction(929, reportGroupId)
+      .subscribe(() => {
+        this.toastr.success('Repport Removed from PlayList!', 'Success');
+        this.ngOnInit();
+      });
   }
 }

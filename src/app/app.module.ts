@@ -104,6 +104,7 @@ import { Menu } from 'primeng/menu';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { HomeChartsComponent } from './components/home-charts/home-charts.component';
 import { UserchartComponent } from './components/userchart/userchart.component';
+import { SplitButtonModule } from 'primeng/splitbutton';
 
 @NgModule({
   declarations: [
@@ -203,6 +204,7 @@ import { UserchartComponent } from './components/userchart/userchart.component';
     DialogModule,
     MenuModule,
     OverlayPanelModule,
+    SplitButtonModule,
   ],
   providers: [
     CookieService,

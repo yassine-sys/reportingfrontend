@@ -17,6 +17,9 @@
   <button mat-raised-button color="primary" (click)="openOrderDiag()">
     Order Charts
   </button>
+  <button mat-raised-button color="primary" (click)="toggleLiveUpdate()">
+    {{ liveUpdateActive ? "Pause Live Update" : "Start Live Update" }}
+  </button>
 </div>
 <ng-container *ngFor="let reportGroup of reportIds; let i = index">
   <div class="chart-wrapper responsive-chart">
@@ -103,6 +106,23 @@
             (click)="addToDashboard(reportGroup.id)"
           >
             Add To Dashboard
+          </button>
+          <button
+            *ngIf="!playListIds.includes(reportGroup.id)"
+            mat-raised-button
+            color="primary"
+            (click)="addToPlayList(reportGroup.id)"
+          >
+            Add To Playlist
+          </button>
+
+          <button
+            *ngIf="playListIds.includes(reportGroup.id)"
+            mat-raised-button
+            color="primary"
+            (click)="removeFromPlaylist(reportGroup.id)"
+          >
+            Remove from Playlist
           </button>
           <button
             mat-raised-button

@@ -273,4 +273,8 @@ export class ChartService {
   public getMissingFiles(): Observable<any> {
     return this.http.get<any>(`${this.api}/cdr/missingFiles/`);
   }
+
+  public getMissingSeq(): Observable<any> {
+    return this.http.get<any>(`${this.api}/cdr/missingSequence/`);
+  }
 }

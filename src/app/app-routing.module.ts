@@ -28,6 +28,7 @@ import { OrderUserChartsComponent } from './components/order-user-charts/order-u
 import { UserchartComponent } from './components/userchart/userchart.component';
 
 const routes: Routes = [
+  { path: 'home', component: HomeComponent },
   { path: 'login', component: LoginComponent },
   { path: 'forgot', component: ForgotPassComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
@@ -73,7 +74,6 @@ const routes: Routes = [
         component: MissingFilesComponent,
         canActivate: [AuthGuard],
       },
-      { path: 'test', component: HomeComponent, canActivate: [AuthGuard] },
       { path: 'error', component: ErrorComponent, canActivate: [AuthGuard] },
       {
         path: 'function/:id',

@@ -27,7 +27,8 @@ export class HomeChartsComponent implements OnInit, OnDestroy {
   //   16712507, 16712508, 2968, 2462, 16712505, 2959, 2964,
   // ];
 
-  private chartIds: number[] = [25607, 103908, 966978];
+  //private chartIds: number[] = [25607, 103908, 966978];
+  chartIds: any[] = [];
   chartypes: any[] = [
     'line',
     'spline',
@@ -62,7 +63,10 @@ export class HomeChartsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.loadChartData();
+    this.chartService.getRepByFunctionId(929).subscribe((response: any) => {
+      this.chartIds = response;
+      this.loadChartData();
+    });
 
     interval(10000).subscribe(() => {
       if (!this.isTransitioning) {
