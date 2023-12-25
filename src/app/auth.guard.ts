@@ -33,10 +33,12 @@ export class AuthGuard implements CanActivate {
       if (this.authService.checkToken()) {
         return true;
       } else {
+        this.cookieService.deleteAll();
         this.router.navigate(['/login']);
         return false; // Token is invalid or expired, redirect to login
       }
     } else {
+      this.cookieService.deleteAll();
       this.router.navigate(['/login']);
       return false;
     }

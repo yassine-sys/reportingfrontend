@@ -8,3 +8,12 @@
   display: flex;
   align-items: center;
 }
+
+.dark-mode {
+  background-color: #333; /* Dark background */
+  color: #fff; /* Light text */
+}
+
+.dark-mode .title {
+  color: #ccc; /* Adjust title color */
+}

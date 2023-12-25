@@ -68,6 +68,9 @@ import IndicatorsCore from 'highcharts/indicators/indicators';
 import TrendLine from 'highcharts/indicators/trendLine';
 import Regressions from 'highcharts/indicators/regressions';
 import ExportData from 'highcharts/modules/export-data';
+import { DarkModeService } from '../../services/dark-mode.service';
+import DarkTheme from 'highcharts/themes/brand-dark';
+import DefaultTheme from 'highcharts/themes/brand-light';
 
 Accessibility(Highcharts);
 ExportingModule(Highcharts);
@@ -135,6 +138,10 @@ export class ReportsComponent implements OnInit, OnDestroy {
   items!: MenuItem[];
   items1!: MenuItem[];
   playListIds: any[] = [];
+
+  private subscriptionDarkMode: Subscription = new Subscription();
+  darkModeEnabled!: boolean;
+
   constructor(
     private dataUpdateService: DataUpdateService,
     private chartService: ChartService,
@@ -149,22 +156,18 @@ export class ReportsComponent implements OnInit, OnDestroy {
     private functionService: FunctionService,
     private changeDetectorRef: ChangeDetectorRef,
     private commentService: CommentService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private darkModeService: DarkModeService
   ) {
-    this.items = [
-      {
-        label: 'Add To Playlist',
-        icon: 'pi pi-plus',
-        command: () => {},
-      },
-    ];
-    this.items1 = [
-      {
-        label: 'Remove From Playlist',
-        icon: 'pi pi-times',
-        command: () => {},
-      },
-    ];
+    this.subscriptionDarkMode = this.darkModeService.darkModeState.subscribe(
+      (isDarkMode) => {
+        console.log(isDarkMode);
+        this.darkModeEnabled = isDarkMode;
+        this.applyChartTheme();
+        //this.updateAllCharts();
+        this.ngOnInit();
+      }
+    );
   }
 
   ngOnInit(): void {
@@ -174,7 +177,6 @@ export class ReportsComponent implements OnInit, OnDestroy {
     this.route.params.subscribe((params) => {
       this.funcId = params['id'];
       //console.log(this.filtredSubscription);
-
       this.loadData();
       // Refresh reports every X minutes
       // const refreshInterval = 10 * 1000; // 10 minutes
@@ -226,6 +228,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
     //this.filterService.clearFilters();
     //this.globalFilter.idfunction = 0;
     //this.startLiveUpdate();
+
     this.changeDetectorRef.detectChanges();
   }
 
@@ -372,7 +375,6 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
   private buildChart(data: any): any {
     const chartData = data.report;
-
     let subtitleText = chartData[0].title + ': ';
     if (chartData[0].list_de_donnees.length === 1) {
       subtitleText += 'Date: ' + chartData[0].list_de_donnees[0][0];
@@ -401,6 +403,20 @@ export class ReportsComponent implements OnInit, OnDestroy {
       chartData[0].listnamereptab[0].toLowerCase().includes('date');
 
     data.constructorType = hasDateData ? 'stockChart' : 'chart';
+
+    // Calculate the date 90 days ago and 30 days ago from today
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    // Retrieve data for the last three months
+    const threeMonthsData = chartData[0].list_de_donnees.filter(
+      (datum: (string | number | Date)[]) => {
+        const dataDate = new Date(datum[0]);
+        return dataDate >= ninetyDaysAgo;
+      }
+    );
 
     // Process data
     const seriesData = hasDateData
@@ -441,7 +457,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
         animation: true,
         colorCount: 100,
         reflow: true,
-        plotBackgroundColor: '#ffffff',
+
         plotBorderWidth: 1,
         plotShadow: true,
         borderRadius: 10,
@@ -456,7 +472,6 @@ export class ReportsComponent implements OnInit, OnDestroy {
         align: 'left',
         useHTML: true,
         style: {
-          color: '#333333',
           fontSize: '18px',
           fontWeight: 'bold',
         },
@@ -479,6 +494,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
       },
       xAxis: {
         type: hasDateData ? 'datetime' : 'category',
+        //min: thirtyDaysAgo.getTime(),
         gridLineWidth: 1,
         alignTicks: true,
         title: {
@@ -486,7 +502,6 @@ export class ReportsComponent implements OnInit, OnDestroy {
         },
         labels: {
           style: {
-            color: '#666666',
             fontSize: '12px',
           },
         },
@@ -497,11 +512,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
       yAxis: {
         title: {
           text: 'Values',
-          style: {
-            color: '#333333',
-          },
         },
-        gridLineColor: '#e6e6e6',
         gridLineWidth: 1,
         alignTicks: true,
       },
@@ -531,6 +542,10 @@ export class ReportsComponent implements OnInit, OnDestroy {
       },
       tooltip: hasDateData
         ? {
+            backgroundColor: '#2b2b2b',
+            style: {
+              color: '#E0E0E3',
+            },
             shared: true,
             useHTML: true,
             formatter: function () {
@@ -571,10 +586,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
               }
               return tooltipHtml;
             },
-            backgroundColor: 'rgba(255,255,255,0.85)',
-            style: {
-              color: '#333333',
-            },
+
             xDateFormat: '%A, %b %e, %Y',
           }
         : {
@@ -621,6 +633,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
               x: 0,
               y: 0,
             },
+            selected: 1,
           }
         : {},
       navigator: {
@@ -1129,5 +1142,28 @@ export class ReportsComponent implements OnInit, OnDestroy {
         this.toastr.success('Repport Removed from PlayList!', 'Success');
         this.ngOnInit();
       });
+  }
+
+  private async applyChartTheme() {
+    if (this.darkModeEnabled) {
+      DarkTheme(Highcharts);
+    } else {
+      DefaultTheme(Highcharts);
+    }
+    Highcharts.setOptions({}); // Reapply global options if needed
+  }
+
+  private updateAllCharts() {
+    // Rebuild and update charts here
+    this.reportIds.forEach((reportId, index) => {
+      if (this.reportIds[index].chartType !== 'table') {
+        this.chartOptions[index] = this.buildChart(this.reportIds[index]);
+        const chartInstance = this.chartInstances[index];
+        if (chartInstance) {
+          chartInstance.update(this.chartOptions[index], true, true);
+        }
+      }
+    });
+    this.changeDetectorRef.detectChanges();
   }
 }

@@ -62,17 +62,26 @@ import HAnnotationsAdvanced from 'highcharts/modules/annotations-advanced';
 import HPriceIndicator from 'highcharts/modules/price-indicator';
 import HFullScreen from 'highcharts/modules/full-screen';
 import HStockTools from 'highcharts/modules/stock-tools';
+import IndicatorsCore from 'highcharts/indicators/indicators';
+import TrendLine from 'highcharts/indicators/trendLine';
+import ExportData from 'highcharts/modules/export-data';
+import { DarkModeService } from 'src/app/services/dark-mode.service';
+import DarkTheme from 'highcharts/themes/brand-dark';
+import DefaultTheme from 'highcharts/themes/brand-light';
 
 Accessibility(Highcharts);
 ExportingModule(Highcharts);
 HC_exportData(Highcharts);
-// IndicatorsAll(Highcharts);
-// HDragPanes(Highcharts);
-// HAnnotationsAdvanced(Highcharts);
-// HPriceIndicator(Highcharts);
-// HFullScreen(Highcharts);
-// HStockTools(Highcharts);
-
+//IndicatorsAll(Highcharts);
+IndicatorsCore(Highcharts);
+TrendLine(Highcharts);
+//Regressions(Highcharts);
+HDragPanes(Highcharts);
+HAnnotationsAdvanced(Highcharts);
+HPriceIndicator(Highcharts);
+HFullScreen(Highcharts);
+ExportData(Highcharts);
+HStockTools(Highcharts);
 @Component({
   selector: 'app-userchart',
   templateUrl: './userchart.component.html',
@@ -109,6 +118,9 @@ export class UserchartComponent implements OnInit, OnDestroy {
 
   private filtredSubscription!: Subscription;
 
+  private subscriptionDarkMode: Subscription = new Subscription();
+  darkModeEnabled!: boolean;
+
   constructor(
     private chartService: ChartService,
     private route: ActivatedRoute,
@@ -123,8 +135,18 @@ export class UserchartComponent implements OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private commentService: CommentService,
     private ngZone: NgZone,
-    private authServive: AuthService
-  ) {}
+    private authServive: AuthService,
+    private darkModeService: DarkModeService
+  ) {
+    this.subscriptionDarkMode = this.darkModeService.darkModeState.subscribe(
+      (isDarkMode) => {
+        this.darkModeEnabled = isDarkMode;
+        this.applyChartTheme();
+        //this.updateAllCharts();
+        this.ngOnInit();
+      }
+    );
+  }
 
   ngOnInit(): void {
     this.authServive.getUser().subscribe((resp: User) => {
@@ -283,6 +305,7 @@ export class UserchartComponent implements OnInit, OnDestroy {
 
   private buildChart(data: any): any {
     const chartData = data.report;
+
     let subtitleText = chartData[0].title + ': ';
     if (chartData[0].list_de_donnees.length === 1) {
       subtitleText += 'Date: ' + chartData[0].list_de_donnees[0][0];
@@ -351,7 +374,7 @@ export class UserchartComponent implements OnInit, OnDestroy {
         animation: true,
         colorCount: 100,
         reflow: true,
-        plotBackgroundColor: '#ffffff',
+
         plotBorderWidth: 1,
         plotShadow: true,
         borderRadius: 10,
@@ -366,7 +389,6 @@ export class UserchartComponent implements OnInit, OnDestroy {
         align: 'left',
         useHTML: true,
         style: {
-          color: '#333333',
           fontSize: '18px',
           fontWeight: 'bold',
         },
@@ -396,7 +418,6 @@ export class UserchartComponent implements OnInit, OnDestroy {
         },
         labels: {
           style: {
-            color: '#666666',
             fontSize: '12px',
           },
         },
@@ -407,11 +428,7 @@ export class UserchartComponent implements OnInit, OnDestroy {
       yAxis: {
         title: {
           text: 'Values',
-          style: {
-            color: '#333333',
-          },
         },
-        gridLineColor: '#e6e6e6',
         gridLineWidth: 1,
         alignTicks: true,
       },
@@ -441,6 +458,10 @@ export class UserchartComponent implements OnInit, OnDestroy {
       },
       tooltip: hasDateData
         ? {
+            backgroundColor: '#2b2b2b',
+            style: {
+              color: '#E0E0E3',
+            },
             shared: true,
             useHTML: true,
             formatter: function () {
@@ -481,10 +502,7 @@ export class UserchartComponent implements OnInit, OnDestroy {
               }
               return tooltipHtml;
             },
-            backgroundColor: 'rgba(255,255,255,0.85)',
-            style: {
-              color: '#333333',
-            },
+
             xDateFormat: '%A, %b %e, %Y',
           }
         : {
@@ -538,6 +556,24 @@ export class UserchartComponent implements OnInit, OnDestroy {
       },
       scrollbar: {
         enabled: hasDateData ? true : false,
+      },
+      stockTools: {
+        gui: {
+          buttons: [
+            'indicators',
+            'separator',
+            'simpleShapes',
+            'flags',
+            'verticalLabels',
+            'measure',
+            'separator',
+            'zoomChange',
+            'currentPriceIndicator',
+            'fullScreen',
+            'separator',
+            'toggleAnnotations',
+          ],
+        },
       },
       series: seriesData,
     };
@@ -770,5 +806,14 @@ export class UserchartComponent implements OnInit, OnDestroy {
       //this.chartOptions = []; // clear existing chart options
       this.loadData(this.user);
     });
+  }
+
+  private async applyChartTheme() {
+    if (this.darkModeEnabled) {
+      DarkTheme(Highcharts);
+    } else {
+      DefaultTheme(Highcharts);
+    }
+    Highcharts.setOptions({}); // Reapply global options if needed
   }
 }

@@ -5,6 +5,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  Inject,
   Input,
   OnDestroy,
   OnInit,
@@ -32,8 +33,10 @@ import { Table } from 'primeng/table';
 import { ProgressSpinner } from 'primeng/progressspinner';
 import { catchError } from 'rxjs/operators';
 import { Subscription, throwError } from 'rxjs';
-import { DatePipe } from '@angular/common';
+import { DOCUMENT, DatePipe } from '@angular/common';
 import { DataUpdateService } from 'src/app/services/data-update.service';
+import { DarkModeService } from '../../services/dark-mode.service';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-paginated-table',
@@ -90,6 +93,9 @@ export class PaginatedTableComponent
 
   subscription!: Subscription;
 
+  private subscriptionDarkMode: Subscription = new Subscription();
+  darkModeEnabled!: boolean;
+
   constructor(
     public dialog: MatDialog,
     public chartService: ChartService,
@@ -103,10 +109,33 @@ export class PaginatedTableComponent
     private functionService: FunctionService,
     private changeDetectorRef: ChangeDetectorRef,
     private commentService: CommentService,
-    private dataUpdateService: DataUpdateService
+    private dataUpdateService: DataUpdateService,
+    private darkModeService: DarkModeService,
+    private themeService: ThemeService,
+    @Inject(DOCUMENT) private document: Document
   ) {
     this.dataSource = new MatTableDataSource();
+    this.subscriptionDarkMode = this.darkModeService.darkModeState.subscribe(
+      (isDarkMode) => {
+        this.darkModeEnabled = isDarkMode;
+        if (this.darkModeEnabled) {
+          this.themeService.switchTheme('lara-dark-blue');
+        } else {
+          this.themeService.switchTheme('lara-light-blue');
+        }
+      }
+    );
   }
+
+  switchTheme(theme: string) {
+    let themeLink = this.document.getElementById(
+      'app-theme'
+    ) as HTMLLinkElement;
+    if (themeLink) {
+      themeLink.href = 'assets/css/' + theme + '.css';
+    }
+  }
+
   ngOnDestroy(): void {
     this.filter = null;
     this.filterService.clearFilters();

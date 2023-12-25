@@ -2,7 +2,11 @@
   <app-loader *ngIf="loaderService.isLoading$ | async"></app-loader>
 
   <nav
-    class="main-header navbar navbar-expand navbar-light bg-dark"
+    class="main-header navbar navbar-expand"
+    [ngClass]="{
+      'navbar-light': !darkModeEnabled,
+      'bg-dark navbar-dark': darkModeEnabled
+    }"
     *ngIf="!isLoading"
   >
     <ul class="navbar-nav">
@@ -35,6 +39,22 @@
                 </div>
             </li> -->
       <li class="nav-item">
+        <div>
+          <input
+            type="checkbox"
+            class="checkbox"
+            id="checkbox"
+            [(ngModel)]="darkModeEnabled"
+            (ngModelChange)="toggleDarkMode()"
+          />
+          <label for="checkbox" class="checkbox-label">
+            <i class="fas fa-moon"></i>
+            <i class="fas fa-sun"></i>
+            <span class="ball"></span>
+          </label>
+        </div>
+      </li>
+      <li class="nav-item">
         <a class="nav-link" data-widget="fullscreen" href="#" role="button">
           <i class="fas fa-expand-arrows-alt"></i>
         </a>
@@ -64,7 +84,13 @@
   </nav>
 
   <!-- sidebar -->
-  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+  <aside
+    class="main-sidebar elevation-4"
+    [ngClass]="{
+      'sidebar-light-primary': !darkModeEnabled,
+      'sidebar-dark-primary': darkModeEnabled
+    }"
+  >
     <a href="#" class="brand-link">
       <img
         src="./assets/img/elite.png"
@@ -169,7 +195,7 @@
               <li class="nav-item" role="menuitem">
                 <a routerLink="missing-files" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>Missing Sequence</p>
+                  <p>Missing Files</p>
                 </a>
               </li>
               <li class="nav-item" role="menuitem">
@@ -264,15 +290,37 @@
       </nav>
     </div>
   </aside>
-  <div class="content-wrapper">
-    <div class="content-header">
-      <div class="container-fluid">
+  <div
+    class="content-wrapper"
+    [ngClass]="{
+      'bg-dark': darkModeEnabled
+    }"
+    style="margin-top: 0"
+  >
+    <div
+      class="content-header"
+      [ngClass]="{
+        'bg-dark': darkModeEnabled
+      }"
+    >
+      <div
+        class="container-fluid"
+        [ngClass]="{
+          'bg-dark': darkModeEnabled
+        }"
+      >
         <router-outlet></router-outlet>
       </div>
     </div>
   </div>
   <!-- Filters -->
-  <aside class="control-sidebar control-sidebar-dark">
+  <aside
+    class="control-sidebar"
+    [ngClass]="{
+      'sidebar-light-primary': !darkModeEnabled,
+      'sidebar-dark-primary': darkModeEnabled
+    }"
+  >
     <form [formGroup]="form">
       <div class="filter-container" style="margin: 20px">
         <h5>Filter Report</h5>
@@ -393,7 +441,12 @@
     </form>
   </aside>
 
-  <footer class="main-footer">
+  <footer
+    class="main-footer"
+    [ngClass]="{
+      'bg-dark': darkModeEnabled
+    }"
+  >
     <strong
       >Copyright &copy; 2010-2023
       <a href="http://elite-business.net">Elite Business</a>.</strong

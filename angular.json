@@ -36,8 +36,17 @@
               "node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
               "node_modules/ngx-toastr/toastr.css",
               "src/assets/css/leaflet.css",
-              "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
-              "node_modules/primeng/resources/primeng.min.css"
+              "node_modules/primeng/resources/primeng.min.css",
+              {
+                "input": "src/lara-light-blue.css",
+                "bundleName": "lara-light-blue",
+                "inject": false
+              },
+              {
+                "input": "src/lara-dark-blue.css",
+                "bundleName": "lara-dark-blue",
+                "inject": false
+              }
             ],
             "scripts": [
               "node_modules/admin-lte/plugins/jquery/jquery.min.js",

@@ -1,154 +1,210 @@
-
 .navbar-light .navbar-nav .nav-link {
-    color: white;
+  color: white;
 }
 
 .layout-navbar-fixed .wrapper .brand-link {
-    overflow: hidden;
-    position: fixed;
-    top: 0;
-    transition: width .3s ease-in-out;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  transition: width 0.3s ease-in-out;
 }
 
 .user-avatar {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .avatar-letter {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #007bff;
-    color: #fff;
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
-    margin-right: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #007bff;
+  color: #fff;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-right: 10px;
 }
 
 .username {
-    font-size: 16px;
-    font-weight: bold;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .sidebar-footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 10px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px;
 }
 
 .btn-danger {
-    background-color: #dc3545;
-    border-color: #dc3545;
+  background-color: #dc3545;
+  border-color: #dc3545;
 }
 
 .btn-danger:hover {
-    background-color: #c82333;
-    border-color: #bd2130;
+  background-color: #c82333;
+  border-color: #bd2130;
 }
 
 .main-footer {
-    clear: both;
+  clear: both;
 }
 
 .btn {
-    position: relative;
-    overflow: hidden;
-    border-radius: 20px;
-    box-shadow: none;
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  box-shadow: none;
 }
 
 .btn:focus {
-    box-shadow: none;
+  box-shadow: none;
 }
 
 .btn .btn-icon {
-    position: absolute;
-    top: 50%;
-    left: 20px;
-    transform: translateY(-50%);
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  transform: translateY(-50%);
 }
 
 .btn .btn-text {
-    display: inline-block;
-    margin-left: 50px;
+  display: inline-block;
+  margin-left: 50px;
 }
-
 
 /* .main-sidebar {
     width: auto;
 } */
 
 .arrow {
-    margin-left: 7px;
-    transition: transform 0.2s ease;
+  margin-left: 7px;
+  transition: transform 0.2s ease;
 }
 
 .arrow-right {
-    transform: rotate(0deg);
+  transform: rotate(0deg);
 }
 
 .arrow-down {
-    transform: rotate(90deg);
+  transform: rotate(90deg);
 }
 
 .function-icon {
-    margin-right: 10px;
+  margin-right: 10px;
 }
 
 .function-name {
-    color: #a1a5ae;
-    white-space: pre-line;
+  color: #a1a5ae;
+  white-space: pre-line;
 }
 
 .module-heading,
 .sub-module-heading {
-    height: 30px;
-    padding: 15px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    color: #a1a5ae;
+  height: 30px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: #a1a5ae;
 }
 
 .module-name {
-    margin-left: 10px;
+  margin-left: 10px;
 }
 
 .sub-module-name {
-    padding-left: 20px;
+  padding-left: 20px;
 }
 
 .module-heading:hover,
 .sub-module-heading:hover {
-    background-color: #454d55;
+  background-color: #454d55;
 }
 
 .nav-link:hover {
-    background-color: #454d55;
+  background-color: #454d55;
 }
 
 .function {
-    margin: 10px;
-    margin-left: 30px;
-    padding-right: 10px;
+  margin: 10px;
+  margin-left: 30px;
+  padding-right: 10px;
 }
 
 li.sub-module {
-    margin: 15px;
+  margin: 15px;
 }
 
 li {
-    display: list-item;
-    text-align: -webkit-match-parent;
+  display: list-item;
+  text-align: -webkit-match-parent;
 }
 
-.nav-sidebar .nav-item>.nav-link {
-    position: relative;
-    padding: 10px;
-    text-wrap: wrap;
-    height: auto;
+.nav-sidebar .nav-item > .nav-link {
+  position: relative;
+  padding: 10px;
+  text-wrap: wrap;
+  height: auto;
+}
+.checkbox {
+  opacity: 0;
+  position: absolute;
+}
+
+.checkbox-label {
+  background-color: #111;
+  width: 50px;
+  height: 26px;
+  border-radius: 50px;
+  position: relative;
+  padding: 5px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fa-moon {
+  color: #f1c40f;
+}
+
+.fa-sun {
+  color: #f39c12;
+}
+
+.checkbox-label .ball {
+  background-color: #fff;
+  width: 22px;
+  height: 22px;
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  border-radius: 50%;
+  transition: transform 0.2s linear;
+}
+
+.checkbox:checked + .checkbox-label .ball {
+  transform: translateX(24px);
+}
+
+/* General icon color change to gray */
+.fa {
+  color: gray;
+}
+
+/* Specific icons color change to gray */
+.fa-bars,
+.fa-expand-arrows-alt,
+.fa-th-large {
+  color: gray;
+}
+
+/* For icons inside buttons or specific elements, if needed */
+.btn .fa,
+.nav-link .fa {
+  color: gray;
 }

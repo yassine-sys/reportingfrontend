@@ -4,6 +4,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  Inject,
   Input,
   OnInit,
   Output,
@@ -27,10 +28,13 @@ import { LoaderService } from '../../services//loader.service';
 import { FunctionService } from '../../services//function.service';
 import { CommentService } from '../../services//comment.service';
 import { PrimeNGConfig, SortEvent } from 'primeng/api';
-import { Observable, finalize } from 'rxjs';
+import { Observable, Subscription, finalize } from 'rxjs';
 import { Table } from 'primeng/table';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
+import { DarkModeService } from 'src/app/services/dark-mode.service';
+import { ThemeService } from 'src/app/services/theme.service';
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'app-nested-table',
@@ -100,6 +104,9 @@ export class NestedTableComponent implements OnInit {
 
   @ViewChild('searchInput') searchInput!: ElementRef;
 
+  private subscriptionDarkMode: Subscription = new Subscription();
+  darkModeEnabled!: boolean;
+
   constructor(
     public dialog: MatDialog,
     public chartService: ChartService,
@@ -113,9 +120,23 @@ export class NestedTableComponent implements OnInit {
     private functionService: FunctionService,
     private changeDetectorRef: ChangeDetectorRef,
     private commentService: CommentService,
-    private primengConfig: PrimeNGConfig
+    private primengConfig: PrimeNGConfig,
+    private darkModeService: DarkModeService,
+    private themeService: ThemeService,
+    @Inject(DOCUMENT) private document: Document
   ) {
     this.dataSource = new MatTableDataSource();
+    this.dataSource = new MatTableDataSource();
+    this.subscriptionDarkMode = this.darkModeService.darkModeState.subscribe(
+      (isDarkMode) => {
+        this.darkModeEnabled = isDarkMode;
+        if (this.darkModeEnabled) {
+          this.themeService.switchTheme('lara-dark-blue');
+        } else {
+          this.themeService.switchTheme('lara-light-blue');
+        }
+      }
+    );
   }
   ngOnInit(): void {
     this.primengConfig.ripple = true;

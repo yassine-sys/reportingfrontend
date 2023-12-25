@@ -21,6 +21,7 @@ import { DatePipe } from '@angular/common';
 import { group_module } from 'src/model/group_module';
 import { ModuleFunction } from 'src/model/ModuleFunction';
 import { Subscription } from 'rxjs';
+import { DarkModeService } from '../../services/dark-mode.service';
 declare var $: any;
 
 @Component({
@@ -66,6 +67,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   modulesData: any[] = [];
 
   private subscriptions: Subscription[] = [];
+  private subscription: Subscription;
+  darkModeEnabled: boolean = true;
   constructor(
     private service: AuthService,
     private router: Router,
@@ -75,8 +78,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     public loaderService: LoaderService,
     private fb: FormBuilder,
     private datePipe: DatePipe,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
+    private darkModeService: DarkModeService
   ) {
+    this.subscription = this.darkModeService.darkModeState.subscribe(
+      (isDarkMode) => {
+        this.darkModeEnabled = isDarkMode;
+      }
+    );
     this.form = this.fb.group(
       {
         selectedFilter: ['', [Validators.required]],
@@ -89,6 +98,21 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         validator: this.dateValidator,
       }
     );
+  }
+
+  toggleDarkMode() {
+    this.darkModeService.setDarkMode(this.darkModeEnabled);
+    this.updateBodyClass();
+  }
+
+  updateBodyClass(): void {
+    const body = document.getElementsByTagName('body')[0];
+    if (this.darkModeEnabled) {
+      body.className =
+        'sidebar-mini layout-fixed layout-navbar-fixed dark-mode';
+    } else {
+      body.className = 'sidebar-mini layout-fixed layout-navbar-fixed';
+    }
   }
 
   ngOnInit(): void {
@@ -268,6 +292,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.filtred.startHour = null;
     this.filtred.endHour = null;
     this.chartInstances = [];
+    this.subscription.unsubscribe();
+    const body = document.getElementsByTagName('body')[0];
+    body.className = 'sidebar-mini layout-fixed layout-navbar-fixed';
   }
 
   ngAfterViewInit() {}
