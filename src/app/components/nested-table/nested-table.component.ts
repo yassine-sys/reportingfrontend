@@ -49,6 +49,13 @@ export class NestedTableComponent implements OnInit {
   @Input() filter: any;
   @Input() operator: any;
   @Input() iscarrier: any;
+  @Input() lvl4: any;
+  @Input() lvl1: any;
+  @Input() lvl2: any;
+  @Input() parent: any;
+
+  lvl1CountryName: any;
+  lvl2CountryName: any;
 
   subRepId: any;
   jsonData!: any[];
@@ -106,6 +113,7 @@ export class NestedTableComponent implements OnInit {
 
   private subscriptionDarkMode: Subscription = new Subscription();
   darkModeEnabled!: boolean;
+  parentRow: any;
 
   constructor(
     public dialog: MatDialog,
@@ -140,14 +148,18 @@ export class NestedTableComponent implements OnInit {
   }
   ngOnInit(): void {
     this.primengConfig.ripple = true;
-    const jsonData = this.data.map((row: { [x: string]: any }) => {
-      const obj: { [key: string]: any } = {};
-      this.columns.forEach((column, index) => {
-        obj[column] = this.formatNumber(row[index]);
+    if (!this.lvl4) {
+      const jsonData = this.data.map((row: { [x: string]: any }) => {
+        const obj: { [key: string]: any } = {};
+        this.columns.forEach((column, index) => {
+          obj[column] = this.formatNumber(row[index]);
+        });
+        return obj;
       });
-      return obj;
-    });
-    this.jsonData = jsonData;
+      this.jsonData = jsonData;
+    } else {
+      this.jsonData = this.data;
+    }
   }
 
   ngAfterViewInit(): void {
@@ -155,23 +167,23 @@ export class NestedTableComponent implements OnInit {
     this.dataSource.sort = this.sort;
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (this.columns.length === 0 || this.columns[0] === '') {
-      // Use newCols when listenamereptab is empty or undefined
-      this.columns = this.newCols;
-    }
-    this.dataSource.data = this.transformData(this.data, this.columns);
-    if (this.paginator) {
-      this.paginator.firstPage();
-    }
-    if (changes['data'] && this.data) {
-      this.dataSource.data = this.transformData(this.data, this.columns);
-      // Refresh the table with the new data
-      if (this.paginator) {
-        this.paginator.firstPage();
-      }
-    }
-  }
+  // ngOnChanges(changes: SimpleChanges): void {
+  //   if (this.columns.length === 0 || this.columns[0] === '') {
+  //     // Use newCols when listenamereptab is empty or undefined
+  //     this.columns = this.newCols;
+  //   }
+  //   this.dataSource.data = this.transformData(this.data, this.columns);
+  //   if (this.paginator) {
+  //     this.paginator.firstPage();
+  //   }
+  //   if (changes['data'] && this.data) {
+  //     this.dataSource.data = this.transformData(this.data, this.columns);
+  //     // Refresh the table with the new data
+  //     if (this.paginator) {
+  //       this.paginator.firstPage();
+  //     }
+  //   }
+  // }
 
   transformData(data: any[], columns: string[]): any[] {
     if (columns.includes('"Impact(dinar)"')) {
@@ -285,64 +297,33 @@ export class NestedTableComponent implements OnInit {
       this.isLoading = true; // Set loading flag to true
       //console.log(this.filter);
 
-      this.chartService
-        .getDetails(
-          this.idrep,
-          rowData[this.columns[0]],
-          this.startDate,
-          this.endDate
-        )
-        .pipe(finalize(() => (this.isLoading = false))) // Set loading flag back to false
-        .subscribe((response) => {
-          //console.log(response);
-          const columns = response.listnamereptab;
-          const data = response.list_de_donnees;
-          this.detailsCols = columns;
-          this.detailsTitle = response.title;
-          this.subRep1 = response.id_report;
-          rowData.details = this.transformToJSON(data, columns);
-          if (this.operator) {
-            this.detailsCols.unshift('Name');
-            console.log(this.detailsCols);
-            this.chartService.getOperatorsDest().subscribe((destinations) => {
-              rowData.details.forEach((detail: any) => {
-                const destination = destinations.find(
-                  (dest: { id: any }) =>
-                    dest.id === parseFloat(detail[this.detailsCols[1]])
-                );
-
-                if (destination) {
-                  // Add "Name" property to each item in rowData.details
-                  detail['Name'] = destination.nomDestination;
-                  // Add "Name" to the beginning of detailsCols if not already present
-                  if (!this.detailsCols.includes('Name')) {
-                    this.detailsCols.unshift('Name');
-                    detail[this.detailsCols[1]] = parseFloat(
-                      detail[this.detailsCols[1]]
-                        .toString()
-                        .replace(/\s/g, '') // Remove spaces
-                        .replace(/\.00$/, '')
-                    );
-                  }
-                }
-              });
-            });
-          } else if (this.iscarrier) {
-            this.detailsCols.unshift('Name');
-            this.chartService
-              .getOperatorsInterco()
-              .subscribe((destinations) => {
+      if (!this.lvl4) {
+        this.chartService
+          .getDetails(
+            this.idrep,
+            rowData[this.columns[0]],
+            this.startDate,
+            this.endDate
+          )
+          .pipe(finalize(() => (this.isLoading = false))) // Set loading flag back to false
+          .subscribe((response) => {
+            //console.log(response);
+            const columns = response.listnamereptab;
+            const data = response.list_de_donnees;
+            this.detailsCols = columns;
+            this.detailsTitle = response.title;
+            this.subRep1 = response.id_report;
+            rowData.details = this.transformToJSON(data, columns);
+            if (this.operator) {
+              this.detailsCols.unshift('Name');
+              console.log(this.detailsCols);
+              this.chartService.getOperatorsDest().subscribe((destinations) => {
                 rowData.details.forEach((detail: any) => {
                   const destination = destinations.find(
                     (dest: { id: any }) =>
-                      dest.id ===
-                      parseFloat(
-                        detail[this.detailsCols[0]]
-                          .toString()
-                          .replace(/\s/g, '') // Remove spaces
-                          .replace(/\.00$/, '')
-                      )
+                      dest.id === parseFloat(detail[this.detailsCols[1]])
                   );
+
                   if (destination) {
                     // Add "Name" property to each item in rowData.details
                     detail['Name'] = destination.nomDestination;
@@ -359,8 +340,125 @@ export class NestedTableComponent implements OnInit {
                   }
                 });
               });
-          }
-        });
+            } else if (this.iscarrier) {
+              this.detailsCols.unshift('Name');
+              this.chartService
+                .getOperatorsInterco()
+                .subscribe((destinations) => {
+                  rowData.details.forEach((detail: any) => {
+                    const destination = destinations.find(
+                      (dest: { id: any }) =>
+                        dest.id ===
+                        parseFloat(
+                          detail[this.detailsCols[0]]
+                            .toString()
+                            .replace(/\s/g, '') // Remove spaces
+                            .replace(/\.00$/, '')
+                        )
+                    );
+                    if (destination) {
+                      // Add "Name" property to each item in rowData.details
+                      detail['Name'] = destination.nomDestination;
+                      // Add "Name" to the beginning of detailsCols if not already present
+                      if (!this.detailsCols.includes('Name')) {
+                        this.detailsCols.unshift('Name');
+                        detail[this.detailsCols[1]] = parseFloat(
+                          detail[this.detailsCols[1]]
+                            .toString()
+                            .replace(/\s/g, '') // Remove spaces
+                            .replace(/\.00$/, '')
+                        );
+                      }
+                    }
+                  });
+                });
+            }
+          });
+
+        this.lvl1CountryName = rowData[this.columns[0]];
+        this.parentRow = { [this.columns[0]]: rowData[this.columns[0]] };
+
+        //Level 4 details
+      } else {
+        this.chartService
+          .getDetailsLVL4(
+            this.idrep,
+            this.lvl1,
+            this.startDate,
+            this.endDate,
+            this.lvl2,
+            rowData[this.columns[1]]
+          )
+          .pipe(finalize(() => (this.isLoading = false))) // Set loading flag back to false
+          .subscribe((response) => {
+            console.log(response);
+            const columns = response.listnamereptab;
+            const data = response.list_de_donnees;
+            this.detailsCols = columns;
+            this.detailsTitle = response.title;
+            this.subRep1 = response.id_report;
+            rowData.details = this.transformToJSON(data, columns);
+            if (response.operator) {
+              this.detailsCols.unshift('Name');
+              console.log(this.detailsCols);
+              this.chartService.getOperatorsDest().subscribe((destinations) => {
+                rowData.details.forEach((detail: any) => {
+                  const destination = destinations.find(
+                    (dest: { id: any }) =>
+                      dest.id === parseFloat(detail[this.detailsCols[1]])
+                  );
+
+                  if (destination) {
+                    // Add "Name" property to each item in rowData.details
+                    detail['Name'] = destination.nomDestination;
+                    // Add "Name" to the beginning of detailsCols if not already present
+                    if (!this.detailsCols.includes('Name')) {
+                      this.detailsCols.unshift('Name');
+                      detail[this.detailsCols[1]] = parseFloat(
+                        detail[this.detailsCols[1]]
+                          .toString()
+                          .replace(/\s/g, '') // Remove spaces
+                          .replace(/\.00$/, '')
+                      );
+                    }
+                  }
+                });
+              });
+            } else if (response.iscarrier) {
+              this.detailsCols.unshift('Name');
+              this.chartService
+                .getOperatorsInterco()
+                .subscribe((destinations) => {
+                  rowData.details.forEach((detail: any) => {
+                    const destination = destinations.find(
+                      (dest: { id: any }) =>
+                        dest.id ===
+                        parseFloat(
+                          detail[this.detailsCols[0]]
+                            .toString()
+                            .replace(/\s/g, '') // Remove spaces
+                            .replace(/\.00$/, '')
+                        )
+                    );
+                    if (destination) {
+                      // Add "Name" property to each item in rowData.details
+                      detail['Name'] = destination.nomDestination;
+                      // Add "Name" to the beginning of detailsCols if not already present
+                      if (!this.detailsCols.includes('Name')) {
+                        this.detailsCols.unshift('Name');
+                        detail[this.detailsCols[1]] = parseFloat(
+                          detail[this.detailsCols[1]]
+                            .toString()
+                            .replace(/\s/g, '') // Remove spaces
+                            .replace(/\.00$/, '')
+                        );
+                      }
+                    }
+                  });
+                });
+            }
+          });
+      }
     }
   }
 
@@ -417,8 +515,25 @@ export class NestedTableComponent implements OnInit {
   }
 
   exportExcel(data: any) {
+    if (this.lvl4) {
+      console.log(data);
+      this.parentRow = this.parent;
+      this.parentRow = {
+        ...this.parentRow, // Keep the existing property
+        Operator: data.Name, // Add the new property
+      };
+    }
     import('xlsx').then((xlsx) => {
-      const worksheet = xlsx.utils.json_to_sheet(data);
+      // Create a new array of objects with the added "Country" column
+      const newData = data.details.map((item: any) => ({
+        ...this.parentRow,
+        ...item,
+      }));
+
+      // Convert the new data to a worksheet
+      const worksheet = xlsx.utils.json_to_sheet(newData);
+
+      // Create the workbook
       const workbook = { Sheets: { data: worksheet }, SheetNames: ['data'] };
       const excelBuffer: any = xlsx.write(workbook, {
         bookType: 'xlsx',
@@ -443,7 +558,13 @@ export class NestedTableComponent implements OnInit {
   }
 
   openDialog(row: any): void {
-    console.log(row);
+    this.lvl2CountryName = row[this.detailsCols[1]];
+    this.parentRow = {
+      ...this.parentRow,
+      [this.detailsCols[1]]: row[this.detailsCols[0]],
+    };
+
+    console.log(this.parentRow);
     if (this.title === 'LCR Alert') {
       const dialogRef = this.dialog.open(CommentFormComponent, {
         width: '400px', // Adjust the width as needed
@@ -481,7 +602,6 @@ export class NestedTableComponent implements OnInit {
       } else {
         this.subRepId = row[this.detailsCols[0]];
       }
-      console.log(this.subRepId);
       this.chartService
         .getDetails(this.subRep1, this.subRepId, this.startDate, this.endDate)
         .pipe(finalize(() => (this.showProgressBar = false)))
@@ -502,12 +622,16 @@ export class NestedTableComponent implements OnInit {
             response.operator,
             response.iscarrier
           );
-
           this.dialog.open(TableDialogComponent, {
             data: {
               columns,
               rows: data,
               title: response.title,
+              isnested: response.isnested,
+              lvl1: this.lvl1CountryName,
+              lvl2: this.lvl2CountryName,
+              idrep: response.id_report,
+              parentRow: this.parentRow,
             },
           });
         });

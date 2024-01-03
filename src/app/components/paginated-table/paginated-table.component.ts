@@ -60,6 +60,8 @@ export class PaginatedTableComponent
   searchActive: boolean = false;
   filtredSubscription!: Subscription;
 
+  parentRow: any;
+
   @ViewChild('searchInput') searchInput!: ElementRef;
 
   newCols: any[] = [
@@ -351,6 +353,8 @@ export class PaginatedTableComponent
             return obj;
           });
 
+          this.parentRow = { [this.columns[0]]: row[this.columns[0]] };
+
           this.dialog.open(TableDialogComponent, {
             data: {
               columns,
@@ -358,6 +362,7 @@ export class PaginatedTableComponent
               title: this.title,
               isoperator: response.operator,
               iscarrier: this.iscarrier,
+              parentRow: this.parentRow,
             },
           });
 

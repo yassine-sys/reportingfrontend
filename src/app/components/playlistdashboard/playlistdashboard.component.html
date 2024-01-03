@@ -1,0 +1,142 @@
+<section class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1>Playlists</h1>
+      </div>
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item active">Playlists</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="card card-solid cards-container">
+  <div class="card-header">
+    <h3 class="card-title">Playlists</h3>
+    <div class="card-tools">
+      <!-- <button type="button" class="btn btn-tool" data-card-widget="remove">
+        <i class="fas fa-times"></i>
+      </button> -->
+      <div *ngIf="!showCreateInput" id="actions" class="row">
+        <div class="col">
+          <div class="btn-group">
+            <span class="btn btn-success col fileinput-button dz-clickable">
+              <a (click)="showCreateNewPlaylist()">
+                <i class="fas fa-plus"></i>
+                <span>Create Playlist</span>
+              </a>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="showCreateInput" id="actions" class="row">
+        <div class="col">
+          <input
+            pInputText
+            [(ngModel)]="newPlaylistName"
+            name="newPlaylistName"
+            placeholder="Playlist Name"
+          />
+          <button
+            *ngIf="showCreateInput"
+            pButton
+            pRipple
+            type="button"
+            icon="pi pi-check"
+            (click)="saveNewPlaylist()"
+            class="p-button-rounded p-button-text p-button-success mr-2"
+          ></button>
+          <button
+            *ngIf="showCreateInput"
+            pButton
+            pRipple
+            type="button"
+            icon="pi pi-times"
+            (click)="cancel()"
+            class="p-button-rounded p-button-text p-button-danger"
+          ></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cards-container">
+    <div class="card_wrapper" *ngFor="let pl of playLists; let i = index">
+      <div class="card">
+        <div class="card-header ui-sortable-handle">
+          <div class="header-container">
+            <h3 class="card-title">
+              <i class="ion ion-clipboard mr-1"></i>
+              <span class="text">{{ pl.playListName }}</span>
+            </h3>
+            <div class="tools">
+              <!-- <i class="fas fa-edit"></i> -->
+
+              <a
+                (click)="deletePlayList(pl.id)"
+                style="cursor: pointer; margin-left: 8px"
+                ><i class="fas fa-trash"></i
+              ></a>
+              <a
+                style="cursor: pointer; margin-left: 8px"
+                [routerLink]="['/playlist/charts/', pl.id]"
+                routerLinkActive="active"
+                ><i class="fas fa-share-square"></i
+              ></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <ul
+            class="todo-list ui-sortable"
+            pDroppable="reports"
+            (onDrop)="onDrop(pl, $event)"
+          >
+            <li
+              *ngFor="let report of pl?.playlistReports; let i = index"
+              pDraggable="reports"
+              (onDragStart)="dragStart($event, pl, report, i)"
+              (onDragEnd)="dragEnd(pl, $event)"
+              style="cursor: grab"
+            >
+              <div class="row">
+                <div class="row">
+                  <div class="cnt">
+                    <!-- <span class="handle ui-sortable-handle">
+                      <i class="fas fa-ellipsis-v"></i>
+                      <i class="fas fa-ellipsis-v"></i>
+                    </span> -->
+                    <h2 class="lead">{{ report.report.title }}</h2>
+                    <div class="tools">
+                      <a
+                        (click)="detacheReport(pl.id, report.report.id)"
+                        style="cursor: pointer"
+                      >
+                        <i class="fas fa-trash"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm">
+                  <p class="text-muted text-sm">
+                    <b>Type :</b> {{ report.report.chartType }}
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="text-muted text-sm">
+                    <b>Description :</b> {{ report.report.seriessubtitle }}
+                  </p>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,17 +1,26 @@
-<app-paginated-table
-  *ngIf="columnNames.length > 0"
-  [columns]="columnNames"
-  [data]="data1"
-  [idrep]="idrep"
-  [title]="'Daily Flow Status'"
-  [collect]="true"
-></app-paginated-table>
-
-<app-paginated-table
-  *ngIf="columns.length > 0"
-  [columns]="columns"
-  [data]="data"
-  [idrep]="idrep"
-  [title]="'Last Day Flow Status'"
-  [collect]="true"
-></app-paginated-table>
+<div class="tables-container">
+  <app-paginated-table
+    *ngIf="columns2.length > 0"
+    [columns]="columns2"
+    [data]="data2"
+    [idrep]="idrep"
+    [title]="'Today Flow Status'"
+    [collect]="true"
+  ></app-paginated-table>
+  <app-paginated-table
+    *ngIf="columns.length > 0"
+    [columns]="columns"
+    [data]="data"
+    [idrep]="idrep"
+    [title]="'Last Day Flow Status'"
+    [collect]="true"
+  ></app-paginated-table>
+  <app-paginated-table
+    *ngIf="columnNames.length > 0"
+    [columns]="columnNames"
+    [data]="data1"
+    [idrep]="idrep"
+    [title]="'History Flow Status'"
+    [collect]="true"
+  ></app-paginated-table>
+</div>

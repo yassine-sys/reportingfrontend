@@ -29,7 +29,7 @@
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-between;
-  align-items: center;
+  /* align-items: center; */
   margin-top: 20px;
 }
 
@@ -213,4 +213,43 @@ table tbody tr {
 .filtre {
   display: flex;
   flex-direction: row-reverse;
+}
+:host ::ng-deep {
+  .speeddial-linear-demo {
+    .p-speeddial-direction-up {
+      left: calc(50% - 2rem);
+      bottom: 0;
+    }
+
+    .p-speeddial-direction-down {
+      left: calc(50% - 2rem);
+      top: 0;
+    }
+
+    .p-speeddial-direction-left {
+      right: 0;
+      top: calc(50% - 2rem);
+    }
+
+    .p-speeddial-direction-right {
+      left: 0;
+      top: calc(50% - 2rem);
+    }
+  }
+}
+.custom-speed-dial .p-speeddial-button {
+  background-color: white !important;
+}
+.white-background {
+  background-color: white !important;
+}
+.dialog {
+  outline: none;
+  z-index: 2202;
+  position: fixed;
+  top: 105px;
+  left: 590.219px;
+  box-sizing: border-box;
+  max-height: 370px;
+  max-width: 1415px;
 }

@@ -12,6 +12,7 @@ import { ChartService } from 'src/app/services/chart.service';
   styleUrls: ['./table-dialog.component.css'],
 })
 export class TableDialogComponent {
+  parentRow: any;
   columns: string[];
   title: any;
   dataSource: MatTableDataSource<any>;
@@ -19,6 +20,13 @@ export class TableDialogComponent {
   searchActive: boolean = false;
   isoperator: boolean = false;
   iscarrier: boolean = false;
+  isnested: boolean = false;
+  lvl4: boolean = false;
+
+  lvl1: any;
+  lvl2: any;
+  rows: any;
+  idrep: any;
 
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort!: MatSort;
@@ -31,15 +39,27 @@ export class TableDialogComponent {
     @Inject(MAT_DIALOG_DATA) data: any,
     private dialogRef: MatDialogRef<TableDialogComponent>
   ) {
+    console.log(data);
     this.tableData = data;
+    this.rows = data.rows;
     this.columns = data.columns;
     this.title = data.title;
     this.isoperator = data.isoperator;
     this.iscarrier = data.iscarrier;
+    this.isnested = data.isnested;
+    this.lvl1 = data.lvl1;
+    this.lvl2 = data.lvl2;
+    this.idrep = data.idrep;
+    this.parentRow = data.parentRow;
+
     if (this.isoperator) {
       this.service.getOperatorsDest().subscribe((operators) => {
         this.updateRowsWithOperators(operators);
       });
+    }
+
+    if (this.isnested) {
+      this.lvl4 = true;
     }
 
     this.dataSource = new MatTableDataSource<any>(data.rows);
@@ -65,31 +85,28 @@ export class TableDialogComponent {
   }
 
   saveAsXLSX() {
+    console.log(this.parentRow);
     this.exporting = true;
     this.exportProgress = 0;
 
     const rows = this.tableData.rows;
     const columns = this.tableData.columns;
     const title = this.title;
-
-    const totalRows = rows.length;
-    const chunkSize = 1000; // Number of rows to export per chunk
-    const totalChunks = Math.ceil(totalRows / chunkSize);
+    const parentRow = this.parentRow; // Assuming you have a parentRow object
 
     const workbook = XLSX.utils.book_new();
+    const sheetName = 'Data'; // Name of the single sheet
 
-    for (let i = 0; i < totalChunks; i++) {
-      const start = i * chunkSize;
-      const end = Math.min(start + chunkSize, totalRows);
-      const chunkRows = rows.slice(start, end);
+    // Add parentRow to each row
+    const rowsWithParent = rows.map((row: any) => ({
+      ...parentRow,
+      ...row,
+    }));
 
-      const sheetName = `Sheet${i + 1}`;
-      const ws = XLSX.utils.json_to_sheet(chunkRows, { header: columns });
-      XLSX.utils.book_append_sheet(workbook, ws, sheetName);
-
-      const progress = Math.ceil(((i + 1) / totalChunks) * 100);
-      this.exportProgress = progress;
-    }
+    const ws = XLSX.utils.json_to_sheet(rowsWithParent, {
+      header: columns,
+    });
+    XLSX.utils.book_append_sheet(workbook, ws, sheetName);
 
     const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     const blob = new Blob([wbout], { type: 'application/octet-stream' });

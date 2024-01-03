@@ -59,7 +59,15 @@
     <ng-template pTemplate="body" let-rowData>
       <tr [pSelectableRow]="rowData">
         <td *ngFor="let column of columns" style="width: 10%">
-          {{ formatNumber(rowData[column]) }}
+          <ng-container *ngIf="column !== 'Status'; else statusColumn">
+            {{ formatNumber(rowData[column]) }}
+          </ng-container>
+          <ng-template #statusColumn>
+            <p-tag
+              [value]="rowData[column]"
+              [severity]="rowData[column] === 'UP' ? 'success' : 'danger'"
+            ></p-tag>
+          </ng-template>
         </td>
         <!-- <td>
           <button

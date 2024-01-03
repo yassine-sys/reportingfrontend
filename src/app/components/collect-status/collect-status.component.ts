@@ -14,6 +14,8 @@ export class CollectStatusComponent implements OnInit {
   data1: any[] = [];
   columnNames: any[] = [];
   columns: any[] = [];
+  columns2: any[] = [];
+  data2: any[] = [];
   idrep: any = 0;
   statuses: any[] = [
     { label: 'UP', value: 'UP' },
@@ -36,12 +38,13 @@ export class CollectStatusComponent implements OnInit {
   ngOnInit() {
     this.service.getDailyEtatCollect().subscribe((response: any[]) => {
       if (response.length > 0) {
-        const filteredData = response.filter(
-          (item) => item.frequency === 'd' || item.frequency === null
-        );
-        if (filteredData.length > 0) {
-          this.columns = Object.keys(filteredData[0]);
-          this.data = filteredData.map((item) => {
+        // const filteredData = response.filter(
+        //   (item) => item.frequency === 'd' || item.frequency === null
+        // );
+        if (response.length > 0) {
+          this.columns = Object.keys(response[0]);
+          this.columns = [...this.columns, 'Status'];
+          this.data = response.map((item) => {
             return [
               this.formatDate(item.date),
               item.name_flow === 'interco' ? 'switch' : item.name_flow,
@@ -81,13 +84,14 @@ export class CollectStatusComponent implements OnInit {
 
     this.service.getEtatCollect().subscribe((response: any[]) => {
       if (response.length > 0) {
-        console.log(response);
-        const filteredData = response.filter(
-          (item) => item.frequency === 'd' || item.frequency === null
-        );
-        if (filteredData.length > 0) {
-          this.columnNames = Object.keys(filteredData[0]);
-          this.data1 = filteredData.map((item) => {
+        console.log('getEtatCollect', response);
+        // const filteredData = response.filter(
+        //   (item) => item.frequency === 'd' || item.frequency === null
+        // );
+        if (response.length > 0) {
+          this.columnNames = Object.keys(response[0]);
+          this.columnNames = [...this.columnNames, 'Status'];
+          this.data1 = response.map((item) => {
             return [
               this.formatDate(item.date),
               item.name_flow === 'interco' ? 'switch' : item.name_flow,
@@ -112,6 +116,42 @@ export class CollectStatusComponent implements OnInit {
           'Status',
         ];
         this.data1 = [];
+      }
+    });
+
+    this.service.getTodayEtatCollect().subscribe((response: any[]) => {
+      if (response.length > 0) {
+        // const filteredData = response.filter(
+        //   (item) => item.frequency === 'd' || item.frequency === null
+        // );
+        if (response.length > 0) {
+          this.columns2 = Object.keys(response[0]);
+          this.columns2 = [...this.columns2, 'Status'];
+          this.data2 = response.map((item) => {
+            return [
+              this.formatDate(item.date),
+              item.name_flow === 'interco' ? 'switch' : item.name_flow,
+              item.nbfiles,
+              item.nbrecord,
+              item.nbfileprocessed,
+              item.nbfilecorrupted,
+              item.average,
+              item.nbrecord === 0 ? 'DOWN' : 'UP',
+            ];
+          });
+        }
+      } else {
+        this.columns2 = [
+          'Date',
+          'Name Flow',
+          'Number of Files',
+          'Number of Records',
+          'Files Processed',
+          'Corrupted Files',
+          'Average',
+          'Status',
+        ];
+        this.data2 = [];
       }
     });
   }

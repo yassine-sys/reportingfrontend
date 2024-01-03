@@ -22,6 +22,7 @@ import { group_module } from 'src/model/group_module';
 import { ModuleFunction } from 'src/model/ModuleFunction';
 import { Subscription } from 'rxjs';
 import { DarkModeService } from '../../services/dark-mode.service';
+import { FunctionService } from 'src/app/services/function.service';
 declare var $: any;
 
 @Component({
@@ -40,6 +41,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   pushme: boolean = false;
   opened: boolean = false;
   openedM: boolean = false;
+  playlist: boolean = false;
 
   filterType = FilterType;
   startDate!: Date | null;
@@ -69,8 +71,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private subscription: Subscription;
   darkModeEnabled: boolean = true;
+
+  currentUrl!: string;
+
+  playlists: any;
   constructor(
     private service: AuthService,
+    private playListService: FunctionService,
     private router: Router,
     private route: ActivatedRoute,
     public filterService: FilterService,
@@ -116,6 +123,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.getCurrentUrl();
+    this.loadPlayLists();
     //console.log(this.route.snapshot)
     this.pushme = false;
     // set isOpen to false for all modules
@@ -246,6 +255,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.pushme = true;
   }
 
+  togglePlaylist() {
+    this.playlist = !this.playlist;
+  }
+
   dateValidator(formGroup: FormGroup) {
     const startDate = formGroup.get('startDate')?.value;
     const endDate = formGroup.get('endDate')?.value;
@@ -298,4 +311,20 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {}
+
+  getCurrentUrl(): void {
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    const port = window.location.port;
+
+    this.currentUrl =
+      `${protocol}//${hostname}${port ? ':' + port : ''}` +
+      '/RaftoolsReporting/pages/config/validateRep.jsf';
+  }
+
+  loadPlayLists() {
+    this.playListService.getAllPlayLists().subscribe((response) => {
+      this.playlists = response;
+    });
+  }
 }

@@ -15,6 +15,8 @@ import HC_drilldown from 'highcharts/modules/drilldown';
 import * as Utils from './Utils.js';
 import darkUnica from 'highcharts/themes/dark-unica';
 import brandDark from 'highcharts/themes/brand-dark';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FunctionService } from 'src/app/services/function.service';
 
 @Component({
   selector: 'app-home-charts',
@@ -29,6 +31,8 @@ export class HomeChartsComponent implements OnInit, OnDestroy {
 
   //private chartIds: number[] = [25607, 103908, 966978];
   chartIds: any[] = [];
+  playlist: any;
+  playListId: any;
   chartypes: any[] = [
     'line',
     'spline',
@@ -54,8 +58,13 @@ export class HomeChartsComponent implements OnInit, OnDestroy {
 
   @ViewChild('chartContainer') chartContainer!: ElementRef;
 
-  constructor(private chartService: ChartService) {
-    HC_exporting(Highcharts);
+  constructor(
+    private service: FunctionService,
+    private chartService: ChartService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {
+    // HC_exporting(Highcharts);
     HC_data(Highcharts);
     HC_serieslabel(Highcharts);
     HC_drilldown(Highcharts);
@@ -63,30 +72,52 @@ export class HomeChartsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.chartService.getRepByFunctionId(929).subscribe((response: any) => {
-      this.chartIds = response;
-      this.loadChartData();
-    });
+    this.loadChartData();
 
-    interval(10000).subscribe(() => {
+    // this.chartService.getRepByFunctionId(929).subscribe((response: any) => {
+    //   this.chartIds = response;
+    //   this.loadChartData();
+    // });
+
+    interval(20000).subscribe(() => {
       if (!this.isTransitioning) {
         this.loadChartData();
       }
     });
   }
 
+  private extractChartIds(): void {
+    if (this.playlist && this.playlist.playlistReports) {
+      this.chartIds = this.playlist.playlistReports.map(
+        (playlistReport: any) => playlistReport.report.id
+      );
+      console.log('Extracted Chart IDs:', this.chartIds);
+    }
+  }
+
   private loadChartData() {
-    const chartId = this.chartIds[this.currentChartIndex];
-    this.chartSubscription = this.chartService.getRepById(chartId).subscribe(
-      (data: any) => {
-        this.chartData = data;
-        console.log(this.chartData);
-        this.transitionToNextChart();
-      },
-      (error) => {
-        console.error('Error loading chart data:', error);
-      }
-    );
+    this.route.params.subscribe((params) => {
+      this.playListId = params['id'];
+      this.service.getPlayListById(this.playListId).subscribe((resp) => {
+        this.playlist = resp;
+        console.log(resp);
+        this.extractChartIds();
+
+        const chartId = this.chartIds[this.currentChartIndex];
+        this.chartSubscription = this.chartService
+          .getRepById(chartId)
+          .subscribe(
+            (data: any) => {
+              this.chartData = data;
+              console.log(this.chartData);
+              this.transitionToNextChart();
+            },
+            (error) => {
+              console.error('Error loading chart data:', error);
+            }
+          );
+      });
+    });
   }
 
   private transitionToNextChart() {
@@ -226,7 +257,7 @@ export class HomeChartsComponent implements OnInit, OnDestroy {
         borderWidth: 1,
       },
       exporting: {
-        enabled: true,
+        enabled: false,
         chartOptions: {
           chart: {
             width: 1000,

@@ -584,6 +584,7 @@ export class UserchartComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
     this.filterService.clearFiltersUser();
+    this.subscriptionDarkMode.unsubscribe();
   }
 
   getFunctionName() {

@@ -1,0 +1,61 @@
+<div class="playlist-dialog">
+  <ul class="dialog-body">
+    <li *ngFor="let playlist of playlists" class="playlist-item">
+      <div class="field-checkbox">
+        <p-checkbox
+          name="playlist-{{ playlist.id }}"
+          [value]="playlist.id"
+          [label]="playlist.playListName"
+          [(ngModel)]="selectedValues"
+          (ngModelChange)="onCheckboxChange()"
+        >
+        </p-checkbox>
+      </div>
+    </li>
+    <li *ngIf="showCreateInput" class="playlist-item">
+      <div class="d-flex">
+        <input
+          pInputText
+          [(ngModel)]="newPlaylistName"
+          name="newPlaylistName"
+          placeholder="Playlist Name"
+        />
+        <button
+          *ngIf="showCreateInput"
+          pButton
+          pRipple
+          type="button"
+          icon="pi pi-check"
+          (click)="saveNewPlaylist()"
+          class="p-button-rounded p-button-text p-button-success mr-2"
+        ></button>
+        <button
+          *ngIf="showCreateInput"
+          pButton
+          pRipple
+          type="button"
+          icon="pi pi-times"
+          (click)="cancel()"
+          class="p-button-rounded p-button-text p-button-danger"
+        ></button>
+      </div>
+    </li>
+
+    <li
+      *ngIf="!showCreateInput"
+      class="playlist-item"
+      (click)="showCreateNewPlaylist()"
+    >
+      <div class="playlist-action">
+        <span class="plus-icon">+</span>
+        Create new playlist
+      </div>
+    </li>
+  </ul>
+  <!-- <p-button
+    icon="pi pi-check"
+    rounded="true"
+    outlined="true"
+    (click)="submit()"
+  ></p-button> -->
+</div>

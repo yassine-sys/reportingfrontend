@@ -100,7 +100,15 @@
           </ng-container>
         </ng-template>
         <div class="button-container">
-          <button
+          <p-speedDial
+            style="height: 50px"
+            [model]="itemssplit"
+            direction="right"
+            (onClick)="handleSpeedDialClick(reportGroup)"
+            styleClass="custom-speed-dial"
+          >
+          </p-speedDial>
+          <!-- <button
             mat-raised-button
             color="primary"
             (click)="addToDashboard(reportGroup.id)"
@@ -127,6 +135,52 @@
           <button
             mat-raised-button
             color="primary"
+            (click)="exportAll(reportGroup.report[0])"
+          >
+            Export All
+          </button>
+          <div>
+            <button
+              *ngIf="showButton"
+              (click)="onAddToPlaylistClick()"
+              class="p-button p-button-success"
+            >
+              Add to Playlist
+            </button>
+            <p-multiSelect
+              appendTo="body"
+              *ngIf="!showButton"
+              [options]="allPlaylists"
+              [(ngModel)]="selectedPlaylists"
+              optionLabel="name"
+              display="chip"
+              [showClear]="true"
+              placeholder="Select Playlist"
+            ></p-multiSelect>
+            <div class="flex align-items-center justify-content-center gap-2">
+              <button
+                *ngIf="!showButton"
+                pButton
+                pRipple
+                type="button"
+                icon="pi pi-check"
+                (click)="onSubmit()"
+                class="p-button-rounded p-button-text p-button-success mr-2"
+              ></button>
+              <button
+                *ngIf="!showButton"
+                pButton
+                pRipple
+                type="button"
+                icon="pi pi-times"
+                (click)="onCancel()"
+                class="p-button-rounded p-button-text p-button-danger"
+              ></button>
+            </div>
+          </div>
+          <button
+            mat-raised-button
+            color="primary"
             (click)="
               exportXLSX(
                 reportGroup.report[0].list_de_donnees,
@@ -136,7 +190,7 @@
             "
           >
             Export XLSX
-          </button>
+          </button> -->
           <mat-form-field>
             <mat-label>Select chart type</mat-label>
             <mat-select
@@ -155,3 +209,17 @@
     </div>
   </div>
 </ng-container>
+
+<!-- <p-dialog
+  header="Header"
+  [(visible)]="showButton"
+  [modal]="true"
+  class="dialog"
+>
+  <ng-template pTemplate="header">
+    <div class="inline-flex align-items-center justify-content-center gap-2">
+      <span class="font-bold white-space-nowrap">Save To PlayList</span>
+    </div>
+  </ng-template>
+  <app-playlist [id]="selectedId"></app-playlist>
+</p-dialog> -->

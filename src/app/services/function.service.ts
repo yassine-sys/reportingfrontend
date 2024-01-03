@@ -5,32 +5,30 @@ import { environment } from 'src/environments/environment';
 import { ModuleFunction } from 'src/model/ModuleFunction';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FunctionService {
+  apiUrl = environment.apiUrl;
 
-  apiUrl = environment.apiUrl
+  constructor(private http: HttpClient) {}
 
-
-  constructor(private http: HttpClient) { }
-
-  public getAllFunction():Observable<ModuleFunction[]>{
+  public getAllFunction(): Observable<ModuleFunction[]> {
     return this.http.get<ModuleFunction[]>(`${this.apiUrl}/function/list`);
   }
-  
-  public getFunctionById(id:any):Observable<ModuleFunction>{
+
+  public getFunctionById(id: any): Observable<ModuleFunction> {
     return this.http.get<ModuleFunction>(`${this.apiUrl}/function/find/${id}`);
   }
 
-  public deleteFonction(id:any){
-    return this .http.delete(`${this.apiUrl}/function/delete/${id}`)
+  public deleteFonction(id: any) {
+    return this.http.delete(`${this.apiUrl}/function/delete/${id}`);
   }
 
-  public addFonction(fonction:any) {
-    return this.http.post(`${this.apiUrl}/function/add`,fonction);
+  public addFonction(fonction: any) {
+    return this.http.post(`${this.apiUrl}/function/add`, fonction);
   }
-  public updateFonction(id:number,fonction:any){
-    return this.http.put(`${this.apiUrl}/function/edit/${id}`,fonction);
+  public updateFonction(id: number, fonction: any) {
+    return this.http.put(`${this.apiUrl}/function/edit/${id}`, fonction);
   }
 
   getAllRepRapports(): Observable<any> {
@@ -38,30 +36,83 @@ export class FunctionService {
     return this.http.get(url);
   }
 
-  assignRepRapportToFunction(functionId: number, repRapportId: number): Observable<any> {
+  assignRepRapportToFunction(
+    functionId: number,
+    repRapportId: number
+  ): Observable<any> {
     const url = `${this.apiUrl}/function/${functionId}/reprapports/${repRapportId}`;
     return this.http.put(url, null);
   }
 
-  getRepRapportsByFunctionId(functionId:any) {
+  getRepRapportsByFunctionId(functionId: any) {
     const url = `${this.apiUrl}/function/${functionId}/reprapports`;
-   return this.http.get(url)
+    return this.http.get(url);
   }
 
-  removeRepRapportFromFunction(functionId: any, repRapportId: any) : Observable<any>{
-   
+  removeRepRapportFromFunction(
+    functionId: any,
+    repRapportId: any
+  ): Observable<any> {
     const url = `${this.apiUrl}/function/${functionId}/reprapports/${repRapportId}`;
-return this.http.delete(url)
-
+    return this.http.delete(url);
   }
-  getReportsByFunctionId(functionId:any) {
+  getReportsByFunctionId(functionId: any) {
     const url = `${this.apiUrl}/function/${functionId}/reports`;
-   return this.http.get(url)
+    return this.http.get(url);
   }
 
   updateReportOrderForFunction(functionId: any, repId: any, newOrder: any) {
     const url = `${this.apiUrl}/function/${functionId}/reports/${repId}/order`;
     const body = { newOrder: newOrder };
-    return this.http.put(url+ '?newOrder=' + newOrder, null);
-}
+    return this.http.put(url + '?newOrder=' + newOrder, null);
+  }
+
+  getAllPlayLists() {
+    return this.http.get(`${this.apiUrl}/playlist`);
+  }
+
+  getPlayListById(id: any) {
+    return this.http.get(`${this.apiUrl}/playlist/${id}`);
+  }
+
+  createPlayList(playlist: any) {
+    return this.http.post(`${this.apiUrl}/playlist/create`, playlist, {
+      responseType: 'text',
+    });
+  }
+
+  deletePlayList(playListId: any) {
+    return this.http.delete(`${this.apiUrl}/playlist/${playListId}`, {
+      responseType: 'text',
+    });
+  }
+
+  assignReportsToPlaylists(request: any) {
+    return this.http.post(
+      `${this.apiUrl}/playlist/addReportToMultiplePlaylists`,
+      request,
+      {
+        responseType: 'text',
+      }
+    );
+  }
+
+  detachReportFromPlayList(playlistId: any, reportId: any) {
+    return this.http.delete(
+      `${this.apiUrl}/playlist/${playlistId}/detachReport/${reportId}`,
+      {
+        responseType: 'text',
+      }
+    );
+  }
+
+  updateReportOrder(
+    playlistId: number,
+    orderedReportIds: number[]
+  ): Observable<any> {
+    return this.http.put(
+      `${this.apiUrl}/playlist/${playlistId}/updateOrder`,
+      orderedReportIds
+    );
+  }
 }

@@ -26,13 +26,18 @@ import { ReportsComponent } from './components/reports/reports.component';
 import { HomeChartsComponent } from './components/home-charts/home-charts.component';
 import { OrderUserChartsComponent } from './components/order-user-charts/order-user-charts.component';
 import { UserchartComponent } from './components/userchart/userchart.component';
+import { PlaylistdashboardComponent } from './components/playlistdashboard/playlistdashboard.component';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'login', component: LoginComponent },
   { path: 'forgot', component: ForgotPassComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
-  { path: 'welcome', component: HomeChartsComponent },
+  {
+    path: 'playlist/charts/:id',
+    component: HomeChartsComponent,
+    canActivate: [AuthGuard],
+  },
   {
     path: 'dashboard',
     component: DashboardComponent,
@@ -83,6 +88,11 @@ const routes: Routes = [
       {
         path: 'function/charts/:id',
         component: ReportsComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'playlists',
+        component: PlaylistdashboardComponent,
         canActivate: [AuthGuard],
       },
       {

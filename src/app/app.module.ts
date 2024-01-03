@@ -68,6 +68,7 @@ import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { LoaderComponent } from './components/loader/loader.component';
 import { LoaderInterceptor } from './LoaderInterceptor';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { DragDropModule as PrimeNgDragDropModule } from 'primeng/dragdrop';
 import { OrderFunctionComponent } from './components/order-function/order-function.component';
 import { OrderUserChartsComponent } from './components/order-user-charts/order-user-charts.component';
 import { PaginatedTableComponent } from './components/paginated-table/paginated-table.component';
@@ -105,6 +106,12 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { HomeChartsComponent } from './components/home-charts/home-charts.component';
 import { UserchartComponent } from './components/userchart/userchart.component';
 import { SplitButtonModule } from 'primeng/splitbutton';
+import { PlaylistComponent } from './components/playlist/playlist.component';
+import { SpeedDialModule } from 'primeng/speeddial';
+import { CheckboxModule } from 'primeng/checkbox';
+import { DialogService } from 'primeng/dynamicdialog';
+import { DynamicDialogModule } from 'primeng/dynamicdialog';
+import { PlaylistdashboardComponent } from './components/playlistdashboard/playlistdashboard.component';
 
 @NgModule({
   declarations: [
@@ -156,6 +163,8 @@ import { SplitButtonModule } from 'primeng/splitbutton';
     FilterComponentComponent,
     HomeChartsComponent,
     UserchartComponent,
+    PlaylistComponent,
+    PlaylistdashboardComponent,
   ],
   imports: [
     BrowserModule,
@@ -205,8 +214,13 @@ import { SplitButtonModule } from 'primeng/splitbutton';
     MenuModule,
     OverlayPanelModule,
     SplitButtonModule,
+    SpeedDialModule,
+    CheckboxModule,
+    DynamicDialogModule,
+    PrimeNgDragDropModule,
   ],
   providers: [
+    DialogService,
     CookieService,
     AuthGuard,
     AuthService,

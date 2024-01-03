@@ -155,7 +155,7 @@
               <li class="nav-item" role="menuitem">
                 <a
                   class="nav-link"
-                  href="http://10.156.35.98:9998/RaftoolsReporting/pages/config/validateRep.jsf"
+                  [href]="currentUrl"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -223,6 +223,48 @@
                             </p>
                         </a>
                     </li> -->
+
+          <!-- PlayLists -->
+          <li
+            [ngClass]="playlist ? 'nav-item menu-open' : 'nav-item'"
+            role="group"
+          >
+            <a
+              class="nav-link"
+              class="nav-link"
+              (click)="togglePlaylist()"
+              [ngClass]="playlist ? 'nav-link active' : 'nav-link'"
+            >
+              <i class="nav-icon far fa-image" aria-hidden="true"></i>
+              <p>
+                PlayLists
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview" style="display: none">
+              <!-- Dynamically generate playlist items -->
+              <li class="nav-item" routerLinkActive="active" role="menuitem">
+                <a routerLink="playlists" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Manage PlayLists</p>
+                </a>
+              </li>
+              <ng-container *ngFor="let playlist of playlists">
+                <li class="nav-item" role="menuitem">
+                  <a
+                    [routerLink]="['/playlist/charts/', playlist.id]"
+                    routerLinkActive="active"
+                    class="nav-link"
+                  >
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>{{ playlist.playListName }}</p>
+                  </a>
+                </li>
+              </ng-container>
+            </ul>
+          </li>
+
+          <!-- PlayLists -->
           <ng-container *ngFor="let module of modulesData">
             <li
               [ngClass]="module.isOpen ? 'nav-item menu-open' : 'nav-item'"

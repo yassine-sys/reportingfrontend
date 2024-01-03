@@ -209,6 +209,27 @@ export class ChartService {
     return this.http.post(`${this.apiUrl}/login/rsrReport`, body, { headers });
   }
 
+  public getDetailsLVL4(
+    idrep: any,
+    date: any,
+    startdate: any,
+    enddate: any,
+    toreplace1: any,
+    toreplace2: any
+  ): Observable<any> {
+    const body = new HttpParams()
+      .set('idrep', idrep)
+      .set('date', date)
+      .set('startdate', startdate)
+      .set('enddate', enddate)
+      .set('toreplace1', toreplace1)
+      .set('toreplace2', toreplace2)
+      .toString();
+
+    const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    return this.http.post(`${this.apiUrl}/login/rsrReport`, body, { headers });
+  }
+
   public customDetails(
     plantarif: any,
     dest: any,
@@ -260,6 +281,10 @@ export class ChartService {
 
   public getDailyEtatCollect(): Observable<any> {
     return this.http.get<any>(`${this.api}/cdr/etat-collect/`);
+  }
+
+  public getTodayEtatCollect(): Observable<any> {
+    return this.http.get<any>(`${this.api}/cdr/today-etat-collect/`);
   }
 
   public getMonthlyEtatCollect(): Observable<any> {

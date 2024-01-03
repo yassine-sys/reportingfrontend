@@ -16,7 +16,22 @@ interface Project {
 })
 export class HomeComponent implements OnInit {
   cards: any[] = [];
-  constructor() {}
+  currentUrl!: string;
+  constructor(private router: Router) {}
 
   ngOnInit() {}
+
+  navigateTo(url: string, suffix: string): void {
+    this.getCurrentUrl();
+    window.open(this.currentUrl + '/' + url + '/' + suffix, '_blank');
+  }
+
+  private getCurrentUrl(): void {
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    const port = window.location.port;
+
+    this.currentUrl = `${protocol}//${hostname}${port ? ':' + port : ''}`;
+    console.log(this.currentUrl);
+  }
 }

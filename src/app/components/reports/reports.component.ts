@@ -8,6 +8,7 @@ import {
   ChangeDetectorRef,
   HostListener,
   NgZone,
+  Input,
 } from '@angular/core';
 //import * as Highcharts from 'highcharts';
 import * as Highcharts from 'highcharts/highstock';
@@ -45,13 +46,16 @@ import {
   Subscription,
   catchError,
   combineLatest,
+  concatMap,
   forkJoin,
+  from,
   interval,
   map,
   merge,
   of,
   switchMap,
   takeUntil,
+  toArray,
 } from 'rxjs';
 import { MatSelectChange } from '@angular/material/select';
 import { HighchartsChartComponent } from 'highcharts-angular';
@@ -71,6 +75,8 @@ import ExportData from 'highcharts/modules/export-data';
 import { DarkModeService } from '../../services/dark-mode.service';
 import DarkTheme from 'highcharts/themes/brand-dark';
 import DefaultTheme from 'highcharts/themes/brand-light';
+import { DialogService } from 'primeng/dynamicdialog';
+import { PlaylistComponent } from '../playlist/playlist.component';
 
 Accessibility(Highcharts);
 ExportingModule(Highcharts);
@@ -90,7 +96,7 @@ HStockTools(Highcharts);
   templateUrl: './reports.component.html',
   styleUrls: ['./reports.component.css'],
 })
-export class ReportsComponent implements OnInit, OnDestroy {
+export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
   newuser!: User;
   funcId: any;
   listeRep: any[] = [];
@@ -142,6 +148,14 @@ export class ReportsComponent implements OnInit, OnDestroy {
   private subscriptionDarkMode: Subscription = new Subscription();
   darkModeEnabled!: boolean;
 
+  showButton = false; // Flag to control button visibility
+  selectedPlaylists: any[] = []; // Array to store selected playlists
+  allPlaylists: any[] = [];
+
+  itemssplit!: MenuItem[];
+  reportGroup: any;
+  selectedId: any;
+
   constructor(
     private dataUpdateService: DataUpdateService,
     private chartService: ChartService,
@@ -157,11 +171,12 @@ export class ReportsComponent implements OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private commentService: CommentService,
     private ngZone: NgZone,
-    private darkModeService: DarkModeService
-  ) {
+    private darkModeService: DarkModeService,
+    public dialogService: DialogService
+  ) {}
+  ngAfterViewInit(): void {
     this.subscriptionDarkMode = this.darkModeService.darkModeState.subscribe(
       (isDarkMode) => {
-        console.log(isDarkMode);
         this.darkModeEnabled = isDarkMode;
         this.applyChartTheme();
         //this.updateAllCharts();
@@ -170,7 +185,48 @@ export class ReportsComponent implements OnInit, OnDestroy {
     );
   }
 
+  handleSpeedDialClick(report: any) {
+    this.reportGroup = report;
+  }
+
   ngOnInit(): void {
+    this.itemssplit = [
+      {
+        tooltipOptions: {
+          tooltipLabel: 'Export XLSX',
+          tooltipPosition: 'top',
+        },
+        icon: 'pi pi-file-excel',
+        iconStyle: { 'background-color': 'white' },
+        command: () => {
+          this.exportXLSX(
+            this.reportGroup.report[0].list_de_donnees,
+            this.reportGroup.report[0].listnamereptab,
+            this.reportGroup.report[0].title
+          );
+        },
+      },
+      {
+        tooltipOptions: {
+          tooltipLabel: 'Add To Dashboard',
+          tooltipPosition: 'top',
+        },
+        icon: 'pi pi-home',
+        command: () => {
+          this.addToDashboard(this.reportGroup.id);
+        },
+      },
+      {
+        tooltipOptions: {
+          tooltipLabel: 'Add To PlayList',
+          tooltipPosition: 'top',
+        },
+        icon: 'pi pi-star-fill',
+        command: () => {
+          this.onAddToPlaylistClick();
+        },
+      },
+    ];
     this.chartService.getRepByFunctionId(929).subscribe((response: any) => {
       this.playListIds = response;
     });
@@ -228,7 +284,6 @@ export class ReportsComponent implements OnInit, OnDestroy {
     //this.filterService.clearFilters();
     //this.globalFilter.idfunction = 0;
     //this.startLiveUpdate();
-
     this.changeDetectorRef.detectChanges();
   }
 
@@ -670,6 +725,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
     this.filtredSubscription.unsubscribe();
     this.filterService.clearFilters();
+
+    this.subscriptionDarkMode.unsubscribe();
   }
 
   getFunctionName() {
@@ -1146,24 +1203,215 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
   private async applyChartTheme() {
     if (this.darkModeEnabled) {
+      console.log('Applying dark theme');
       DarkTheme(Highcharts);
     } else {
+      console.log('Applying light theme');
       DefaultTheme(Highcharts);
     }
     Highcharts.setOptions({}); // Reapply global options if needed
   }
 
   private updateAllCharts() {
-    // Rebuild and update charts here
+    if (this.darkModeEnabled) {
+      console.log('Applying dark theme');
+      DarkTheme(Highcharts);
+      Highcharts.setOptions({});
+    } else {
+      console.log('Applying light theme');
+      DefaultTheme(Highcharts);
+      Highcharts.setOptions({});
+    }
+
     this.reportIds.forEach((reportId, index) => {
       if (this.reportIds[index].chartType !== 'table') {
         this.chartOptions[index] = this.buildChart(this.reportIds[index]);
         const chartInstance = this.chartInstances[index];
         if (chartInstance) {
           chartInstance.update(this.chartOptions[index], true, true);
+          console.log('chart is on dark mode');
+          chartInstance.redraw(); // Explicitly redraw the chart
         }
       }
     });
     this.changeDetectorRef.detectChanges();
+  }
+
+  exportAll(data: any) {
+    const jsonData = this.transformToJSON(
+      data.list_de_donnees,
+      data.listnamereptab
+    );
+
+    const observables = jsonData.map((passeddata) => {
+      let detailsCols;
+      return from(
+        this.getDetails(
+          passeddata,
+          data.listnamereptab,
+          data.id_report,
+          detailsCols,
+          data.iscarrier,
+          data.operator
+        )
+      );
+    });
+
+    forkJoin(observables)
+      .pipe(toArray())
+      .subscribe((combinedResults: string[][]) => {
+        console.log(combinedResults);
+      });
+  }
+
+  getDetails(
+    jsonData: any,
+    cols: any,
+    idrep: any,
+    detailsCols: any,
+    iscarrier: any,
+    operator: any
+  ): Promise<string> {
+    return new Promise<string>((resolve) => {
+      let startDate, endDate;
+      if (this.filtred === undefined) {
+        const today = new Date();
+        const datePreviousMonth = new Date(today);
+        datePreviousMonth.setMonth(today.getMonth() - 1);
+
+        startDate = this.formatDate(datePreviousMonth);
+        endDate = this.formatDate(today);
+        //console.log(this.filter);
+      } else {
+        startDate = this.filtred.startDate;
+        endDate = this.filtred.endDate;
+      }
+
+      if (!jsonData.details) {
+        // Set loading flag to true
+        //console.log(jsonData[cols[0]]);
+        this.chartService
+          .getDetails(idrep, jsonData[cols[0]], startDate, endDate)
+          .subscribe((response) => {
+            //console.log(response);
+            const columns = response.listnamereptab;
+            const data = response.list_de_donnees;
+            const subRep1 = response.id_report;
+            jsonData.details = this.transformToJSON(data, columns);
+            if (operator) {
+              detailsCols.unshift('Name');
+              this.chartService.getOperatorsDest().subscribe((destinations) => {
+                jsonData.details.forEach((detail: any) => {
+                  const destination = destinations.find(
+                    (dest: { id: any }) =>
+                      dest.id === parseFloat(detail[detailsCols[1]])
+                  );
+
+                  if (destination) {
+                    // Add "Name" property to each item in rowData.details
+                    detail['Name'] = destination.nomDestination;
+                    // Add "Name" to the beginning of detailsCols if not already present
+                    if (!detailsCols.includes('Name')) {
+                      detailsCols.unshift('Name');
+                      detail[detailsCols[1]] = parseFloat(
+                        detail[detailsCols[1]]
+                          .toString()
+                          .replace(/\s/g, '') // Remove spaces
+                          .replace(/\.00$/, '')
+                      );
+                    }
+                  }
+                });
+              });
+            } else if (iscarrier) {
+              detailsCols.unshift('Name');
+              this.chartService
+                .getOperatorsInterco()
+                .subscribe((destinations) => {
+                  jsonData.details.forEach((detail: any) => {
+                    const destination = destinations.find(
+                      (dest: { id: any }) =>
+                        dest.id ===
+                        parseFloat(
+                          detail[detailsCols[0]]
+                            .toString()
+                            .replace(/\s/g, '') // Remove spaces
+                            .replace(/\.00$/, '')
+                        )
+                    );
+                    if (destination) {
+                      // Add "Name" property to each item in rowData.details
+                      detail['Name'] = destination.nomDestination;
+                      // Add "Name" to the beginning of detailsCols if not already present
+                      if (!detailsCols.includes('Name')) {
+                        detailsCols.unshift('Name');
+                        detail[detailsCols[1]] = parseFloat(
+                          detail[detailsCols[1]]
+                            .toString()
+                            .replace(/\s/g, '') // Remove spaces
+                            .replace(/\.00$/, '')
+                        );
+                      }
+                    }
+                  });
+                });
+            }
+          });
+      }
+      resolve(jsonData);
+    });
+  }
+
+  formatDate(date: Date): string {
+    const year = date.getFullYear().toString().slice(-2); // Get the last two digits of the year
+    const month = ('0' + (date.getMonth() + 1)).slice(-2); // Add 1 to the month because it's 0-indexed
+    const day = ('0' + date.getDate()).slice(-2);
+    return `${year}-${month}-${day}`;
+  }
+
+  transformToJSON(data: any[], columns: string[]): any[] {
+    const jsonData = data.map((row) => {
+      const obj: { [key: string]: any } = {};
+      columns.forEach((column, index) => {
+        obj[column] = this.formatNumber(row[index]);
+      });
+      return obj;
+    });
+    return jsonData;
+  }
+
+  formatNumber(value: any): string {
+    if (typeof value === 'number') {
+      const options = {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 5,
+      };
+      const formattedValue = value.toLocaleString('en-GB', options);
+      const parts = formattedValue.split('.');
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+      const newValue = parts.join('.').replace(/,/g, ' '); // Replace commas with spaces
+
+      return newValue;
+    }
+    return value;
+  }
+
+  onAddToPlaylistClick() {
+    // Hide the button and show the dropdown
+    this.showButton = true;
+    this.selectedId = this.reportGroup.id;
+    const ref = this.dialogService.open(PlaylistComponent, {
+      header: 'Save To Playlist',
+      width: '30%',
+      contentStyle: { 'max-height': '500px', overflow: 'auto' }, // Optional: you can set custom styles
+      // If you need to pass data to your PlaylistComponent, use the data property:
+      data: {
+        id: this.selectedId, // pass any data you need
+      },
+    });
+
+    ref.onClose.subscribe((data) => {
+      // Handle the data received from the dialog
+    });
   }
 }
