@@ -180,7 +180,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
         this.darkModeEnabled = isDarkMode;
         this.applyChartTheme();
         //this.updateAllCharts();
-        this.ngOnInit();
+        //this.ngOnInit();
       }
     );
   }
@@ -289,7 +289,6 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   toggleLiveUpdate() {
     this.liveUpdateActive = !this.liveUpdateActive;
-    console.log(this.liveUpdateActive);
 
     if (this.liveUpdateActive) {
       this.startLiveUpdate();
@@ -365,9 +364,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
                 report &&
                 report.length > 0 &&
                 report[0].list_de_donnees.length > 0 &&
-                this.reportIds[index].report[0].listnamereptab.some(
-                  (name: string) => name.toLowerCase().includes('date')
-                ) &&
+                this.reportIds[index].report[0].hasdate &&
                 this.reportIds[index].report[0].title !==
                   ' Voice Call Rating Alert'
               ) {
@@ -392,13 +389,13 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
               this.reportIds[index].loading = false;
               this.isChartDisplayed[this.chartOptions.length - 1] = true;
               this.changeDetectorRef.detectChanges();
-              console.log(this.reportIds);
             }
           },
           (error) => {
             console.error('Error fetching reports', error);
           }
         );
+      console.log(this.reportIds);
     }
   }
 
@@ -430,6 +427,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private buildChart(data: any): any {
     const chartData = data.report;
+
     let subtitleText = chartData[0].title + ': ';
     if (chartData[0].list_de_donnees.length === 1) {
       subtitleText += 'Date: ' + chartData[0].list_de_donnees[0][0];
@@ -442,21 +440,13 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
           chartData[0].list_de_donnees.length - 1
         ][0];
     }
-    // const seriesData = chartData[0].listnamerep
-    //   .slice(0)
-    //   .map((name: any, i: number) => ({
-    //     name: name,
-    //     data: chartData[0].list_de_donnees.map(
-    //       (data: { toString: () => any }[]) => data[i + 1]
-    //     ),
-    //   }));
 
     let hasDateData = false;
+    // hasDateData = chartData[0].hasdate;
     hasDateData =
       chartData[0].listnamereptab &&
       chartData[0].listnamereptab.length > 0 &&
       chartData[0].listnamereptab[0].toLowerCase().includes('date');
-
     data.constructorType = hasDateData ? 'stockChart' : 'chart';
 
     // Calculate the date 90 days ago and 30 days ago from today
@@ -465,15 +455,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    // Retrieve data for the last three months
-    const threeMonthsData = chartData[0].list_de_donnees.filter(
-      (datum: (string | number | Date)[]) => {
-        const dataDate = new Date(datum[0]);
-        return dataDate >= ninetyDaysAgo;
-      }
-    );
-
-    // Process data
+    // Process data for charts
     const seriesData = hasDateData
       ? chartData[0].listnamerep.map((name: string, i: number) => ({
           id: `series-${i}`,
@@ -491,7 +473,21 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
           ),
         }));
 
-    const chartOptions: Highcharts.Options = {
+    // Process data for pie
+    const isPieChart = data.chartType === 'pie';
+    let pieData: any;
+
+    if (isPieChart) {
+      pieData = chartData[0].list_de_donnees.map((item: any) => {
+        return {
+          name: item[0], // Assuming the first value is the name
+          y: item[1], // Assuming the second value is the data point
+        };
+      });
+    }
+
+    let chartOptions: Highcharts.Options;
+    chartOptions = {
       colors: [
         '#058DC7',
         '#50B432',
@@ -512,7 +508,6 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
         animation: true,
         colorCount: 100,
         reflow: true,
-
         plotBorderWidth: 1,
         plotShadow: true,
         borderRadius: 10,
@@ -646,15 +641,31 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
           }
         : {
             valueDecimals: 1,
+            pointFormat: '{point.name}: <b>{point.y:.2f}</b>',
           },
       plotOptions: {
-        series: {
-          borderWidth: 0,
-          dataLabels: {
-            enabled: true,
-            format: '{point.y:.1f}',
-          },
-        },
+        pie: isPieChart
+          ? {
+              allowPointSelect: true,
+              cursor: 'pointer',
+              dataLabels: {
+                enabled: true,
+                distance: 20,
+                format: '<b>{point.name}</b>: {point.percentage:.2f}%',
+              },
+              borderRadius: 10,
+              showInLegend: true,
+              slicedOffset: 20,
+            }
+          : {},
+        series: !isPieChart
+          ? {
+              dataLabels: {
+                enabled: true,
+                format: '{point.y:.2f}',
+              },
+            }
+          : {},
       },
       rangeSelector: hasDateData
         ? {
@@ -715,11 +726,25 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
           ],
         },
       },
-      series: seriesData,
+      series: isPieChart
+        ? [
+            {
+              animation: {
+                duration: 2000,
+              },
+              colorByPoint: true,
+              data: pieData,
+              type: 'pie',
+            },
+          ]
+        : seriesData,
     };
     return chartOptions;
   }
 
+  isMonthYearFormat(dateStr: string) {
+    return /^\d{2}\/\d{4}$/.test(dateStr); // Regex for 'MM/YYYY' format
+  }
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
@@ -877,11 +902,10 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
           // Update the report data
           this.reportIds[index].report[0].list_de_donnees =
             resp.list_de_donnees;
-          console.log(this.reportIds[index].report[0]);
+
           // Update the chart options
           if (this.reportIds[index].chartType !== 'table') {
             this.chartOptions[index] = this.buildChart(this.reportIds[index]);
-
             // Ensure the chart instance is available and responsive before updating
             const chartInstance = this.chartInstances[index];
             if (chartInstance && chartInstance.responsive) {
@@ -890,7 +914,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
           } else {
             this.chartOptions[index] = {};
           }
-
+          this.changeDetectorRef.detectChanges();
           this.reportIds[index].loading = false;
         });
     }
@@ -908,10 +932,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
       if (index !== -1) {
         this.reportIds[index].loading = true;
         // Update the list_de_donnees in the existing report
-        const hasDateData = this.reportIds[index].report[0].listnamereptab.some(
-          (name: string) => name.toLowerCase().includes('date')
-        );
-        if (hasDateData) {
+        if (this.reportIds[index].report[0].hasdate) {
           this.reportIds[index].report[0].list_de_donnees =
             this.fillMissingDatesFilter(
               filterResult.list_de_donnees,
@@ -1082,42 +1103,35 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       // Update the chart options
       if (this.reportIds[index].chartType !== 'table') {
-        // let startDate, endDate;
-        // let hasDateData = false;
-        // hasDateData =
-        //   this.reportIds[index].report[0].listnamereptab &&
-        //   this.reportIds[index].report[0].listnamereptab.length > 0 &&
-        //   this.reportIds[index].report[0].listnamereptab[0]
-        //     .toLowerCase()
-        //     .includes('date');
+        let startDate, endDate;
+        let hasDateData = false;
+        hasDateData = this.reportIds[index].report[0].hasdate;
 
-        // if (
-        //   this.globalFilter &&
-        //   this.globalFilter &&
-        //   this.globalFilter.startDate &&
-        //   this.globalFilter.endDate
-        // ) {
-        //   startDate = this.globalFilter.startDate;
-        //   endDate = this.globalFilter.endDate;
-        //   this.reportIds[index].report[0].list_de_donnees =
-        //     this.fillMissingDatesFilter(
-        //       newReport.list_de_donnees,
-        //       startDate,
-        //       endDate
-        //     );
-        // } else {
-        // startDate = newReport.list_de_donnees[0][0];
-        // endDate =
-        //   newReport.list_de_donnees[newReport.list_de_donnees.length - 1][0];
-        (this.reportIds[index].report[0].list_de_donnees =
-          //this.fillMissingDates(
-          newReport.list_de_donnees),
-          //   startDate,
-          //   new Date().toISOString().split('T')[0]
-          // );
-          // }
-
-          console.log(this.reportIds[index].report[0]);
+        if (
+          this.globalFilter &&
+          this.globalFilter &&
+          this.globalFilter.startDate &&
+          this.globalFilter.endDate
+        ) {
+          startDate = this.globalFilter.startDate;
+          endDate = this.globalFilter.endDate;
+          this.reportIds[index].report[0].list_de_donnees =
+            this.fillMissingDatesFilter(
+              newReport.list_de_donnees,
+              startDate,
+              endDate
+            );
+        } else {
+          startDate = newReport.list_de_donnees[0][0];
+          endDate =
+            newReport.list_de_donnees[newReport.list_de_donnees.length - 1][0];
+          this.reportIds[index].report[0].list_de_donnees =
+            this.fillMissingDates(
+              newReport.list_de_donnees,
+              startDate,
+              new Date().toISOString().split('T')[0]
+            );
+        }
         this.chartOptions[index] = this.buildChart(this.reportIds[index]);
 
         const chartInstance = this.chartInstances[index];
@@ -1125,35 +1139,35 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
           chartInstance.update(this.chartOptions[index]);
         }
       } else {
-        // this.reportIds[index].loading = true;
-        // let startDate, endDate;
-        // if (
-        //   this.globalFilter &&
-        //   this.globalFilter &&
-        //   this.globalFilter.startDate &&
-        //   this.globalFilter.endDate
-        // ) {
-        //   startDate = this.globalFilter.startDate;
-        //   endDate = this.globalFilter.endDate;
-        //   this.reportIds[index].report[0].list_de_donnees =
-        //     this.fillMissingDatesFilter(
-        //       newReport.list_de_donnees,
-        //       startDate,
-        //       endDate
-        //     );
-        // } else {
-        // startDate = newReport.list_de_donnees[0][0];
-        // endDate =
-        //   newReport.list_de_donnees[newReport.list_de_donnees.length - 1][0];
-        (this.reportIds[index].report[0].list_de_donnees =
-          // this.fillMissingDates(
-          newReport.list_de_donnees),
-          //       startDate,
-          //       new Date().toISOString().split('T')[0]
-          //     );
-          // }
+        this.reportIds[index].loading = true;
+        let startDate, endDate;
+        if (
+          this.globalFilter &&
+          this.globalFilter &&
+          this.globalFilter.startDate &&
+          this.globalFilter.endDate
+        ) {
+          startDate = this.globalFilter.startDate;
+          endDate = this.globalFilter.endDate;
+          this.reportIds[index].report[0].list_de_donnees =
+            this.fillMissingDatesFilter(
+              newReport.list_de_donnees,
+              startDate,
+              endDate
+            );
+        } else {
+          startDate = newReport.list_de_donnees[0][0];
+          endDate =
+            newReport.list_de_donnees[newReport.list_de_donnees.length - 1][0];
+          this.reportIds[index].report[0].list_de_donnees =
+            this.fillMissingDates(
+              newReport.list_de_donnees,
+              startDate,
+              new Date().toISOString().split('T')[0]
+            );
+        }
 
-          console.log(this.reportIds[index].report[0]);
+        console.log(this.reportIds[index].report[0]);
         this.chartOptions[index] = {};
       }
       this.dataUpdateService.updateData(
@@ -1166,39 +1180,6 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   fetchReport(reportId: number) {
     return this.chartService.getRepById(reportId);
-  }
-
-  getItemsForReportGroup(reportGroupId: number): any[] {
-    const isAddedToPlaylist = this.playListIds.includes(reportGroupId);
-    return [
-      {
-        label: isAddedToPlaylist ? 'Remove From Playlist' : 'Add To Playlist',
-        icon: isAddedToPlaylist ? 'pi pi-times' : 'pi pi-plus',
-        command: () => {
-          if (isAddedToPlaylist) {
-          } else {
-          }
-        },
-      },
-    ];
-  }
-
-  addToPlayList(reportGroupId: number) {
-    this.functionService
-      .assignRepRapportToFunction(929, reportGroupId)
-      .subscribe(() => {
-        this.toastr.success('Repport added To PlayList!', 'Success');
-        this.ngOnInit();
-      });
-  }
-
-  removeFromPlaylist(reportGroupId: number) {
-    this.functionService
-      .removeRepRapportFromFunction(929, reportGroupId)
-      .subscribe(() => {
-        this.toastr.success('Repport Removed from PlayList!', 'Success');
-        this.ngOnInit();
-      });
   }
 
   private async applyChartTheme() {
@@ -1235,131 +1216,6 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
     this.changeDetectorRef.detectChanges();
-  }
-
-  exportAll(data: any) {
-    const jsonData = this.transformToJSON(
-      data.list_de_donnees,
-      data.listnamereptab
-    );
-
-    const observables = jsonData.map((passeddata) => {
-      let detailsCols;
-      return from(
-        this.getDetails(
-          passeddata,
-          data.listnamereptab,
-          data.id_report,
-          detailsCols,
-          data.iscarrier,
-          data.operator
-        )
-      );
-    });
-
-    forkJoin(observables)
-      .pipe(toArray())
-      .subscribe((combinedResults: string[][]) => {
-        console.log(combinedResults);
-      });
-  }
-
-  getDetails(
-    jsonData: any,
-    cols: any,
-    idrep: any,
-    detailsCols: any,
-    iscarrier: any,
-    operator: any
-  ): Promise<string> {
-    return new Promise<string>((resolve) => {
-      let startDate, endDate;
-      if (this.filtred === undefined) {
-        const today = new Date();
-        const datePreviousMonth = new Date(today);
-        datePreviousMonth.setMonth(today.getMonth() - 1);
-
-        startDate = this.formatDate(datePreviousMonth);
-        endDate = this.formatDate(today);
-        //console.log(this.filter);
-      } else {
-        startDate = this.filtred.startDate;
-        endDate = this.filtred.endDate;
-      }
-
-      if (!jsonData.details) {
-        // Set loading flag to true
-        //console.log(jsonData[cols[0]]);
-        this.chartService
-          .getDetails(idrep, jsonData[cols[0]], startDate, endDate)
-          .subscribe((response) => {
-            //console.log(response);
-            const columns = response.listnamereptab;
-            const data = response.list_de_donnees;
-            const subRep1 = response.id_report;
-            jsonData.details = this.transformToJSON(data, columns);
-            if (operator) {
-              detailsCols.unshift('Name');
-              this.chartService.getOperatorsDest().subscribe((destinations) => {
-                jsonData.details.forEach((detail: any) => {
-                  const destination = destinations.find(
-                    (dest: { id: any }) =>
-                      dest.id === parseFloat(detail[detailsCols[1]])
-                  );
-
-                  if (destination) {
-                    // Add "Name" property to each item in rowData.details
-                    detail['Name'] = destination.nomDestination;
-                    // Add "Name" to the beginning of detailsCols if not already present
-                    if (!detailsCols.includes('Name')) {
-                      detailsCols.unshift('Name');
-                      detail[detailsCols[1]] = parseFloat(
-                        detail[detailsCols[1]]
-                          .toString()
-                          .replace(/\s/g, '') // Remove spaces
-                          .replace(/\.00$/, '')
-                      );
-                    }
-                  }
-                });
-              });
-            } else if (iscarrier) {
-              detailsCols.unshift('Name');
-              this.chartService
-                .getOperatorsInterco()
-                .subscribe((destinations) => {
-                  jsonData.details.forEach((detail: any) => {
-                    const destination = destinations.find(
-                      (dest: { id: any }) =>
-                        dest.id ===
-                        parseFloat(
-                          detail[detailsCols[0]]
-                            .toString()
-                            .replace(/\s/g, '') // Remove spaces
-                            .replace(/\.00$/, '')
-                        )
-                    );
-                    if (destination) {
-                      // Add "Name" property to each item in rowData.details
-                      detail['Name'] = destination.nomDestination;
-                      // Add "Name" to the beginning of detailsCols if not already present
-                      if (!detailsCols.includes('Name')) {
-                        detailsCols.unshift('Name');
-                        detail[detailsCols[1]] = parseFloat(
-                          detail[detailsCols[1]]
-                            .toString()
-                            .replace(/\s/g, '') // Remove spaces
-                            .replace(/\.00$/, '')
-                        );
-                      }
-                    }
-                  });
-                });
-            }
-          });
-      }
-      resolve(jsonData);
-    });
   }
 
   formatDate(date: Date): string {

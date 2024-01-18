@@ -59,6 +59,7 @@
       <ng-container *ngIf="!reportGroup.loading">
         <div class="filtre">
           <app-filter-component
+            [filter]="filtred"
             (filterApplied)="onFilterApplied($event, reportGroup.report[0], i)"
           ></app-filter-component>
         </div>
@@ -81,8 +82,9 @@
               [idrep]="reportGroup.report[0].id_report"
               [title]="reportGroup.report[0].title"
               [iscarrier]="reportGroup.report[0].iscarrier"
-              [operator]="reportGroup.report[0].load"
+              [operator]="reportGroup.report[0].operator"
               [filter]="filtred !== undefined ? filtred : globalFilter"
+              [hasDetails]="reportGroup.report[0].hasdetails"
             ></app-paginated-table>
           </ng-container>
 
@@ -101,7 +103,6 @@
         </ng-template>
         <div class="button-container">
           <p-speedDial
-            style="height: 50px"
             [model]="itemssplit"
             direction="right"
             (onClick)="handleSpeedDialClick(reportGroup)"
@@ -114,71 +115,16 @@
             (click)="addToDashboard(reportGroup.id)"
           >
             Add To Dashboard
-          </button>
-          <button
-            *ngIf="!playListIds.includes(reportGroup.id)"
-            mat-raised-button
-            color="primary"
-            (click)="addToPlayList(reportGroup.id)"
-          >
-            Add To Playlist
-          </button>
-
-          <button
-            *ngIf="playListIds.includes(reportGroup.id)"
-            mat-raised-button
-            color="primary"
-            (click)="removeFromPlaylist(reportGroup.id)"
-          >
-            Remove from Playlist
-          </button>
-          <button
+          </button> -->
+          <!-- <button
             mat-raised-button
             color="primary"
             (click)="exportAll(reportGroup.report[0])"
           >
             Export All
           </button>
-          <div>
-            <button
-              *ngIf="showButton"
-              (click)="onAddToPlaylistClick()"
-              class="p-button p-button-success"
-            >
-              Add to Playlist
-            </button>
-            <p-multiSelect
-              appendTo="body"
-              *ngIf="!showButton"
-              [options]="allPlaylists"
-              [(ngModel)]="selectedPlaylists"
-              optionLabel="name"
-              display="chip"
-              [showClear]="true"
-              placeholder="Select Playlist"
-            ></p-multiSelect>
-            <div class="flex align-items-center justify-content-center gap-2">
-              <button
-                *ngIf="!showButton"
-                pButton
-                pRipple
-                type="button"
-                icon="pi pi-check"
-                (click)="onSubmit()"
-                class="p-button-rounded p-button-text p-button-success mr-2"
-              ></button>
-              <button
-                *ngIf="!showButton"
-                pButton
-                pRipple
-                type="button"
-                icon="pi pi-times"
-                (click)="onCancel()"
-                class="p-button-rounded p-button-text p-button-danger"
-              ></button>
-            </div>
-          </div>
-          <button
+           -->
+          <!-- <button
             mat-raised-button
             color="primary"
             (click)="

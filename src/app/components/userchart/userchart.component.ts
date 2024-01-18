@@ -87,7 +87,7 @@ HStockTools(Highcharts);
   templateUrl: './userchart.component.html',
   styleUrls: ['./userchart.component.css'],
 })
-export class UserchartComponent implements OnInit, OnDestroy {
+export class UserchartComponent implements OnInit, OnDestroy, AfterViewInit {
   user!: User;
   funcId: any;
   listeRep: any[] = [];
@@ -137,13 +137,15 @@ export class UserchartComponent implements OnInit, OnDestroy {
     private ngZone: NgZone,
     private authServive: AuthService,
     private darkModeService: DarkModeService
-  ) {
+  ) {}
+
+  ngAfterViewInit(): void {
     this.subscriptionDarkMode = this.darkModeService.darkModeState.subscribe(
       (isDarkMode) => {
         this.darkModeEnabled = isDarkMode;
         this.applyChartTheme();
         //this.updateAllCharts();
-        this.ngOnInit();
+        //this.ngOnInit();
       }
     );
   }
@@ -318,24 +320,22 @@ export class UserchartComponent implements OnInit, OnDestroy {
           chartData[0].list_de_donnees.length - 1
         ][0];
     }
-    // const seriesData = chartData[0].listnamerep
-    //   .slice(0)
-    //   .map((name: any, i: number) => ({
-    //     name: name,
-    //     data: chartData[0].list_de_donnees.map(
-    //       (data: { toString: () => any }[]) => data[i + 1]
-    //     ),
-    //   }));
 
     let hasDateData = false;
+    // hasDateData = chartData[0].hasdate;
     hasDateData =
       chartData[0].listnamereptab &&
       chartData[0].listnamereptab.length > 0 &&
       chartData[0].listnamereptab[0].toLowerCase().includes('date');
-
     data.constructorType = hasDateData ? 'stockChart' : 'chart';
 
-    // Process data
+    // Calculate the date 90 days ago and 30 days ago from today
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    // Process data for charts
     const seriesData = hasDateData
       ? chartData[0].listnamerep.map((name: string, i: number) => ({
           id: `series-${i}`,
@@ -353,7 +353,21 @@ export class UserchartComponent implements OnInit, OnDestroy {
           ),
         }));
 
-    const chartOptions: Highcharts.Options = {
+    // Process data for pie
+    const isPieChart = data.chartType === 'pie';
+    let pieData: any;
+
+    if (isPieChart) {
+      pieData = chartData[0].list_de_donnees.map((item: any) => {
+        return {
+          name: item[0], // Assuming the first value is the name
+          y: item[1], // Assuming the second value is the data point
+        };
+      });
+    }
+
+    let chartOptions: Highcharts.Options;
+    chartOptions = {
       colors: [
         '#058DC7',
         '#50B432',
@@ -374,7 +388,6 @@ export class UserchartComponent implements OnInit, OnDestroy {
         animation: true,
         colorCount: 100,
         reflow: true,
-
         plotBorderWidth: 1,
         plotShadow: true,
         borderRadius: 10,
@@ -411,6 +424,7 @@ export class UserchartComponent implements OnInit, OnDestroy {
       },
       xAxis: {
         type: hasDateData ? 'datetime' : 'category',
+        //min: thirtyDaysAgo.getTime(),
         gridLineWidth: 1,
         alignTicks: true,
         title: {
@@ -507,15 +521,31 @@ export class UserchartComponent implements OnInit, OnDestroy {
           }
         : {
             valueDecimals: 1,
+            pointFormat: '{point.name}: <b>{point.y:.2f}</b>',
           },
       plotOptions: {
-        series: {
-          borderWidth: 0,
-          dataLabels: {
-            enabled: true,
-            format: '{point.y:.1f}',
-          },
-        },
+        pie: isPieChart
+          ? {
+              allowPointSelect: true,
+              cursor: 'pointer',
+              dataLabels: {
+                enabled: true,
+                distance: 20,
+                format: '<b>{point.name}</b>: {point.percentage:.2f}%',
+              },
+              borderRadius: 10,
+              showInLegend: true,
+              slicedOffset: 20,
+            }
+          : {},
+        series: !isPieChart
+          ? {
+              dataLabels: {
+                enabled: true,
+                format: '{point.y:.2f}',
+              },
+            }
+          : {},
       },
       rangeSelector: hasDateData
         ? {
@@ -549,6 +579,7 @@ export class UserchartComponent implements OnInit, OnDestroy {
               x: 0,
               y: 0,
             },
+            selected: 1,
           }
         : {},
       navigator: {
@@ -575,7 +606,18 @@ export class UserchartComponent implements OnInit, OnDestroy {
           ],
         },
       },
-      series: seriesData,
+      series: isPieChart
+        ? [
+            {
+              animation: {
+                duration: 2000,
+              },
+              colorByPoint: true,
+              data: pieData,
+              type: 'pie',
+            },
+          ]
+        : seriesData,
     };
     return chartOptions;
   }

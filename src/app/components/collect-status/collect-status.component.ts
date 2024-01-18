@@ -42,12 +42,24 @@ export class CollectStatusComponent implements OnInit {
         //   (item) => item.frequency === 'd' || item.frequency === null
         // );
         if (response.length > 0) {
-          this.columns = Object.keys(response[0]);
-          this.columns = [...this.columns, 'Status'];
+          // this.columns = Object.keys(response[0]);
+          // this.columns = [...this.columns, 'Status'];
+          this.columns = [
+            'date',
+            'name_flow',
+            'name_rep',
+            'nbfiles',
+            'nbrecord',
+            'nbfileprocessed',
+            'nbfilecorrupted',
+            'average',
+            'Status',
+          ];
           this.data = response.map((item) => {
             return [
               this.formatDate(item.date),
               item.name_flow === 'interco' ? 'switch' : item.name_flow,
+              item.name_rep,
               item.nbfiles,
               item.nbrecord,
               item.nbfileprocessed,
@@ -61,6 +73,7 @@ export class CollectStatusComponent implements OnInit {
         this.columns = [
           'Date',
           'Name Flow',
+          'Name Rep',
           'Number of Files',
           'Number of Records',
           'Files Processed',
@@ -84,17 +97,28 @@ export class CollectStatusComponent implements OnInit {
 
     this.service.getEtatCollect().subscribe((response: any[]) => {
       if (response.length > 0) {
-        console.log('getEtatCollect', response);
         // const filteredData = response.filter(
         //   (item) => item.frequency === 'd' || item.frequency === null
         // );
         if (response.length > 0) {
-          this.columnNames = Object.keys(response[0]);
-          this.columnNames = [...this.columnNames, 'Status'];
+          //this.columnNames = Object.keys(response[0]);
+          this.columnNames = [
+            'date',
+            'name_flow',
+            'name_rep',
+            'nbfiles',
+            'nbrecord',
+            'nbfileprocessed',
+            'nbfilecorrupted',
+            'average',
+            'Status',
+          ];
+          //this.columnNames = [...this.columnNames, 'Status'];
           this.data1 = response.map((item) => {
             return [
               this.formatDate(item.date),
               item.name_flow === 'interco' ? 'switch' : item.name_flow,
+              item.name_rep,
               item.nbfiles,
               item.nbrecord,
               item.nbfileprocessed,
@@ -108,6 +132,7 @@ export class CollectStatusComponent implements OnInit {
         this.columnNames = [
           'Date',
           'Name Flow',
+          'Name Rep',
           'Number of Files',
           'Number of Records',
           'Files Processed',
@@ -125,12 +150,24 @@ export class CollectStatusComponent implements OnInit {
         //   (item) => item.frequency === 'd' || item.frequency === null
         // );
         if (response.length > 0) {
-          this.columns2 = Object.keys(response[0]);
-          this.columns2 = [...this.columns2, 'Status'];
+          // this.columns2 = Object.keys(response[0]);
+          // this.columns2 = [...this.columns2, 'Status'];
+          this.columns2 = [
+            'date',
+            'name_flow',
+            'name_rep',
+            'nbfiles',
+            'nbrecord',
+            'nbfileprocessed',
+            'nbfilecorrupted',
+            'average',
+            'Status',
+          ];
           this.data2 = response.map((item) => {
             return [
               this.formatDate(item.date),
               item.name_flow === 'interco' ? 'switch' : item.name_flow,
+              item.name_rep,
               item.nbfiles,
               item.nbrecord,
               item.nbfileprocessed,
@@ -144,6 +181,7 @@ export class CollectStatusComponent implements OnInit {
         this.columns2 = [
           'Date',
           'Name Flow',
+          'Name Rep',
           'Number of Files',
           'Number of Records',
           'Files Processed',

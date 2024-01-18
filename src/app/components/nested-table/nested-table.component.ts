@@ -35,6 +35,7 @@ import * as FileSaver from 'file-saver';
 import { DarkModeService } from 'src/app/services/dark-mode.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { DOCUMENT } from '@angular/common';
+import { DialogService } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'app-nested-table',
@@ -131,6 +132,7 @@ export class NestedTableComponent implements OnInit {
     private primengConfig: PrimeNGConfig,
     private darkModeService: DarkModeService,
     private themeService: ThemeService,
+    public dialogService: DialogService,
     @Inject(DOCUMENT) private document: Document
   ) {
     this.dataSource = new MatTableDataSource();
@@ -296,6 +298,7 @@ export class NestedTableComponent implements OnInit {
     if (!rowData.details) {
       this.isLoading = true; // Set loading flag to true
       //console.log(this.filter);
+      console.log(this.lvl4);
 
       if (!this.lvl4) {
         this.chartService
@@ -622,7 +625,26 @@ export class NestedTableComponent implements OnInit {
             response.operator,
             response.iscarrier
           );
-          this.dialog.open(TableDialogComponent, {
+          // this.dialog.open(TableDialogComponent, {
+          //   data: {
+          //     columns,
+          //     rows: data,
+          //     title: response.title,
+          //     isnested: response.isnested,
+          //     lvl1: this.lvl1CountryName,
+          //     lvl2: this.lvl2CountryName,
+          //     idrep: response.id_report,
+          //     parentRow: this.parentRow,
+          //   },
+          // });
+
+          const ref = this.dialogService.open(TableDialogComponent, {
+            header: `${response.title}`,
+            width: '70%',
+            modal: true,
+            maximizable: true,
+            resizable: true,
+            dismissableMask: true,
             data: {
               columns,
               rows: data,
@@ -633,6 +655,10 @@ export class NestedTableComponent implements OnInit {
               idrep: response.id_report,
               parentRow: this.parentRow,
             },
+          });
+
+          ref.onClose.subscribe((data) => {
+            // Handle the data received from the dialog
           });
         });
     }

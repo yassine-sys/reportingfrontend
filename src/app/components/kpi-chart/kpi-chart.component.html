@@ -1,20 +1,20 @@
-<div class="row" *ngIf="cdrInfo">
+<div class="row" *ngIf="cdrInfo && user.role?.role == 'Admin'">
   <div class="col-lg-6">
     <div class="small-box bg-info">
       <div class="card-body">
         <h5 class="card-title">Total Treated MSC CDRS</h5>
         <div class="info">
           <div class="cdrs-info">
-            <p class="subtitle">Date: {{ cdrInfo?.msc?.latestMsc }}</p>
+            <p class="subtitle">Date: {{ cdrInfo.msc.latestMsc }}</p>
             <p class="card-text">
-              {{ formatNumber(cdrInfo?.msc?.countMscToday || 0) }}
+              {{ formatNumber(cdrInfo.msc.countMscToday || 0) }}
             </p>
           </div>
           <div class="separator"></div>
           <div class="cdrs-info">
-            <p class="subtitle">Date: {{ cdrInfo?.msc?.yesterdayMscDate }}</p>
+            <p class="subtitle">Date: {{ cdrInfo.msc.yesterdayMscDate }}</p>
             <p class="card-text">
-              {{ formatNumber(cdrInfo?.msc?.countMscYesterday || 0) }}
+              {{ formatNumber(cdrInfo.msc.countMscYesterday || 0) }}
             </p>
           </div>
         </div>
@@ -30,16 +30,16 @@
         <h5 class="card-title">Total Treated OCS CDRS</h5>
         <div class="info">
           <div class="cdrs-info">
-            <p class="subtitle">Date: {{ cdrInfo?.ocs?.latestOcsDate }}</p>
+            <p class="subtitle">Date: {{ cdrInfo.ocs.latestOcsDate }}</p>
             <p class="card-text">
-              {{ formatNumber(cdrInfo?.ocs?.countOcsToday || 0) }}
+              {{ formatNumber(cdrInfo.ocs.countOcsToday || 0) }}
             </p>
           </div>
           <div class="separator"></div>
           <div class="cdrs-info">
-            <p class="subtitle">Date: {{ cdrInfo?.ocs?.yestesrdayOcsDate }}</p>
+            <p class="subtitle">Date: {{ cdrInfo.ocs.yestesrdayOcsDate }}</p>
             <p class="card-text">
-              {{ formatNumber(cdrInfo?.ocs?.countOcsYesterday || 0) }}
+              {{ formatNumber(cdrInfo.ocs.countOcsYesterday || 0) }}
             </p>
           </div>
         </div>

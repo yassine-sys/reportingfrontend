@@ -90,6 +90,8 @@ export class UserService {
   }
 
   updatePas(info: any) {
-    return this.http.put(`${this.apiUrl}/update-password`, info);
+    return this.http.put(`${this.apiUrl}/update-password`, info, {
+      responseType: 'text' as 'json',
+    });
   }
 }

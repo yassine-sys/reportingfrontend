@@ -145,10 +145,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.service.getUser().subscribe(
       (user: User) => {
         this.user = user;
-        console.log(this.user);
+        //console.log(this.user);
         this.service.userToSave.emit(this.user);
         this.service.setUser(this.user);
         this.user.role = user.role;
+        this.changeDetectorRef.detectChanges();
       },
       (error: any) => {
         this.cookieService.delete('jwtToken');
@@ -168,7 +169,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.service.getFunctions().subscribe(
       (data) => {
         this.modulesData = data;
-        console.log(data);
+        //console.log(data);
         this.modulesData.forEach((module) => {
           module.isOpen = false;
           module.listSubModule.forEach((subModule: { isOpen: boolean }) => {

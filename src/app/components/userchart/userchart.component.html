@@ -78,8 +78,9 @@
               [idrep]="reportGroup.report[0].id_report"
               [title]="reportGroup.report[0].title"
               [iscarrier]="reportGroup.report[0].iscarrier"
-              [operator]="reportGroup.report[0].load"
+              [operator]="reportGroup.report[0].operator"
               [filter]="filtred !== undefined ? filtred : globalFilter"
+              [hasDetails]="reportGroup.report[0].hasdetails"
             ></app-paginated-table>
           </ng-container>
 

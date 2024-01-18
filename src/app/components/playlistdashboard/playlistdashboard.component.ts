@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { DarkModeService } from 'src/app/services/dark-mode.service';
 import { FunctionService } from 'src/app/services/function.service';
 
 @Component({
@@ -7,7 +9,7 @@ import { FunctionService } from 'src/app/services/function.service';
   templateUrl: './playlistdashboard.component.html',
   styleUrls: ['./playlistdashboard.component.css'],
 })
-export class PlaylistdashboardComponent implements OnInit {
+export class PlaylistdashboardComponent implements OnInit, AfterViewInit {
   playListId: any;
   playList: any;
   playLists: any;
@@ -15,14 +17,28 @@ export class PlaylistdashboardComponent implements OnInit {
   draggedReportIndex!: number;
   showCreateInput: boolean = false;
   newPlaylistName: string = '';
+  darkModeEnabled!: boolean;
+  private subscriptionDarkMode: Subscription = new Subscription();
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private service: FunctionService
+    private service: FunctionService,
+    private darkModeService: DarkModeService
   ) {}
 
   ngOnInit(): void {
     this.loadPlayLists();
+  }
+
+  ngAfterViewInit(): void {
+    this.subscriptionDarkMode = this.darkModeService.darkModeState.subscribe(
+      (isDarkMode) => {
+        this.darkModeEnabled = isDarkMode;
+        //this.applyChartTheme();
+        //this.updateAllCharts();
+        //this.ngOnInit();
+      }
+    );
   }
 
   dragStart(event: any, pl: any, report: any, index: number): void {

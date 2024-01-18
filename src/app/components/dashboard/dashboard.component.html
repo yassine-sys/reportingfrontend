@@ -104,7 +104,7 @@
         <div class="info">
           <a routerLink="profile" routerLinkActive="active" class="d-block">
             <div class="user-avatar">
-              <div class="username">{{ user?.username }}</div>
+              <div class="username">{{ user?.nomUtilisateur }}</div>
             </div>
           </a>
         </div>
@@ -200,18 +200,18 @@
               </li>
               <li class="nav-item" role="menuitem">
                 <!--Libyana -->
-                <!-- <a routerLink="/dashboard/function/charts/12" class="nav-link">
+                <a routerLink="/dashboard/function/charts/12" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Duplicated CDRs</p>
-                </a> -->
+                </a>
                 <!-- dowaleya -->
-                <a
+                <!-- <a
                   routerLink="/dashboard/function/charts/892017"
                   class="nav-link"
                 >
                   <i class="far fa-circle nav-icon"></i>
                   <p>Duplicated CDRs</p>
-                </a>
+                </a> -->
               </li>
             </ul>
           </li>
@@ -226,6 +226,7 @@
 
           <!-- PlayLists -->
           <li
+            *ngIf="user?.role?.role == 'Admin'"
             [ngClass]="playlist ? 'nav-item menu-open' : 'nav-item'"
             role="group"
           >
@@ -242,7 +243,6 @@
               </p>
             </a>
             <ul class="nav nav-treeview" style="display: none">
-              <!-- Dynamically generate playlist items -->
               <li class="nav-item" routerLinkActive="active" role="menuitem">
                 <a routerLink="playlists" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>

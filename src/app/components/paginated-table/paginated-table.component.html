@@ -57,7 +57,7 @@
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-rowData>
-      <tr [pSelectableRow]="rowData">
+      <tr [pSelectableRow]="rowData" [pSelectableRowDisabled]="!hasDetails">
         <td *ngFor="let column of columns" style="width: 10%">
           <ng-container *ngIf="column !== 'Status'; else statusColumn">
             {{ formatNumber(rowData[column]) }}

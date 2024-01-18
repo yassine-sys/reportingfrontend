@@ -16,6 +16,9 @@ export class AuthService {
   setUser(user: User) {
     this.uuser = user;
   }
+  user() {
+    return this.uuser;
+  }
   userToSave = new EventEmitter<User>();
 
   constructor(
@@ -66,7 +69,7 @@ export class AuthService {
   checkToken(): Observable<boolean> {
     const token = this.getToken();
     const headers = new HttpHeaders().set('Authorization', `${token}`);
-    console.log(headers);
+    //console.log(headers);
     return this.httpClient.get<boolean>(`${this.apiUrl}/check?token=${token}`);
   }
 

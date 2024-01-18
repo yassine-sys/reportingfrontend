@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { UserService } from 'src/app/services/user.service';
 
 @Component({
@@ -14,7 +15,12 @@ export class ResetPasswordComponent {
   successMessage: string = '';
   errorMessage: string = '';
 
-  constructor(private route: ActivatedRoute, private userService: UserService) {
+  constructor(
+    private route: ActivatedRoute,
+    private userService: UserService,
+    private toastr: ToastrService,
+    private router: Router
+  ) {
     this.route.queryParams.subscribe((params) => {
       this.token = params['token'];
     });
@@ -44,10 +50,15 @@ export class ResetPasswordComponent {
       (response: any) => {
         console.log(response);
         this.successMessage = 'Password updated successfully';
+        this.toastr.success('Password updated successfully');
+        this.router.navigate(['/']);
       },
       (error: any) => {
         this.errorMessage =
           'Failed to update the password. Please check your input and try again.';
+        this.toastr.error(
+          'Failed to update the password. Please check your input and try again.'
+        );
       }
     );
   }

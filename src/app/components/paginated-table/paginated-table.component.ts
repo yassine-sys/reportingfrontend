@@ -37,6 +37,7 @@ import { DOCUMENT, DatePipe } from '@angular/common';
 import { DataUpdateService } from 'src/app/services/data-update.service';
 import { DarkModeService } from '../../services/dark-mode.service';
 import { ThemeService } from '../../services/theme.service';
+import { DialogService } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'app-paginated-table',
@@ -55,6 +56,7 @@ export class PaginatedTableComponent
   @Input() operator: any;
   @Input() collect!: boolean;
   @Input() dataChanged: boolean = false;
+  @Input() hasDetails: boolean = false;
   dataSource: MatTableDataSource<any>;
   selectedRow: any;
   searchActive: boolean = false;
@@ -98,6 +100,8 @@ export class PaginatedTableComponent
   private subscriptionDarkMode: Subscription = new Subscription();
   darkModeEnabled!: boolean;
 
+  operatorsList: any;
+
   constructor(
     public dialog: MatDialog,
     public chartService: ChartService,
@@ -114,6 +118,7 @@ export class PaginatedTableComponent
     private dataUpdateService: DataUpdateService,
     private darkModeService: DarkModeService,
     private themeService: ThemeService,
+    public dialogService: DialogService,
     @Inject(DOCUMENT) private document: Document
   ) {
     this.dataSource = new MatTableDataSource();
@@ -144,10 +149,14 @@ export class PaginatedTableComponent
   }
 
   ngOnInit(): void {
-    console.log(this.operator);
+    //console.log(this.operator);
+    if (this.title === ' Voice Call Rating Alert') {
+      this.hasDetails = true;
+    }
     // Fetch operators' data asynchronously
     //console.log(this.operator);
     this.chartService.getOperatorsInterco().subscribe((operatorsList) => {
+      this.operatorsList = operatorsList;
       // Process each row of data
       this.jsonData = this.data.map((row: any[]) => {
         const obj: { [key: string]: any } = {};
@@ -163,7 +172,7 @@ export class PaginatedTableComponent
         this.columns.splice(1, 0, 'Name');
         // Add 'Name' field to jsonData
         this.jsonData = this.jsonData.map((rowData) => {
-          const operatorId = parseInt(rowData.Operator, 10);
+          const operatorId = parseInt(rowData[this.columns[0]], 10);
           const operator = operatorsList.find(
             (op: { id: number }) => op.id === operatorId
           );
@@ -181,7 +190,6 @@ export class PaginatedTableComponent
         return 0; // Specify initial sorting logic
       });
     });
-    console.log(this.jsonData);
   }
 
   ngAfterViewInit(): void {
@@ -254,6 +262,7 @@ export class PaginatedTableComponent
     } else if (this.title === ' Voice Call Rating Alert') {
       console.log(row);
       console.log(this.convertDate(row.begin_date));
+
       const columns = [
         'plan_tarifaire',
         'calling_number',
@@ -286,14 +295,36 @@ export class PaginatedTableComponent
         )
         .subscribe((response) => {
           console.log(response);
-          this.dialog.open(TableDialogComponent, {
+          // this.dialog.open(TableDialogComponent, {
+          //   data: {
+          //     columns,
+          //     rows: this.convertToArrayOfObjects(response, columns),
+          //     title: this.title,
+          //     isoperator: false,
+          //     iscarrier: false,
+          //   },
+          // });
+
+          const ref = this.dialogService.open(TableDialogComponent, {
+            header: `${response.title}`,
+            width: '70%',
+            modal: true,
+            maximizable: true,
+            resizable: true,
+            dismissableMask: true,
             data: {
               columns,
               rows: this.convertToArrayOfObjects(response, columns),
-              title: this.title,
-              isoperator: false,
-              iscarrier: false,
+              title: response.title,
+              isoperator: response.operator,
+              iscarrier: response.iscarrier,
+              parentRow: this.parentRow,
+              hasdetails: response.hasdetails,
             },
+          });
+
+          ref.onClose.subscribe((data) => {
+            // Handle the data received from the dialog
           });
         });
     } else {
@@ -326,15 +357,16 @@ export class PaginatedTableComponent
           })
         )
         .subscribe((response) => {
-          console.log(response);
+          //console.log(response);
           const columns = response.listnamereptab;
-          const data = response.list_de_donnees.map((d: any) => {
+          let data = response.list_de_donnees.map((d: any) => {
             let obj: { [key: string]: any } = {};
 
             d.forEach((cell: any, index: any) => {
               obj[columns[index]] = cell;
             });
-            if (this.iscarrier) {
+
+            if (response.iscarrier) {
               this.chartService
                 .getOperatorsInterco()
                 .subscribe((destinations) => {
@@ -353,9 +385,29 @@ export class PaginatedTableComponent
             return obj;
           });
 
-          this.parentRow = { [this.columns[0]]: row[this.columns[0]] };
+          this.parentRow = {
+            [this.columns[0].toUpperCase()]: row[this.columns[0]],
+          };
+          console.log(this.parentRow);
 
-          this.dialog.open(TableDialogComponent, {
+          // this.dialog.open(TableDialogComponent, {
+          //   data: {
+          //     columns,
+          //     rows: data,
+          //     title: this.title,
+          //     isoperator: response.operator,
+          //     iscarrier: this.iscarrier,
+          //     parentRow: this.parentRow,
+          //   },
+          // });
+
+          const ref = this.dialogService.open(TableDialogComponent, {
+            header: `${this.title}`,
+            width: '70%',
+            modal: true,
+            maximizable: true,
+            resizable: true,
+            dismissableMask: true,
             data: {
               columns,
               rows: data,
@@ -363,7 +415,12 @@ export class PaginatedTableComponent
               isoperator: response.operator,
               iscarrier: this.iscarrier,
               parentRow: this.parentRow,
+              hasdetails: response.hasdetails,
             },
+          });
+
+          ref.onClose.subscribe((data) => {
+            // Handle the data received from the dialog
           });
 
           this.showProgressBar = false; // Hide the progress bar when data is loaded
@@ -371,6 +428,7 @@ export class PaginatedTableComponent
     }
     this.filterService.clearFilters();
   }
+
   convertToArrayOfObjects(data: any[], columns: string[]): any[] {
     return data.map((row) => {
       let obj: { [key: string]: any } = {}; // Explicitly define obj type

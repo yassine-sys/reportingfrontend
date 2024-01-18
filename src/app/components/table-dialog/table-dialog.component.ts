@@ -1,10 +1,12 @@
-import { Component, Inject, ViewChild } from '@angular/core';
+import { Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import * as XLSX from 'xlsx';
 import { ChartService } from 'src/app/services/chart.service';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { Table } from 'primeng/table';
 
 @Component({
   selector: 'app-table-dialog',
@@ -22,6 +24,7 @@ export class TableDialogComponent {
   iscarrier: boolean = false;
   isnested: boolean = false;
   lvl4: boolean = false;
+  hasDetails: boolean = false;
 
   lvl1: any;
   lvl2: any;
@@ -30,27 +33,30 @@ export class TableDialogComponent {
 
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort!: MatSort;
+  @ViewChild('searchInput') searchInput!: ElementRef;
+  @ViewChild('dt2') dataTable!: Table;
 
   exporting: boolean = false;
   exportProgress: number = 0;
 
   constructor(
-    public service: ChartService,
-    @Inject(MAT_DIALOG_DATA) data: any,
-    private dialogRef: MatDialogRef<TableDialogComponent>
+    public config: DynamicDialogConfig,
+    public ref: DynamicDialogRef,
+    public service: ChartService // @Inject(MAT_DIALOG_DATA) data: any, // private dialogRef: MatDialogRef<TableDialogComponent>
   ) {
-    console.log(data);
-    this.tableData = data;
-    this.rows = data.rows;
-    this.columns = data.columns;
-    this.title = data.title;
-    this.isoperator = data.isoperator;
-    this.iscarrier = data.iscarrier;
-    this.isnested = data.isnested;
-    this.lvl1 = data.lvl1;
-    this.lvl2 = data.lvl2;
-    this.idrep = data.idrep;
-    this.parentRow = data.parentRow;
+    //console.log(data);
+    this.tableData = this.config.data;
+    this.rows = this.config.data.rows;
+    this.columns = this.config.data.columns;
+    this.title = this.config.data.title;
+    this.isoperator = this.config.data.isoperator;
+    this.iscarrier = this.config.data.iscarrier;
+    this.isnested = this.config.data.isnested;
+    this.lvl1 = this.config.data.lvl1;
+    this.lvl2 = this.config.data.lvl2;
+    this.idrep = this.config.data.idrep;
+    this.parentRow = this.config.data.parentRow;
+    this.hasDetails = this.config.data.hasDetails;
 
     if (this.isoperator) {
       this.service.getOperatorsDest().subscribe((operators) => {
@@ -62,10 +68,11 @@ export class TableDialogComponent {
       this.lvl4 = true;
     }
 
-    this.dataSource = new MatTableDataSource<any>(data.rows);
+    this.dataSource = new MatTableDataSource<any>(this.config.data.rows);
   }
 
   ngOnInit() {
+    console.log('is nested : ', this.isnested);
     console.log(this.tableData);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
@@ -81,7 +88,7 @@ export class TableDialogComponent {
   }
 
   onCloseDialog(): void {
-    this.dialogRef.close();
+    this.ref.close();
   }
 
   saveAsXLSX() {
@@ -136,6 +143,24 @@ export class TableDialogComponent {
 
     // Update the data source
     this.dataSource.data = rows;
+  }
+
+  clear(table: Table) {
+    table.clear();
+    this.clearSearchInput();
+  }
+
+  clearSearchInput() {
+    if (this.searchInput && this.searchInput.nativeElement) {
+      this.searchInput.nativeElement.value = ''; // Clear the input value
+      //this.applyFilterGlobal(); // Optionally, trigger the filter function after clearing
+    }
+  }
+  applyFilterGlobal(event: Event) {
+    if (this.dataTable) {
+      const filterValue = (event.target as HTMLInputElement).value;
+      this.dataTable.filterGlobal(filterValue, 'contains');
+    }
   }
 }
 
