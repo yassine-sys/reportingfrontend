@@ -23,6 +23,7 @@ import { FilterService } from 'src/app/services/filter.service';
 import { Filters } from 'src/model/Filters';
 import { FilterType } from 'src/model/FilterType';
 import HC_exportData from 'highcharts/modules/export-data';
+import OfflineEXporting from 'highcharts/modules/offline-exporting';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
@@ -80,8 +81,9 @@ import { PlaylistComponent } from '../playlist/playlist.component';
 
 Accessibility(Highcharts);
 ExportingModule(Highcharts);
-HC_exportData(Highcharts);
+//HC_exportData(Highcharts);
 //IndicatorsAll(Highcharts);
+OfflineEXporting(Highcharts);
 IndicatorsCore(Highcharts);
 TrendLine(Highcharts);
 //Regressions(Highcharts);

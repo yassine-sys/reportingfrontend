@@ -22,6 +22,7 @@ import { FilterService } from '../../services/filter.service';
 import { Filters } from '../../../model/Filters';
 import { FilterType } from '../../../model/FilterType';
 import HC_exportData from 'highcharts/modules/export-data';
+import OfflineEXporting from 'highcharts/modules/offline-exporting';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
@@ -71,8 +72,9 @@ import DefaultTheme from 'highcharts/themes/brand-light';
 
 Accessibility(Highcharts);
 ExportingModule(Highcharts);
-HC_exportData(Highcharts);
+//HC_exportData(Highcharts);
 //IndicatorsAll(Highcharts);
+OfflineEXporting(Highcharts);
 IndicatorsCore(Highcharts);
 TrendLine(Highcharts);
 //Regressions(Highcharts);

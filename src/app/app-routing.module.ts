@@ -8,6 +8,7 @@ import { UserManagmentComponent } from './components/user-managment/user-managme
 import { HomeComponent } from './components/home/home.component';
 import { AppComponent } from './app.component';
 import { AuthGuard } from './auth.guard';
+import { authGuard2 } from './authGuard2';
 import { ErrorComponent } from './components/error/error.component';
 import { FunctionDetailsComponent } from './components/function-details/function-details.component';
 import { ChartComponent } from './components/chart/chart.component';
@@ -27,8 +28,10 @@ import { HomeChartsComponent } from './components/home-charts/home-charts.compon
 import { OrderUserChartsComponent } from './components/order-user-charts/order-user-charts.component';
 import { UserchartComponent } from './components/userchart/userchart.component';
 import { PlaylistdashboardComponent } from './components/playlistdashboard/playlistdashboard.component';
+import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
 
 const routes: Routes = [
+  { path: 'unauthorized', component: UnauthorizedComponent },
   { path: 'home', component: HomeComponent },
   { path: 'login', component: LoginComponent },
   { path: 'forgot', component: ForgotPassComponent },
@@ -48,36 +51,36 @@ const routes: Routes = [
         component: UserchartComponent,
         canActivate: [AuthGuard],
       },
-      { path: 'group', component: GroupComponent, canActivate: [AuthGuard] },
+      { path: 'group', component: GroupComponent, canActivate: [authGuard2] },
       {
         path: 'group/add',
         component: AddgroupComponent,
-        canActivate: [AuthGuard],
+        canActivate: [authGuard2],
       },
       {
         path: 'group/:id',
         component: AddgroupComponent,
-        canActivate: [AuthGuard],
+        canActivate: [authGuard2],
       },
       {
         path: 'modules',
         component: NestedGridComponent,
-        canActivate: [AuthGuard],
+        canActivate: [authGuard2],
       },
       {
         path: 'users',
         component: UserManagmentComponent,
-        canActivate: [AuthGuard],
+        canActivate: [authGuard2],
       },
       {
         path: 'collect',
         component: CollectStatusComponent,
-        canActivate: [AuthGuard],
+        canActivate: [authGuard2],
       },
       {
         path: 'missing-files',
         component: MissingFilesComponent,
-        canActivate: [AuthGuard],
+        canActivate: [authGuard2],
       },
       { path: 'error', component: ErrorComponent, canActivate: [AuthGuard] },
       {
@@ -98,7 +101,7 @@ const routes: Routes = [
       {
         path: 'groupe/:id',
         component: GroupdetailsComponent,
-        canActivate: [AuthGuard],
+        canActivate: [authGuard2],
       },
       {
         path: 'testCharts',

@@ -112,6 +112,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { DialogService } from 'primeng/dynamicdialog';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { PlaylistdashboardComponent } from './components/playlistdashboard/playlistdashboard.component';
+import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
 
 @NgModule({
   declarations: [
@@ -165,6 +166,7 @@ import { PlaylistdashboardComponent } from './components/playlistdashboard/playl
     UserchartComponent,
     PlaylistComponent,
     PlaylistdashboardComponent,
+    UnauthorizedComponent,
   ],
   imports: [
     BrowserModule,
