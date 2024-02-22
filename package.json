@@ -23,7 +23,7 @@
     "@asymmetrik/ngx-leaflet": "^17.0.0",
     "@asymmetrik/ngx-leaflet-markercluster": "^17.0.0",
     "@fortawesome/angular-fontawesome": "^0.14.1",
-    "@ng-bootstrap/ng-bootstrap": "^14.1.0",
+    "@ng-bootstrap/ng-bootstrap": "^16.0.0",
     "@popperjs/core": "^2.11.6",
     "@swimlane/ngx-charts": "^20.4.1",
     "@syncfusion/ej2-angular-navigations": "^21.1.39",
