@@ -135,7 +135,7 @@ export class MapComponent implements OnInit, AfterViewInit {
     }
     this.chartService
       .getMapLocation(startDate, endDate, this.typeCall, this.order, this.limit)
-      .subscribe((locations) => {
+      .subscribe((locations: any) => {
         this.addMarkers(
           locations.filter(
             (location: any) => location.latitude && location.longitude

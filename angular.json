@@ -22,7 +22,9 @@
               "src/favicon.ico",
               "src/assets",
               "src/assets/img/elite.png",
-              "src/app/elite.png"
+              "src/app/elite.png",
+              "src/manifest.webmanifest",
+              "src/manifest.webmanifest"
             ],
             "styles": [
               "src/assets/css/ionicons.min.css",
@@ -78,7 +80,9 @@
               "src/assets/dist/js/leaflet.markercluster-src.js",
               "src/assets/js/svg2pdf.js",
               "src/assets/js/jspdf.js"
-            ]
+            ],
+            "serviceWorker": true,
+            "ngswConfigPath": "ngsw-config.json"
           },
           "configurations": {
             "production": {
@@ -136,7 +140,12 @@
           "options": {
             "polyfills": ["zone.js", "zone.js/testing"],
             "tsConfig": "tsconfig.spec.json",
-            "assets": ["src/favicon.ico", "src/assets"],
+            "assets": [
+              "src/favicon.ico",
+              "src/assets",
+              "src/manifest.webmanifest",
+              "src/manifest.webmanifest"
+            ],
             "styles": ["src/styles.css"],
             "scripts": []
           }

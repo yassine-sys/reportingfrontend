@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, isDevMode } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { MatTableModule } from '@angular/material/table';
 import { AppRoutingModule } from './app-routing.module';
@@ -124,6 +124,7 @@ import { FeatherIconsComponent } from './components/feather-icons/feather-icons.
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { SearchComponent } from './components/search/search.component';
 import { BadgeModule } from 'primeng/badge';
+import { ServiceWorkerModule } from '@angular/service-worker';
 
 @NgModule({
   declarations: [
@@ -238,7 +239,12 @@ import { BadgeModule } from 'primeng/badge';
     PrimeNgDragDropModule,
     RecaptchaModule, //this is the recaptcha main module
     RecaptchaFormsModule, //this is the module for form incase form validation
-    BadgeModule,
+    BadgeModule, ServiceWorkerModule.register('ngsw-worker.js', {
+  enabled: !isDevMode(),
+  // Register the ServiceWorker as soon as the application is stable
+  // or after 30 seconds (whichever comes first).
+  registrationStrategy: 'registerWhenStable:30000'
+}),
   ],
   providers: [
     DialogService,

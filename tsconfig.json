@@ -21,7 +21,8 @@
     "module": "ES2022",
     "useDefineForClassFields": false,
     "lib": ["ES2022", "dom"],
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": ["d3", "leaflet"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
