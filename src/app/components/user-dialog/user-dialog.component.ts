@@ -61,7 +61,19 @@ export class UserDialogComponent implements OnInit {
         (role) => role.role === this.data.user.role.role
       );
       this.selectedRole = foundRole || { id: 0, role: '' };
-      this.selectedGroup = this.data.user.user_group || this.selectedGroup;
+
+      // Check if user_group is a number and call getGroupById if it is
+      if (typeof this.data.user.user_group === 'number') {
+        this.grpService
+          .getGroupById(this.data.user.user_group)
+          .subscribe((group) => {
+            this.selectedGroup = group;
+            console.log(this.selectedGroup);
+          });
+      } else {
+        // If user_group is not a number, fallback to the existing selectedGroup or any other default logic
+        this.selectedGroup = this.data.user.user_group || this.selectedGroup;
+      }
     } else {
       this.user = {
         uId: 0,

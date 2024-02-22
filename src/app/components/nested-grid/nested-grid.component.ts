@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { PrimeNGConfig } from 'primeng/api';
 import { Table } from 'primeng/table';
@@ -20,6 +20,7 @@ import { Router } from '@angular/router';
 import { ConfirmationDialogComponentComponent } from '../confirmation-dialog-component/confirmation-dialog-component.component';
 import { Subscription } from 'rxjs';
 //import { UpdatefunctionmodalComponent } from '../updatesubmodulemodal/updatesubmodulemodal.component';
+import { FilterService } from 'primeng/api';
 
 @Component({
   selector: 'app-nested-grid',
@@ -33,13 +34,17 @@ export class NestedGridComponent implements OnInit, AfterViewInit {
   dataSource: any;
   private subscriptions: Subscription[] = [];
 
+  @ViewChild('searchInput') searchInput!: ElementRef;
+  @ViewChild('dt') dataTable!: Table;
+
   constructor(
     private primengConfig: PrimeNGConfig,
     private dataService: ModuleServicesService,
     private submoduleService: SubmoduleService,
     private functionService: FunctionService,
     public dialog: MatDialog,
-    private router: Router
+    private router: Router,
+    private filterService: FilterService
   ) {}
 
   onSelect(func: any) {
@@ -47,16 +52,17 @@ export class NestedGridComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.submoduleService.getAllSubModules().subscribe((data) => {
-      console.log(data);
-    });
+    // this.submoduleService.getAllSubModules().subscribe((data) => {
+    //   console.log(data);
+    // });
 
-    this.functionService
-      .getAllFunction()
-      .subscribe((data) => console.log(data));
+    // this.functionService
+    //   .getAllFunction()
+    //   .subscribe((data) => console.log(data));
 
     this.dataService.getAllModules().subscribe((data) => {
       this.modules = data;
+
       this.dataSource = new MatTableDataSource(this.modules);
       if (this.paginator) {
         this.dataSource.paginator = this.paginator;
@@ -170,11 +176,13 @@ export class NestedGridComponent implements OnInit, AfterViewInit {
       });
   }
 
-  openSubModuleForm(): void {
+  openSubModuleForm(id: any): void {
     const dialogRef = this.dialog
       .open(SubmoduleformComponent, {
         width: '400px',
-        data: {},
+        data: {
+          idmodule: id,
+        },
       })
       .afterClosed()
       .subscribe(() => {
@@ -194,16 +202,45 @@ export class NestedGridComponent implements OnInit, AfterViewInit {
       });
   }
 
-  openFonctionForm(): void {
+  openFonctionForm(id: any): void {
     const dialogRef = this.dialog
       .open(FonctionformComponent, {
         width: '350px',
         height: '250px',
-        data: {},
+        data: {
+          idSub: id,
+        },
       })
       .afterClosed()
       .subscribe(() => {
         this.ngOnInit();
       });
+  }
+
+  filteredModules: Module[] = [];
+  applyFilterGlobal(event: Event) {
+    const searchValue = (event.target as HTMLInputElement).value.toLowerCase();
+
+    // Filter modules, submodules, and functions based on the search keyword
+    this.filteredModules = this.modules.filter(
+      (module) =>
+        module.moduleName.toLowerCase().includes(searchValue) ||
+        module.list_sub_modules.some(
+          (submodule) =>
+            submodule.subModuleName.toLowerCase().includes(searchValue) ||
+            submodule.functions.some((func) =>
+              func.functionName.toLowerCase().includes(searchValue)
+            )
+        )
+    );
+
+    // Update the p-table with the filtered data
+    this.dataTable.filterGlobal(searchValue, 'contains');
+  }
+
+  clear(table: Table) {
+    // Clear the filter
+    table.clear();
+    this.filteredModules = this.modules; // Reset filtered data to all modules
   }
 }

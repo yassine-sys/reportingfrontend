@@ -4,8 +4,9 @@ import {
   OnInit,
   ChangeDetectorRef,
   OnDestroy,
+  HostListener,
 } from '@angular/core';
-import { AuthGuard } from '../../auth.guard';
+//import { AuthGuard } from '../../auth.guard';
 import { AuthService } from '../../services/auth.service';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
@@ -18,12 +19,14 @@ import { SubModule } from 'src/model/SubModule';
 import { LoaderService } from '../../services/loader.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
-import { group_module } from 'src/model/group_module';
-import { ModuleFunction } from 'src/model/ModuleFunction';
+// import { group_module } from 'src/model/group_module';
+// import { ModuleFunction } from 'src/model/ModuleFunction';
 import { Subscription } from 'rxjs';
 import { DarkModeService } from '../../services/dark-mode.service';
 import { FunctionService } from 'src/app/services/function.service';
-declare var $: any;
+import { HttpClient } from '@angular/common/http';
+import { NavService } from '../../services/nav.service';
+//declare var $: any;
 
 @Component({
   selector: 'app-dashboard',
@@ -74,6 +77,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   currentUrl!: string;
 
+  public SidebarmenuItems: any[] = [];
+
   playlists: any;
   constructor(
     private service: AuthService,
@@ -86,13 +91,16 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     private fb: FormBuilder,
     private datePipe: DatePipe,
     private changeDetectorRef: ChangeDetectorRef,
-    private darkModeService: DarkModeService
+    private darkModeService: DarkModeService,
+    private http: HttpClient,
+    public navServices: NavService
   ) {
     this.subscription = this.darkModeService.darkModeState.subscribe(
       (isDarkMode) => {
         this.darkModeEnabled = isDarkMode;
       }
     );
+
     this.form = this.fb.group(
       {
         selectedFilter: ['', [Validators.required]],
@@ -105,6 +113,76 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         validator: this.dateValidator,
       }
     );
+
+    this.navServices.items.subscribe((menuItems) => {
+      this.SidebarmenuItems = menuItems;
+      this.router.events.subscribe((event) => {
+        if (event instanceof NavigationEnd) {
+          menuItems.filter((items) => {
+            if (items.path === event.url) {
+              this.setNavActive(items);
+            }
+            if (!items.children) {
+              return false;
+            }
+            items.children.filter((subItems) => {
+              if (subItems.path === event.url) {
+                this.setNavActive(subItems);
+              }
+              if (!subItems.children) {
+                return false;
+              }
+              subItems.children.filter((subSubItems) => {
+                if (subSubItems.path === event.url) {
+                  this.setNavActive(subSubItems);
+                }
+              });
+            });
+          });
+        }
+      });
+    });
+  }
+
+  // Active Nave state
+  setNavActive(item: any) {
+    this.SidebarmenuItems.filter((menuItem) => {
+      if (menuItem !== item) {
+        menuItem.active = false;
+      }
+      if (menuItem.children && menuItem.children.includes(item)) {
+        menuItem.active = true;
+      }
+      if (menuItem.children) {
+        menuItem.children.filter((submenuItems: any) => {
+          if (submenuItems.children && submenuItems.children.includes(item)) {
+            menuItem.active = true;
+            submenuItems.active = true;
+          }
+        });
+      }
+    });
+  }
+
+  // Click Toggle menu
+  toggletNavActive(item: any, event: MouseEvent) {
+    event.stopPropagation();
+    if (!item.active) {
+      this.SidebarmenuItems.forEach((a) => {
+        if (this.SidebarmenuItems.includes(item)) {
+          a.active = false;
+        }
+        if (!a.children) {
+          return false;
+        }
+        a.children.forEach((b: any) => {
+          if (a.children.includes(item)) {
+            b.active = false;
+          }
+        });
+      });
+    }
+    item.active = !item.active;
   }
 
   toggleDarkMode() {
@@ -166,21 +244,21 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       (isLoading) => (this.isLoading = isLoading)
     );
 
-    this.service.getFunctions().subscribe(
-      (data) => {
-        this.modulesData = data;
-        //console.log(data);
-        this.modulesData.forEach((module) => {
-          module.isOpen = false;
-          module.listSubModule.forEach((subModule: { isOpen: boolean }) => {
-            subModule.isOpen = false;
-          });
-        });
-      },
-      (error) => {
-        console.error('Error fetching functions:', error);
-      }
-    );
+    // this.service.getFunctions().subscribe(
+    //   (data) => {
+    //     this.modulesData = data;
+    //     console.log(data);
+    //     this.modulesData.forEach((module) => {
+    //       module.isOpen = false;
+    //       module.listSubModule.forEach((subModule: { isOpen: boolean }) => {
+    //         subModule.isOpen = false;
+    //       });
+    //     });
+    //   },
+    //   (error) => {
+    //     console.error('Error fetching functions:', error);
+    //   }
+    // );
   }
 
   logOut() {
@@ -327,5 +405,44 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.playListService.getAllPlayLists().subscribe((response) => {
       this.playlists = response;
     });
+  }
+
+  // Method to handle the redirection onclick
+  redirectToExternalLink(url: string): void {
+    // Use the Router to navigate to the external URL
+    window.open(url, '_blank');
+
+    // this.http
+    //   .get<boolean>('http://10.156.35.98:9998/RaftoolsReporting/rest/login/add')
+    //   .subscribe(
+    //     (response) => {
+    //       // Check the response value (true or false)
+    //       if (response === true) {
+    //         // Redirect to a specific route if the response is true
+    //         window.open(
+    //           '10.156.35.98:9998/RaftoolsReporting/pages/config/validateRep.jsf',
+    //           '_blank'
+    //         );
+    //       } else {
+    //         // Redirect to a different route if the response is false
+    //         this.router.navigate(['unauthorized']);
+    //       }
+    //     },
+    //     (error) => {
+    //       // Handle the HTTP request error and redirect to 'unauthorized' route
+    //       console.error('HTTP request error:', error);
+    //       this.router.navigate(['unauthorized']);
+    //     }
+    //   );
+  }
+
+  public width: any = window.innerWidth;
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.width = event.target.innerWidth - 500;
+  }
+
+  sidebarToggle() {
+    this.navServices.collapseSidebar = !this.navServices.collapseSidebar;
   }
 }

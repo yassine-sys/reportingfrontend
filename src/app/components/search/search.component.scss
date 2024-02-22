@@ -1,0 +1,126 @@
+body {
+  padding: 0;
+  margin: 0;
+  height: 100vh;
+  width: 100%;
+  background: #051b33;
+}
+
+form {
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.5s;
+  width: 50px;
+  height: 50px;
+  // background: black;
+  box-sizing: border-box;
+  border-radius: 25px;
+  // border: 4px solid black;
+  padding: 5px;
+}
+
+input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 42.5px;
+  line-height: 30px;
+  outline: 0;
+  border: 0;
+  display: none;
+  font-size: 1em;
+  border-radius: 20px;
+  padding: 0 20px;
+}
+
+.fa {
+  box-sizing: border-box;
+  padding: 10px;
+  width: 42.5px;
+  height: 42.5px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  border-radius: 50%;
+  color: black;
+  text-align: center;
+  font-size: 1.2em;
+  transition: all 1s;
+}
+
+form:hover {
+  width: 300px;
+  cursor: pointer;
+}
+
+form:hover input {
+  display: block;
+}
+
+form:hover .fa {
+  background: white;
+  color: black;
+}
+
+.Typeahead-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  background-color: #fff;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  //box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  max-height: 200px;
+  overflow-y: auto;
+  width: 200%;
+  display: none;
+}
+
+.Typeahead-menu.is-open {
+  display: block;
+}
+
+.ProfileCard {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.ProfileCard-avatar {
+  margin-right: 10px;
+}
+
+.ProfileCard-realName {
+  font-size: 16px;
+  color: #333;
+  white-space: pre-wrap;
+}
+
+.EmptyMessage {
+  padding: 10px;
+  color: #999;
+}
+
+/* Icon styles */
+.close-search {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+// body.offcanvas {
+//   filter: blur(1.5rem);
+//   position: unset;
+//   visibility: visible;
+//   background: unset;
+//   z-index: 2;
+// }

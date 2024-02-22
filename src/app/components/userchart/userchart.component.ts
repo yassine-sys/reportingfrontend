@@ -82,7 +82,7 @@ HDragPanes(Highcharts);
 HAnnotationsAdvanced(Highcharts);
 HPriceIndicator(Highcharts);
 HFullScreen(Highcharts);
-ExportData(Highcharts);
+//ExportData(Highcharts);
 HStockTools(Highcharts);
 @Component({
   selector: 'app-userchart',
@@ -453,6 +453,8 @@ export class UserchartComponent implements OnInit, OnDestroy, AfterViewInit {
       },
       exporting: {
         enabled: true,
+        fallbackToExportServer: false,
+        libURL: 'assets/js/',
         chartOptions: {
           chart: {
             width: 1000,

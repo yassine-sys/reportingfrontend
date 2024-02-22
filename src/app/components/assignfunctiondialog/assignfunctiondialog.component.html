@@ -1,16 +1,43 @@
-<div mat-dialog-content>
+<div class="card">
+  <div class="card-body">
+    <h5>Module</h5>
+    <p-dropdown
+      appendTo="body"
+      [options]="modules"
+      optionLabel="moduleName"
+      [(ngModel)]="selectedModule"
+      placeholder="Select a Module"
+      [filter]="true"
+    ></p-dropdown>
 
-    <mat-form-field>
-        <mat-label>Select a function</mat-label>
-        <mat-select matNativeControl [(ngModel)]="selectedFonction">
-            <mat-option *ngFor="let func of fonctions" [value]="func">
-                {{ func.functionName }}
-            </mat-option>
-        </mat-select>
-    </mat-form-field>
-</div>
+    <h5>SubModule</h5>
+    <p-dropdown
+      appendTo="body"
+      [options]="getSubModules()"
+      optionLabel="subModuleName"
+      [(ngModel)]="selectedSubModule"
+      [disabled]="!selectedModule"
+      placeholder="Select a SubModule"
+      [filter]="true"
+    ></p-dropdown>
 
-<div class="button-row">
+    <h5>Functions</h5>
+    <p-multiSelect
+      appendTo="body"
+      [options]="getFunctions()"
+      optionLabel="functionName"
+      [(ngModel)]="selectedFunctions"
+      [disabled]="!selectedSubModule"
+      placeholder="Select Functions"
+      [filter]="true"
+      multiple="true"
+    ></p-multiSelect>
+    <!-- <p-multiSelect appendTo="body" [options]="getFunctions()" [(ngModel)]="selectedCities" optionLabel="name"></p-multiSelect> -->
+  </div>
+  <div class="card-footer">
     <button mat-raised-button>Cancel</button>
-    <button mat-raised-button color="primary" (click)="onAssignClick()">Assign</button>
+    <button mat-raised-button color="primary" (click)="onAssignClick()">
+      Assign
+    </button>
+  </div>
 </div>

@@ -1,10 +1,33 @@
-/* canvas {
-  width: 100%;
-  height: 100vh;
+/* home-charts.component.css */
+.card-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* Adjust height as needed */
 }
 
-.chart {
-  text-align-last: center;
-  font-style: oblique;
-  margin: 10px 30px 0;
-} */
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  transition: 0.3s;
+  width: 50%; /* Adjust width as needed */
+  border-radius: 5px; /* Optional, for rounded corners */
+  background-color: white; /* Adjust background color as needed */
+}
+
+.card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.4);
+}
+
+.card-header {
+  font-weight: bold;
+  padding: 10px;
+  text-align: center;
+  /* Add other styles as needed */
+}
+
+.card-body {
+  padding: 20px;
+  /* Add other styles as needed */
+}
+
+/* Add other styles for form elements as needed */

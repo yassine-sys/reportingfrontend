@@ -5,7 +5,7 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root',
 })
 export class DarkModeService {
-  private darkMode = new BehaviorSubject<boolean>(true);
+  private darkMode = new BehaviorSubject<boolean>(false);
 
   constructor() {}
 

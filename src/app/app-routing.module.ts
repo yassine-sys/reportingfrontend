@@ -94,6 +94,11 @@ const routes: Routes = [
         canActivate: [AuthGuard],
       },
       {
+        path: ':moduleName/:subModuleName/:functionName/reports/:id',
+        component: ReportsComponent,
+        canActivate: [AuthGuard],
+      },
+      {
         path: 'playlists',
         component: PlaylistdashboardComponent,
         canActivate: [AuthGuard],

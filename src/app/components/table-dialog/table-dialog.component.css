@@ -56,3 +56,12 @@
 .btn-primary {
   margin-top: 16px;
 }
+
+.dark-mode {
+  background-color: #333; /* Dark background */
+  color: #fff; /* Light text */
+}
+
+.dark-mode .title {
+  color: #ccc; /* Adjust title color */
+}

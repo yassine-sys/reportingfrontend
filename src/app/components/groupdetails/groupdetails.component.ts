@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AssignModuleDialogComponent } from '../assign-module-dialog/assign-module-dialog.component';
 import { AssignfunctiondialogComponent } from '../assignfunctiondialog/assignfunctiondialog.component';
 import { ConfirmationDialogComponentComponent } from '../confirmation-dialog-component/confirmation-dialog-component.component';
+import { DialogService } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'app-groupdetails',
@@ -20,7 +21,8 @@ export class GroupdetailsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private groupService: GroupModuleService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    public dialogService: DialogService
   ) {}
 
   openDialog() {
@@ -36,15 +38,31 @@ export class GroupdetailsComponent implements OnInit {
   }
 
   openFctDialog() {
-    const dialogRef = this.dialog.open(AssignfunctiondialogComponent, {
-      width: '500px',
-      data: { groupId: this.groupId },
+    const ref = this.dialogService.open(AssignfunctiondialogComponent, {
+      header: 'Assign new functions',
+      width: '30%',
+      modal: true,
+      maximizable: true,
+      resizable: true,
+      dismissableMask: true,
+      data: {
+        groupId: this.groupId,
+      },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    ref.onClose.subscribe((data) => {
+      // Handle the data received from the dialog
       this.ngOnInit();
-      console.log('The dialog was closed');
     });
+    // const dialogRef = this.dialog.open(AssignfunctiondialogComponent, {
+    //   width: '500px',
+    //   data: { groupId: this.groupId },
+    // });
+
+    // dialogRef.afterClosed().subscribe((result) => {
+    //   this.ngOnInit();
+    //   console.log('The dialog was closed');
+    // });
   }
 
   onDeleteFonction(groupId: any, functionId: any) {

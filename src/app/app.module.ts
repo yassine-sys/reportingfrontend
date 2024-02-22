@@ -113,6 +113,17 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { PlaylistdashboardComponent } from './components/playlistdashboard/playlistdashboard.component';
 import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
+import { ToolbarModule } from 'primeng/toolbar';
+import {
+  RecaptchaModule,
+  RecaptchaFormsModule,
+  ReCaptchaV3Service,
+} from 'ng-recaptcha';
+import { BreadcrumbComponent } from './components/breadcrumb/breadcrumb.component';
+import { FeatherIconsComponent } from './components/feather-icons/feather-icons.component';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { SearchComponent } from './components/search/search.component';
+import { BadgeModule } from 'primeng/badge';
 
 @NgModule({
   declarations: [
@@ -167,8 +178,13 @@ import { UnauthorizedComponent } from './components/unauthorized/unauthorized.co
     PlaylistComponent,
     PlaylistdashboardComponent,
     UnauthorizedComponent,
+    BreadcrumbComponent,
+    FeatherIconsComponent,
+    SidebarComponent,
+    SearchComponent,
   ],
   imports: [
+    ToolbarModule,
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
@@ -220,6 +236,9 @@ import { UnauthorizedComponent } from './components/unauthorized/unauthorized.co
     CheckboxModule,
     DynamicDialogModule,
     PrimeNgDragDropModule,
+    RecaptchaModule, //this is the recaptcha main module
+    RecaptchaFormsModule, //this is the module for form incase form validation
+    BadgeModule,
   ],
   providers: [
     DialogService,
@@ -232,7 +251,9 @@ import { UnauthorizedComponent } from './components/unauthorized/unauthorized.co
       useClass: LoaderInterceptor,
       multi: true,
     },
+
     DatePipe,
+    ReCaptchaV3Service,
   ],
   bootstrap: [AppComponent],
 })

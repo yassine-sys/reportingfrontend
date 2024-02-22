@@ -40,7 +40,7 @@
               "node_modules/font-awesome/css/font-awesome.css",
               "node_modules/highcharts/css/stocktools/gui.css",
               "node_modules/highcharts/css/annotations/popup.css",
-
+              "node_modules/leaflet/dist/leaflet.css",
               {
                 "input": "src/lara-light-blue.css",
                 "bundleName": "lara-light-blue",
@@ -75,7 +75,9 @@
               "src/assets/dist/js/pages/dashboard3.js",
               "src/assets/dist/js/adminlte.js",
               "src/assets/dist/js/leaflet-src.js",
-              "src/assets/dist/js/leaflet.markercluster-src.js"
+              "src/assets/dist/js/leaflet.markercluster-src.js",
+              "src/assets/js/svg2pdf.js",
+              "src/assets/js/jspdf.js"
             ]
           },
           "configurations": {

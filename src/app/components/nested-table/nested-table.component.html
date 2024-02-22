@@ -1,34 +1,17 @@
 <div class="card">
-  <p-table
-    #dt2
-    [value]="jsonData"
-    [dataKey]="columns[0]"
-    [rows]="5"
-    [showCurrentPageReport]="true"
-    [rowsPerPageOptions]="[5, 10, 25, 50]"
-    [paginator]="true"
-    [globalFilterFields]="columns"
-  >
+  <p-table #dt2 [value]="jsonData" [dataKey]="columns[0]" [rows]="5" [showCurrentPageReport]="true"
+    [resizableColumns]="true" columnResizeMode="expand" [rowsPerPageOptions]="[5, 10, 25, 50]" [paginator]="true"
+    [globalFilterFields]="columns">
     <ng-template pTemplate="caption">
       <div class="head">
-        <h5 class="title">{{ title }}</h5>
+        <!-- <h5 class="title">{{ title }}</h5> -->
         <div class="flex">
-          <button
-            pButton
-            label="Clear"
-            class="p-button-outlined"
-            icon="pi pi-filter-slash"
-            (click)="clear(dt2)"
-          ></button>
+          <button pButton label="Clear" class="p-button-outlined" icon="pi pi-filter-slash"
+            (click)="clear(dt2)"></button>
           <span class="p-input-icon-left ml-auto">
             <i class="pi pi-search"></i>
-            <input
-              pInputText
-              type="text"
-              #searchInput
-              (input)="applyFilterGlobal($event)"
-              placeholder="Search keyword"
-            />
+            <input pInputText type="text" #searchInput (input)="applyFilterGlobal($event)"
+              placeholder="Search keyword" />
           </span>
         </div>
       </div>
@@ -36,47 +19,34 @@
     <ng-template pTemplate="header">
       <tr>
         <th style="width: 1%"></th>
-        <th
-          *ngFor="let column of columns"
-          [pSortableColumn]="column"
-          style="width: 10%"
-        >
-          <div class="flex align-items-center">
-            <p-sortIcon [field]="column"></p-sortIcon>
-            {{ column }}
-            <p-columnFilter
-              type="text"
-              [field]="column"
-              display="menu"
-              [showClearButton]="true"
-              [showOperator]="true"
-              [showAddButton]="true"
-            ></p-columnFilter>
-          </div>
-        </th>
+        <ng-container *ngFor="let column of columns; let i = index">
+          <th *ngIf="!isNameColumnPresentLVL4 || i !== 1" [pSortableColumn]="column" pResizableColumn
+            style="width: 10%">
+            <div class="flex align-items-center">
+              <p-sortIcon [field]="column"></p-sortIcon>
+              {{ column }}
+              <p-columnFilter [type]="checkColumnTypes(column, jsonData)" [field]="column" display="menu"
+                [showClearButton]="true" [showOperator]="true" [showAddButton]="true"></p-columnFilter>
+            </div>
+          </th>
+        </ng-container>
       </tr>
     </ng-template>
-    <ng-template
-      pTemplate="body"
-      let-rowData
-      let-expanded="expanded"
-      let-i="index"
-    >
+    <ng-template pTemplate="body" let-rowData let-expanded="expanded" let-i="index">
       <tr>
         <td style="width: 1%">
-          <button
-            type="button"
-            (click)="getDetails(rowData, i)"
-            pButton
-            pRipple
-            [pRowToggler]="rowData"
+          <button type="button" (click)="getDetails(rowData, i)" pButton pRipple [pRowToggler]="rowData"
             class="p-button-text p-button-rounded p-button-plain"
-            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-          ></button>
+            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
         </td>
-        <td *ngFor="let column of columns" style="width: 10%">
+        <!-- <td *ngFor="let column of columns" style="width: 10%">
           {{ formatNumber(rowData[column]) }}
-        </td>
+        </td> -->
+        <ng-container *ngFor="let column of columns; let i = index">
+          <td *ngIf="!isNameColumnPresentLVL4 || i !== 1">
+            {{ formatNumber(rowData[column]) }}
+          </td>
+        </ng-container>
       </tr>
     </ng-template>
     <ng-template pTemplate="rowexpansion" let-rowData>
@@ -84,87 +54,65 @@
         <td [attr.colspan]="columns.length + 1">
           <p-table *ngIf="isLoading" [value]="[]" [rows]="5" [paginator]="true">
             <ng-template pTemplate="header">
-              <tr>
-                <th><p-skeleton></p-skeleton></th>
-                <th><p-skeleton></p-skeleton></th>
-                <th><p-skeleton></p-skeleton></th>
-              </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-product>
-              <tr>
-                <td><p-skeleton></p-skeleton></td>
-                <td><p-skeleton></p-skeleton></td>
-                <td><p-skeleton></p-skeleton></td>
-              </tr>
-            </ng-template>
-          </p-table>
-          <ng-container *ngIf="showProgressBar">
-            <p-progressBar
-              mode="indeterminate"
-              [style]="{ height: '6px' }"
-            ></p-progressBar>
-          </ng-container>
-          <p-table
-            *ngIf="!isLoading"
-            [value]="rowData.details"
-            [rows]="5"
-            [paginator]="true"
-            [dataKey]="detailsCols[0]"
-            [globalFilterFields]="detailsCols"
-            selectionMode="single"
-            (onRowSelect)="onRowSelect($event)"
-            #detailsTable
-          >
-            <ng-template pTemplate="caption">
-              <div class="flex1">
-                <button
-                  type="button"
-                  pButton
-                  pRipple
-                  icon="pi pi-file"
-                  (click)="exportExcel(rowData)"
-                  class="mr-2"
-                  pTooltip="CSV"
-                  tooltipPosition="bottom"
-                ></button>
-                <div>
-                  {{ detailsTitle }}
-                </div>
-              </div>
-            </ng-template>
-            <ng-template pTemplate="header">
-              <tr>
-                <!-- <th *ngFor="let col of detailsCols">{{ col }}</th> -->
-                <th
-                  *ngFor="let col of detailsCols"
-                  [pSortableColumn]="col"
-                  style="width: 10%"
-                >
-                  <div class="flex align-items-center">
-                    <p-sortIcon [field]="col"></p-sortIcon>
-                    {{ col }}
-                    <p-columnFilter
-                      type="text"
-                      [field]="col"
-                      display="menu"
-                      [showClearButton]="true"
-                      [showOperator]="true"
-                      [showAddButton]="true"
-                    ></p-columnFilter>
-                  </div>
-                </th>
-              </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-childRowData>
-              <tr [pSelectableRow]="childRowData">
-                <td *ngFor="let col of detailsCols">
-                  {{ childRowData[col] }}
-                </td>
-              </tr>
-            </ng-template>
-          </p-table>
-        </td>
+      <tr>
+        <th><p-skeleton></p-skeleton></th>
+        <th><p-skeleton></p-skeleton></th>
+        <th><p-skeleton></p-skeleton></th>
       </tr>
     </ng-template>
+    <ng-template pTemplate="body" let-product>
+      <tr>
+        <td><p-skeleton></p-skeleton></td>
+        <td><p-skeleton></p-skeleton></td>
+        <td><p-skeleton></p-skeleton></td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <ng-container *ngIf="showProgressBar">
+    <p-progressBar mode="indeterminate" [style]="{ height: '6px' }"></p-progressBar>
+  </ng-container>
+
+  <p-table *ngIf="!isLoading" [value]="rowData.details" [rows]="5" [paginator]="true" [dataKey]="detailsCols[0]"
+    [globalFilterFields]="detailsCols" selectionMode="single" (onRowSelect)="onRowSelect($event)" #detailsTable>
+    <ng-template pTemplate="caption">
+      <div class="flex1">
+        <button type="button" pButton pRipple icon="pi pi-file" (click)="exportExcel(rowData)" class="mr-2"
+          pTooltip="CSV" tooltipPosition="bottom"></button>
+        <div>
+          {{ detailsTitle }}
+        </div>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <!-- <th *ngFor="let col of detailsCols">{{ col }}</th> -->
+        <ng-container *ngFor="let col of detailsCols; let i = index">
+          <th *ngIf="!isNameColumnPresent || i !== 1" [pSortableColumn]="col" style="width: 10%">
+            <div class="flex align-items-center">
+              <ng-container *ngIf="columns && columns.length > 0">
+                <p-sortIcon [field]="col"></p-sortIcon>
+                {{ col }}
+                <p-columnFilter [type]="checkColumnTypes(col, jsonData[0].details)" [field]="col" display="menu"
+                  [showClearButton]="true" [showOperator]="true" [showAddButton]="true"></p-columnFilter>
+              </ng-container>
+            </div>
+          </th>
+        </ng-container>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-childRowData>
+      <tr [pSelectableRow]="childRowData">
+        <ng-container *ngFor="let col of detailsCols; let i = index">
+          <td *ngIf="!isNameColumnPresent || i !== 1">
+            {{ childRowData[col] }}
+          </td>
+        </ng-container>
+      </tr>
+    </ng-template>
+  </p-table>
+  </td>
+  </tr>
+  </ng-template>
   </p-table>
 </div>

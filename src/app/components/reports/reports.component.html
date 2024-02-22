@@ -1,4 +1,5 @@
-<div class="content-header">
+<app-loader *ngIf="loader"></app-loader>
+<!-- <div class="content-header">
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
@@ -12,160 +13,149 @@
       </div>
     </div>
   </div>
-</div>
-<div class="top-buttons">
-  <button mat-raised-button color="primary" (click)="openOrderDiag()">
-    Order Charts
-  </button>
-  <button mat-raised-button color="primary" (click)="toggleLiveUpdate()">
-    {{ liveUpdateActive ? "Pause Live Update" : "Start Live Update" }}
-  </button>
-</div>
-<ng-container *ngFor="let reportGroup of reportIds; let i = index">
-  <div class="chart-wrapper responsive-chart">
-    <div class="chart-container" [id]="'chartc-' + i" id="chart">
-      <ng-container *ngIf="reportGroup.loading">
-        <!-- Loading skeleton -->
-        <ng-container *ngIf="reportGroup.error">
-          <p-messages
-            [(value)]="messages1"
-            [enableService]="false"
-            [closable]="true"
-          ></p-messages
-        ></ng-container>
-        <div class="card">
-          <div class="border-round border-1 surface-border p-4 surface-card">
-            <div class="flex mb-3">
-              <p-skeleton
-                shape="circle"
-                size="4rem"
-                styleClass="mr-2"
-              ></p-skeleton>
-              <div>
-                <p-skeleton width="10rem" styleClass="mb-2"></p-skeleton>
-                <p-skeleton width="5rem" styleClass="mb-2"></p-skeleton>
-                <p-skeleton height=".5rem"></p-skeleton>
-              </div>
-            </div>
-            <p-skeleton width="100%" height="150px"></p-skeleton>
-            <div class="flex justify-content-between mt-3">
-              <p-skeleton width="4rem" height="2rem"></p-skeleton>
-              <p-skeleton width="4rem" height="2rem"></p-skeleton>
-            </div>
-          </div>
-        </div>
-      </ng-container>
+</div> -->
+<app-breadcrumb [title]="'Charts'" [items]="[moduleName, subModuleName]" [active_item]="functionName"></app-breadcrumb>
 
-      <ng-container *ngIf="!reportGroup.loading">
-        <div class="filtre">
-          <app-filter-component
-            [filter]="filtred"
-            (filterApplied)="onFilterApplied($event, reportGroup.report[0], i)"
-          ></app-filter-component>
-        </div>
-        <highcharts-chart
-          *ngIf="!isChartOptionsEmpty(i); else tableDisplay"
-          [Highcharts]="Highcharts"
-          [options]="chartOptions[i]"
-          [constructorType]="reportGroup.constructorType"
-          style="width: 100%; display: block"
-          [runOutsideAngular]="true"
-          (chartInstance)="onChartInit($event, i)"
-        ></highcharts-chart>
-        <ng-template #tableDisplay>
-          <ng-container *ngIf="!reportGroup.report[0].isnested">
-            <app-paginated-table
-              #tableComponent
-              *ngIf="reportGroup.chartType === 'table'"
-              [columns]="reportGroup.report[0].listnamereptab"
-              [data]="reportGroup.report[0].list_de_donnees"
-              [idrep]="reportGroup.report[0].id_report"
-              [title]="reportGroup.report[0].title"
-              [iscarrier]="reportGroup.report[0].iscarrier"
-              [operator]="reportGroup.report[0].operator"
-              [filter]="filtred !== undefined ? filtred : globalFilter"
-              [hasDetails]="reportGroup.report[0].hasdetails"
-            ></app-paginated-table>
-          </ng-container>
-
-          <ng-container *ngIf="reportGroup.report[0].isnested">
-            <app-nested-table
-              *ngIf="reportGroup.chartType === 'table'"
-              [columns]="reportGroup.report[0].listnamereptab"
-              [data]="reportGroup.report[0].list_de_donnees"
-              [idrep]="reportGroup.report[0].id_report"
-              [title]="reportGroup.report[0].title"
-              [operator]="reportGroup.report[0].operator"
-              [iscarrier]="reportGroup.report[0].iscarrier"
-              [filter]="filtred !== undefined ? filtred : globalFilter"
-            ></app-nested-table>
-          </ng-container>
-        </ng-template>
-        <div class="button-container">
-          <p-speedDial
-            [model]="itemssplit"
-            direction="right"
-            (onClick)="handleSpeedDialClick(reportGroup)"
-            styleClass="custom-speed-dial"
-          >
-          </p-speedDial>
-          <!-- <button
-            mat-raised-button
-            color="primary"
-            (click)="addToDashboard(reportGroup.id)"
-          >
-            Add To Dashboard
-          </button> -->
-          <!-- <button
-            mat-raised-button
-            color="primary"
-            (click)="exportAll(reportGroup.report[0])"
-          >
-            Export All
-          </button>
-           -->
-          <!-- <button
-            mat-raised-button
-            color="primary"
-            (click)="
-              exportXLSX(
-                reportGroup.report[0].list_de_donnees,
-                reportGroup.report[0].listnamereptab,
-                reportGroup.report[0].title
-              )
-            "
-          >
-            Export XLSX
-          </button> -->
-          <mat-form-field>
-            <mat-label>Select chart type</mat-label>
-            <mat-select
-              [(value)]="reportGroup.chartType"
-              (selectionChange)="updateChartType(i, $event)"
-            >
-              <mat-option
-                *ngFor="let type of highchartsTypes"
-                [value]="type.value"
-                >{{ type.label }}</mat-option
-              >
-            </mat-select>
-          </mat-form-field>
-        </div>
-      </ng-container>
+<div class="card" [ngClass]="{ 'bg-dark': darkModeEnabled }">
+  <div class="card-header">
+    <div class="top-buttons">
+      <button mat-raised-button color="primary" (click)="openOrderDiag()">
+        Order Charts
+      </button>
+      <button mat-raised-button color="primary" (click)="toggleLiveUpdate()">
+        {{ liveUpdateActive ? "Pause Live Update" : "Start Live Update" }}
+      </button>
     </div>
   </div>
-</ng-container>
 
-<!-- <p-dialog
-  header="Header"
-  [(visible)]="showButton"
-  [modal]="true"
-  class="dialog"
->
-  <ng-template pTemplate="header">
-    <div class="inline-flex align-items-center justify-content-center gap-2">
-      <span class="font-bold white-space-nowrap">Save To PlayList</span>
-    </div>
-  </ng-template>
-  <app-playlist [id]="selectedId"></app-playlist>
-</p-dialog> -->
+  <div class="card-body h-25">
+    <ng-container *ngFor="let reportGroup of reportIds; let i = index">
+      <div [id]="'chartc-' + i" id="chart">
+        <ng-container *ngIf="reportGroup.loading">
+          <!-- Loading skeleton -->
+          <ng-container *ngIf="reportGroup.error">
+            <p-messages [value]="[
+                {
+                  severity: 'error',
+                  summary: 'Error',
+                  detail: reportGroup.error
+                }
+              ]" [enableService]="false" [closable]="true"></p-messages></ng-container>
+          <div class="card" [ngClass]="{ 'bg-dark': darkModeEnabled }">
+            <div class="border-round border-1 surface-border p-4 surface-card">
+              <div class="flex mb-3">
+                <p-skeleton shape="circle" size="4rem" styleClass="mr-2"></p-skeleton>
+                <div>
+                  <p-skeleton width="10rem" styleClass="mb-2"></p-skeleton>
+                  <p-skeleton width="5rem" styleClass="mb-2"></p-skeleton>
+                  <p-skeleton height=".5rem"></p-skeleton>
+                </div>
+              </div>
+              <p-skeleton width="100%" height="150px"></p-skeleton>
+              <div class="flex justify-content-between mt-3">
+                <p-skeleton width="4rem" height="2rem"></p-skeleton>
+                <p-skeleton width="4rem" height="2rem"></p-skeleton>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="!reportGroup.loading">
+          <div class="card" [ngClass]="{ 'bg-dark': darkModeEnabled }">
+            <div class="card-header">
+              <div class="headd">
+                <div style="display: flex; align-items: center">
+                  <i *ngIf="reportGroup.report[0].hasdetails" class="pi pi-list" pTooltip="Details available"
+                    tooltipPosition="top"></i>
+                  <div style="margin: 10px; display: flex; align-items: center; justify-content: space-between;"
+                    class="title">
+                    <h5 [pTooltip]="detailsTooltip(reportGroup.report[0].hasdetails)" tooltipPosition="top"
+                      style="margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                      {{ reportGroup.report[0].title }}
+                    </h5>
+                    <!-- <p style="margin: 0; padding-left: 10px;">{{convertDateFormat(oneMonthEarlierStr)}} to
+                      {{convertDateFormat(currentDateStr)}}</p> -->
+                  </div>
+
+                  <button (click)="copyToClipboard(reportGroup.id)" class="pi pi-clone"
+                    style="background: none; border: none; cursor: pointer" pTooltip="Copy Id"
+                    tooltipPosition="top"></button>
+                </div>
+
+                <div class="filtre">
+                  <app-filter-component [idRep]="reportGroup.id" [filter]="filtred" (filterApplied)="
+                      onFilterApplied($event, reportGroup.report[0], i)
+                    "></app-filter-component>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <highcharts-chart *ngIf="!isChartOptionsEmpty(i); else tableDisplay" [Highcharts]="Highcharts"
+                [options]="chartOptions[i]" [constructorType]="reportGroup.constructorType"
+                style="width: 100%; display: block" [runOutsideAngular]="true"
+                (chartInstance)="onChartInit($event, i)"></highcharts-chart>
+              <ng-template #tableDisplay>
+                <ng-container *ngIf="!reportGroup.report[0].isnested">
+                  <app-paginated-table #tableComponent *ngIf="reportGroup.chartType === 'table'"
+                    [columns]="reportGroup.report[0].listnamereptab" [data]="reportGroup.report[0].list_de_donnees"
+                    [idrep]="reportGroup.report[0].id_report" [title]="reportGroup.report[0].title"
+                    [iscarrier]="reportGroup.report[0].iscarrier" [operator]="reportGroup.report[0].operator"
+                    [filter]="filtred !== undefined ? filtred : globalFilter"
+                    [hasDetails]="reportGroup.report[0].hasdetails" [currencies]="currencies"></app-paginated-table>
+                </ng-container>
+
+                <ng-container *ngIf="reportGroup.report[0].isnested">
+                  <app-nested-table *ngIf="reportGroup.chartType === 'table'"
+                    [columns]="reportGroup.report[0].listnamereptab" [data]="reportGroup.report[0].list_de_donnees"
+                    [idrep]="reportGroup.report[0].id_report" [title]="reportGroup.report[0].title"
+                    [operator]="reportGroup.report[0].operator" [iscarrier]="reportGroup.report[0].iscarrier"
+                    [filter]="filtred !== undefined ? filtred : globalFilter"></app-nested-table>
+                </ng-container>
+              </ng-template>
+            </div>
+            <div class="card-footer">
+              <div class="button-container">
+                <p-speedDial [model]="itemssplit" direction="right" (onClick)="handleSpeedDialClick(reportGroup)">
+                </p-speedDial>
+                <!-- <button
+                  mat-raised-button
+                  color="primary"
+                  (click)="addToDashboard(reportGroup.id)"
+                >
+                  Add To Dashboard
+                </button> -->
+                <!-- <button
+                  mat-raised-button
+                  color="primary"
+                  (click)="exportAll(reportGroup.report[0])"
+                >
+                  Export All
+                </button>
+                 -->
+                <!-- <button
+                  mat-raised-button
+                  color="primary"
+                  (click)="
+                    exportXLSX(
+                      reportGroup.report[0].list_de_donnees,
+                      reportGroup.report[0].listnamereptab,
+                      reportGroup.report[0].title
+                    )
+                  "
+                >
+                  Export XLSX
+                </button> -->
+                <mat-form-field>
+                  <mat-label>Select chart type</mat-label>
+                  <mat-select [(value)]="reportGroup.chartType" (selectionChange)="updateChartType(i, $event)">
+                    <mat-option *ngFor="let type of highchartsTypes" [value]="type.value">{{ type.label }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </ng-container>
+  </div>
+</div>

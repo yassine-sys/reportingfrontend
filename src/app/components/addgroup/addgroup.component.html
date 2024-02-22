@@ -1,3 +1,8 @@
+<app-breadcrumb
+  [title]="'Add Group'"
+  [items]="['Management', 'Group Management']"
+  [active_item]="'Add'"
+></app-breadcrumb>
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-container">
   <div class="container">
     <div class="form-field">

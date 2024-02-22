@@ -146,9 +146,15 @@ li {
 
 .nav-sidebar .nav-item > .nav-link {
   position: relative;
-  padding: 10px;
-  text-wrap: wrap;
+  /* padding: 10px;
+  text-wrap: wrap; */
   height: auto;
+  display: flex;
+  justify-content: flex-start;
+  justify-content: flex-start;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: break-spaces;
 }
 .checkbox {
   opacity: 0;
@@ -207,4 +213,57 @@ li {
 .btn .fa,
 .nav-link .fa {
   color: gray;
+}
+
+/* Base styles for all nav-items */
+.nav-sidebar .nav-item {
+  position: relative;
+}
+
+/* Increased padding for first-level items */
+/* .nav-sidebar > .nav-item {
+  padding-left: 10px;
+} */
+
+/* Further increase padding for second-level items */
+.nav-sidebar .nav-treeview > .nav-item {
+  padding-left: 20px;
+}
+
+/* Even more padding for third-level items */
+.nav-sidebar .nav-treeview .nav-treeview > .nav-item {
+  padding-left: 30px;
+}
+
+/* Add to your existing sidebar component SCSS */
+.nav-link .title,
+.nav-link p {
+  word-break: break-word; /* This will break the word at the end of the line */
+  overflow-wrap: break-word; /* This will break the word at arbitrary points if needed */
+}
+
+/* If you want to ensure that breaks happen at spaces and not in the middle of words */
+.nav-link .title,
+.nav-link p {
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+.nav-sidebar .nav-link > .right:nth-child(2),
+.nav-sidebar .nav-link > p > .right:nth-child(2) {
+  right: 1rem;
+}
+.badge {
+  display: inline-block;
+  padding: 0.25em 0.4em;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.25rem;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  height: 10%;
 }

@@ -38,6 +38,7 @@ import { DataUpdateService } from 'src/app/services/data-update.service';
 import { DarkModeService } from '../../services/dark-mode.service';
 import { ThemeService } from '../../services/theme.service';
 import { DialogService } from 'primeng/dynamicdialog';
+import { CurrencyService } from '../../services/currency.service';
 
 @Component({
   selector: 'app-paginated-table',
@@ -54,9 +55,11 @@ export class PaginatedTableComponent
   @Input() filter: any;
   @Input() iscarrier: any;
   @Input() operator: any;
-  @Input() collect!: boolean;
+  @Input() collect: boolean = false;
   @Input() dataChanged: boolean = false;
   @Input() hasDetails: boolean = false;
+  @Input() currencies: any;
+
   dataSource: MatTableDataSource<any>;
   selectedRow: any;
   searchActive: boolean = false;
@@ -101,6 +104,11 @@ export class PaginatedTableComponent
   darkModeEnabled!: boolean;
 
   operatorsList: any;
+  selectedCurrency: any;
+  conversionRates: any;
+
+  originalCurrencyValues: any;
+  originalCurrency: any;
 
   constructor(
     public dialog: MatDialog,
@@ -119,7 +127,9 @@ export class PaginatedTableComponent
     private darkModeService: DarkModeService,
     private themeService: ThemeService,
     public dialogService: DialogService,
-    @Inject(DOCUMENT) private document: Document
+    public currencyService: CurrencyService,
+    @Inject(DOCUMENT) private document: Document,
+    private datePipe: DatePipe
   ) {
     this.dataSource = new MatTableDataSource();
     this.subscriptionDarkMode = this.darkModeService.darkModeState.subscribe(
@@ -132,6 +142,17 @@ export class PaginatedTableComponent
         }
       }
     );
+  }
+
+  checkColumnTypes(column: string): string {
+    if (
+      this.jsonData &&
+      this.jsonData.length > 0 &&
+      this.jsonData[0][column] !== undefined
+    ) {
+      return typeof this.jsonData[0][column] === 'number' ? 'numeric' : 'text';
+    }
+    return 'text'; // Default to text if unsure
   }
 
   switchTheme(theme: string) {
@@ -149,12 +170,19 @@ export class PaginatedTableComponent
   }
 
   ngOnInit(): void {
-    //console.log(this.operator);
+    this.selectedCurrency = {
+      id: 4,
+      code_monnai: 'LYD',
+      monnai: 'LYD',
+    };
+    this.originalCurrency = { ...this.selectedCurrency };
+
+    ////console.log(this.operator);
     if (this.title === ' Voice Call Rating Alert') {
       this.hasDetails = true;
     }
     // Fetch operators' data asynchronously
-    //console.log(this.operator);
+    ////console.log(this.operator);
     this.chartService.getOperatorsInterco().subscribe((operatorsList) => {
       this.operatorsList = operatorsList;
       // Process each row of data
@@ -167,7 +195,7 @@ export class PaginatedTableComponent
       });
 
       // Modify jsonData only if iscarrier is true
-      if (this.operator) {
+      if (this.iscarrier) {
         // Add 'Name' to columns in the second position
         this.columns.splice(1, 0, 'Name');
         // Add 'Name' field to jsonData
@@ -231,20 +259,15 @@ export class PaginatedTableComponent
     }
   }
 
-  formatNumber(value: any): string {
+  formatNumber(value: any): number {
     if (!this.collect) {
       if (typeof value === 'number') {
-        const options = {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 5,
-        };
-        const formattedValue = value.toLocaleString('en-GB', options);
-        const parts = formattedValue.split('.');
-        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-        const newValue = parts.join('.').replace(/,/g, ' '); // Replace commas with spaces
+        // Use toFixed to always display 4 values after the decimal point
+        const formattedValue = value.toFixed(4);
 
-        return newValue;
+        return parseFloat(formattedValue);
       }
+      return value;
     }
     return value;
   }
@@ -259,9 +282,43 @@ export class PaginatedTableComponent
       dialogRef.afterClosed().subscribe((comment: string) => {
         dialogRef.close();
       });
-    } else if (this.title === ' Voice Call Rating Alert') {
+    } else if (this.collect) {
       console.log(row);
-      console.log(this.convertDate(row.begin_date));
+      const idFlow = row.name_flow === 'Interco' ? 6063 : 3390;
+      const columns: any[] = [
+        'filename',
+        'date_reception',
+        'statut',
+        'id_rep',
+        'id_rep_fils',
+        'nb_record',
+      ];
+      this.chartService
+        .getCollectDetails(row.name_rep, idFlow, row.date, row.switch)
+        .subscribe((response) => {
+          const ref = this.dialogService.open(TableDialogComponent, {
+            header: `${row.name_flow + ' Details'}`,
+            width: '70%',
+            modal: true,
+            maximizable: true,
+            resizable: true,
+            dismissableMask: true,
+            data: {
+              columns,
+              rows: response,
+              title: `${row.name_flow + ' Details'}`,
+              isoperator: false,
+              iscarrier: false,
+            },
+          });
+
+          ref.onClose.subscribe((data) => {
+            // Handle the data received from the dialog
+          });
+        });
+    } else if (this.title === ' Voice Call Rating Alert') {
+      //console.log(row);
+      //console.log(this.convertDate(row.begin_date));
 
       const columns = [
         'plan_tarifaire',
@@ -294,19 +351,71 @@ export class PaginatedTableComponent
           })
         )
         .subscribe((response) => {
-          console.log(response);
-          // this.dialog.open(TableDialogComponent, {
-          //   data: {
-          //     columns,
-          //     rows: this.convertToArrayOfObjects(response, columns),
-          //     title: this.title,
-          //     isoperator: false,
-          //     iscarrier: false,
-          //   },
-          // });
-
           const ref = this.dialogService.open(TableDialogComponent, {
             header: `${response.title}`,
+            width: '70%',
+            modal: true,
+            maximizable: true,
+            resizable: true,
+            dismissableMask: true,
+            data: {
+              columns,
+              rows: this.convertToArrayOfObjects(response, columns),
+              title: response.title,
+              isoperator: response.operator,
+              iscarrier: response.iscarrier,
+              parentRow: this.parentRow,
+              hasdetails: response.hasdetails,
+            },
+          });
+
+          ref.onClose.subscribe((data) => {
+            // Handle the data received from the dialog
+          });
+        });
+    } else if (
+      this.title.includes('Rate vs. Cost Reconciliation by Destination')
+    ) {
+      console.log(row);
+      const columns = [
+        'callingnumber',
+        'callednumber',
+        'networkcallreference',
+        'type_call',
+        'mscincomingroute',
+        'mscoutgoingroute',
+        'answertime',
+        'callduration',
+        'tarif_class',
+        'subscription_type',
+        'country_name',
+        'operator_name',
+        'rate',
+        'amount',
+        'rate_litc',
+        'amount_litc',
+        'rating_method_madar',
+        'rating_method',
+        'id_outgoing_operator',
+        'id_incoming_operator',
+      ];
+
+      this.chartService
+        .marginDetails(
+          row.Country,
+          row.begindate?.replace(/-/g, ''),
+          row.enddate?.replace(/-/g, '')
+        )
+        .pipe(
+          catchError((error) => {
+            this.showProgressBar = false; // Hide the progress bar
+            this.toastr.error('An error occurred while fetching details.');
+            return throwError(error); // Rethrow the error to keep it propagating
+          })
+        )
+        .subscribe((response) => {
+          const ref = this.dialogService.open(TableDialogComponent, {
+            header: 'CDR Details',
             width: '70%',
             modal: true,
             maximizable: true,
@@ -336,7 +445,7 @@ export class PaginatedTableComponent
 
         this.startDate = this.formatDate(datePreviousMonth);
         this.endDate = this.formatDate(today);
-        //console.log(this.filter);
+        ////console.log(this.filter);
       } else {
         this.startDate = this.filter.startDate;
         this.endDate = this.filter.endDate;
@@ -357,7 +466,7 @@ export class PaginatedTableComponent
           })
         )
         .subscribe((response) => {
-          //console.log(response);
+          ////console.log(response);
           const columns = response.listnamereptab;
           let data = response.list_de_donnees.map((d: any) => {
             let obj: { [key: string]: any } = {};
@@ -378,7 +487,7 @@ export class PaginatedTableComponent
 
                   if (destination) {
                     obj[firstKey] = destination.operateur;
-                    console.log(obj);
+                    //console.log(obj);
                   }
                 });
             }
@@ -388,7 +497,7 @@ export class PaginatedTableComponent
           this.parentRow = {
             [this.columns[0].toUpperCase()]: row[this.columns[0]],
           };
-          console.log(this.parentRow);
+          //console.log(this.parentRow);
 
           // this.dialog.open(TableDialogComponent, {
           //   data: {
@@ -450,6 +559,23 @@ export class PaginatedTableComponent
     return `${year}-${month}-${day}`;
   }
 
+  convertDateFormat(begindate: string): string {
+    // Parse the input string to a Date object
+    const dateParts = begindate.split('-');
+    // Assuming the year part is already in the correct format ('yy'), no addition is necessary.
+    // Adjust the month index by subtracting 1 as JavaScript months are 0-indexed.
+    const date = new Date(
+      parseInt(dateParts[2], 10), // Directly use the year part without adding 2000
+      parseInt(dateParts[1], 10) - 1, // Adjust month
+      parseInt(dateParts[0], 10) // Use day as is
+    );
+
+    // Use DatePipe to transform the Date object to the desired format 'yyMMdd'
+    const formattedDate = this.datePipe.transform(date, 'yyMMdd');
+
+    return formattedDate || '';
+  }
+
   selectRow(row: any) {
     this.selectedRow = row;
   }
@@ -494,5 +620,74 @@ export class PaginatedTableComponent
     const month = ('0' + (date.getMonth() + 1)).slice(-2); // Add 1 to the month because it's 0-indexed
     const day = ('0' + date.getDate()).slice(-2);
     return `${year}-${month}-${day}`;
+  }
+
+  checkColumnType(columnName: string): string {
+    const lowerCaseColumnName = columnName.toLowerCase();
+    if (
+      lowerCaseColumnName.includes('revenue') ||
+      lowerCaseColumnName.includes('charge')
+    ) {
+      return 'currency';
+    } else if (lowerCaseColumnName === 'status') {
+      return 'status';
+    } else {
+      return 'default';
+    }
+  }
+
+  onCurrencyChange(newCurrency: string, column: string) {
+    const previousCurrency = { ...this.selectedCurrency };
+
+    this.selectedCurrency = newCurrency;
+    this.convertCurrencyValues(column, newCurrency);
+    this.originalCurrency = { ...previousCurrency };
+  }
+
+  convertCurrencyValues(column: string, newCurrency: any) {
+    //console.log(this.selectedCurrency);
+
+    // Iterate through the jsonData and update the currency values
+    this.jsonData.forEach((row, index) => {
+      //console.log(row[column]);
+      this.currencyService
+        .convertCurrencyLocal(
+          this.originalCurrency.id,
+          newCurrency.id,
+          row[column]
+        )
+        .subscribe((resp: any) => {
+          if (resp) {
+            // Update the jsonData and the specific row
+            this.jsonData[index][column] = parseFloat(resp);
+
+            // You may need to update the corresponding row in the table directly, if it doesn't update automatically
+            if (this.dataTable && this.dataTable.filteredValue) {
+              const rowIndex = this.dataTable.filteredValue.indexOf(row);
+              if (rowIndex !== -1) {
+                this.dataTable.filteredValue[rowIndex][column] = parseFloat(
+                  resp.results[this.selectedCurrency.code_monnai]
+                );
+              }
+            }
+          }
+        });
+    });
+  }
+
+  setupCurrencyOptions() {
+    this.currencies = this.currencies.map((currency: any) => {
+      return { label: currency.name, value: currency.code };
+    });
+
+    // Set default currency
+    const defaultCurrency = this.currencies.find((c: any) => c.value === 'LYD');
+    if (defaultCurrency) {
+      this.selectedCurrency = defaultCurrency.value;
+    }
+  }
+
+  get isNameColumnPresentLVL4(): boolean {
+    return this.columns.includes('Name');
   }
 }

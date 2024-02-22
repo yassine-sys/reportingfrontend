@@ -74,10 +74,12 @@ import TrendLine from 'highcharts/indicators/trendLine';
 import Regressions from 'highcharts/indicators/regressions';
 import ExportData from 'highcharts/modules/export-data';
 import { DarkModeService } from '../../services/dark-mode.service';
-import DarkTheme from 'highcharts/themes/brand-dark';
-import DefaultTheme from 'highcharts/themes/brand-light';
+import DarkTheme from 'highcharts/themes/dark-unica';
+import DefaultTheme from 'highcharts/themes/grid-light';
 import { DialogService } from 'primeng/dynamicdialog';
 import { PlaylistComponent } from '../playlist/playlist.component';
+import { CurrencyService } from 'src/app/services/currency.service';
+import { DatePipe } from '@angular/common';
 
 Accessibility(Highcharts);
 ExportingModule(Highcharts);
@@ -91,7 +93,7 @@ HDragPanes(Highcharts);
 HAnnotationsAdvanced(Highcharts);
 HPriceIndicator(Highcharts);
 HFullScreen(Highcharts);
-ExportData(Highcharts);
+//ExportData(Highcharts);
 HStockTools(Highcharts);
 @Component({
   selector: 'app-reports',
@@ -101,6 +103,9 @@ HStockTools(Highcharts);
 export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
   newuser!: User;
   funcId: any;
+  moduleName!: string;
+  subModuleName!: string;
+  functionName!: string;
   listeRep: any[] = [];
   reports: any[] = [];
   funcName: any;
@@ -122,6 +127,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
     report: any;
     constructorType: string;
     chartType: string;
+    customFilter: boolean;
   }[] = [];
   filtred!: Filters;
   globalFilter!: Filters;
@@ -174,7 +180,9 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
     private commentService: CommentService,
     private ngZone: NgZone,
     private darkModeService: DarkModeService,
-    public dialogService: DialogService
+    public dialogService: DialogService,
+    public currencyService: CurrencyService,
+    private datePipe: DatePipe
   ) {}
   ngAfterViewInit(): void {
     this.subscriptionDarkMode = this.darkModeService.darkModeState.subscribe(
@@ -191,7 +199,26 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
     this.reportGroup = report;
   }
 
+  currencies: any[] = [];
+
+  currentDateStr!: any;
+  oneMonthEarlierStr!: any;
+
   ngOnInit(): void {
+    const currentDate = new Date();
+    const oneMonthEarlier = new Date();
+    oneMonthEarlier.setMonth(currentDate.getMonth() - 1);
+
+    this.currentDateStr = this.datePipe.transform(currentDate, 'yy-MM-dd');
+    this.oneMonthEarlierStr = this.datePipe.transform(
+      oneMonthEarlier,
+      'yy-MM-dd'
+    );
+
+    this.currencyService.getAllCurrenciesLocal().subscribe((resp: any) => {
+      this.currencies = resp;
+    });
+
     this.itemssplit = [
       {
         tooltipOptions: {
@@ -229,10 +256,13 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
         },
       },
     ];
-    this.chartService.getRepByFunctionId(929).subscribe((response: any) => {
-      this.playListIds = response;
-    });
+    // this.chartService.getRepByFunctionId(929).subscribe((response: any) => {
+    //   this.playListIds = response;
+    // });
     this.route.params.subscribe((params) => {
+      this.moduleName = params['moduleName'];
+      this.subModuleName = params['subModuleName'];
+      this.functionName = params['functionName'];
       this.funcId = params['id'];
       //console.log(this.filtredSubscription);
       this.loadData();
@@ -323,6 +353,8 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private loadReports(listeRep: any[], isRefresh: boolean): void {
+    console.log(this.currentDateStr);
+    console.log(this.oneMonthEarlierStr);
     if (!isRefresh) {
       this.reportIds = listeRep.map((item) => ({
         id: item,
@@ -331,20 +363,14 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
         error: '',
         constructorType: '',
         chartType: '',
+        customFilter: false,
       }));
 
       const reportObservables: Observable<any>[] = this.reportIds.map((item) =>
+        //this.chartService.getChartWithDateFilter(this.oneMonthEarlierStr,this.currentDateStr,item.id)
         this.chartService.getRepById(item.id).pipe(
           catchError((error) => {
-            console.error('Error fetching report', error);
             item.error = 'Error Fetching report: ' + item.id;
-            this.messages1 = [
-              {
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Error Fetching report: ' + item.id,
-              },
-            ];
             return of(null);
           })
         )
@@ -361,7 +387,6 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
               this.reportIds[index].report = report;
               this.reportIds[index].report[0].list_de_donnees =
                 report[0].list_de_donnees;
-
               if (
                 report &&
                 report.length > 0 &&
@@ -378,6 +403,13 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
                     startDate,
                     endDate
                   );
+              } else if (
+                this.reportIds[index].report &&
+                this.reportIds[index].report[0].title
+                  .toUpperCase()
+                  .includes('TRUNCK')
+              ) {
+                this.reportIds[index].customFilter = true;
               }
 
               this.reportIds[index].chartType = report[0].chart_type;
@@ -463,7 +495,9 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
           id: `series-${i}`,
           name: name,
           data: chartData[0].list_de_donnees.map((datum: any) => [
-            new Date(datum[0] + 'T00:00:00Z').getTime(),
+            this.isMonthYearFormat(datum[0])
+              ? this.parseDateToUTC(datum[0])
+              : new Date(datum[0]).getTime(),
             datum[i + 1],
           ]),
         }))
@@ -474,6 +508,8 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
             (data: { toString: () => any }[]) => data[i + 1]
           ),
         }));
+
+    console.log(seriesData);
 
     // Process data for pie
     const isPieChart = data.chartType === 'pie';
@@ -516,18 +552,23 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
         style: {
           fontFamily: "'Open Sans', sans-serif",
         },
-      },
-      title: {
-        text:
-          chartData[0].title +
-          '<br><hr style="height:2px;color:white;background-color:gray">',
-        align: 'left',
-        useHTML: true,
-        style: {
-          fontSize: '18px',
-          fontWeight: 'bold',
+        zooming: {
+          mouseWheel: {
+            enabled: false,
+          },
         },
       },
+      // title: {
+      //   text:
+      //     chartData[0].title +
+      //     '<br><hr style="height:2px;color:white;background-color:gray">',
+      //   align: 'left',
+      //   useHTML: true,
+      //   style: {
+      //     fontSize: '18px',
+      //     fontWeight: 'bold',
+      //   },
+      // },
       responsive: {
         rules: [
           {
@@ -573,6 +614,8 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
       },
       exporting: {
         enabled: true,
+        fallbackToExportServer: false,
+        libURL: 'assets/js/',
         chartOptions: {
           chart: {
             width: 1000,
@@ -744,9 +787,18 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
     return chartOptions;
   }
 
+  parseDateToUTC(dateStr: string): number {
+    const parts = dateStr.split('/');
+    const year = parseInt(parts[1], 10);
+    const month = parseInt(parts[0], 10) - 1; // Month is 0-indexed in JavaScript Date
+    const date = new Date(Date.UTC(year, month, 1)); // Use the first day of the month
+    return date.getTime();
+  }
+
   isMonthYearFormat(dateStr: string) {
     return /^\d{2}\/\d{4}$/.test(dateStr); // Regex for 'MM/YYYY' format
   }
+
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
@@ -775,6 +827,8 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   exportXLSX(cols: any, rows: any, fileName: any) {
+    rows = rows.filter((row: any) => row !== 'Name');
+
     const isRowsEmpty =
       rows.length === 0 || (rows.length === 1 && rows[0] === '');
 
@@ -893,14 +947,30 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
     );
   }
 
+  loader: boolean = false;
   onFilterApplied(filterData: any, report: any, index: any) {
     // Handle filter data here
+    this.currentDateStr = filterData.startDate;
+    this.oneMonthEarlierStr = filterData.endDate;
+
+    this.loader = true;
     if (filterData) {
       this.filtred = filterData;
       this.reportIds[index].loading = true;
       this.chartService
         .FilterChart(filterData, report.id_report)
         .subscribe((resp) => {
+          //remove Name from listenamereptab
+          if (
+            this.reportIds[index].report &&
+            this.reportIds[index].report[0].listnamereptab &&
+            this.reportIds[index].report[0].listnamereptab.includes('Name')
+          ) {
+            this.reportIds[index].report[0].listnamereptab = this.reportIds[
+              index
+            ].report[0].listnamereptab.filter((item: any) => item !== 'Name');
+          }
+          //console.log(this.reportIds[index].report[0]);
           // Update the report data
           this.reportIds[index].report[0].list_de_donnees =
             resp.list_de_donnees;
@@ -918,6 +988,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
           }
           this.changeDetectorRef.detectChanges();
           this.reportIds[index].loading = false;
+          this.loader = false;
         });
     }
   }
@@ -936,11 +1007,13 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
         // Update the list_de_donnees in the existing report
         if (this.reportIds[index].report[0].hasdate) {
           this.reportIds[index].report[0].list_de_donnees =
-            this.fillMissingDatesFilter(
-              filterResult.list_de_donnees,
-              this.globalFilter.startDate,
-              this.globalFilter.endDate
-            );
+            this.isMonthYearFormat(filterResult.list_de_donnees[0][0])
+              ? filterResult.list_de_donnees
+              : this.fillMissingDatesFilter(
+                  filterResult.list_de_donnees,
+                  this.globalFilter.startDate,
+                  this.globalFilter.endDate
+                );
         } else {
           this.reportIds[index].report[0].list_de_donnees =
             filterResult.list_de_donnees;
@@ -1184,7 +1257,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.chartService.getRepById(reportId);
   }
 
-  private async applyChartTheme() {
+  private applyChartTheme() {
     if (this.darkModeEnabled) {
       console.log('Applying dark theme');
       DarkTheme(Highcharts);
@@ -1240,16 +1313,11 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   formatNumber(value: any): string {
     if (typeof value === 'number') {
-      const options = {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 5,
-      };
-      const formattedValue = value.toLocaleString('en-GB', options);
-      const parts = formattedValue.split('.');
-      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-      const newValue = parts.join('.').replace(/,/g, ' '); // Replace commas with spaces
-
-      return newValue;
+      // Use toFixed to always display 4 values after the decimal point
+      const formattedValue = value.toFixed(4);
+      console.log(value);
+      console.log(formattedValue);
+      return formattedValue;
     }
     return value;
   }
@@ -1271,5 +1339,57 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
     ref.onClose.subscribe((data) => {
       // Handle the data received from the dialog
     });
+  }
+
+  copyToClipboard(id: any) {
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(id)
+        .then(() => {
+          console.log('ID copied to clipboard:', id);
+        })
+        .catch((err) => {
+          console.error('Error copying text to clipboard', err);
+        });
+    } else {
+      this.fallbackCopyTextToClipboard(id);
+    }
+  }
+
+  fallbackCopyTextToClipboard(text: string) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.top = '0';
+    textArea.style.left = '0';
+    textArea.style.position = 'fixed';
+
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+      const successful = document.execCommand('copy');
+      const msg = successful ? 'successful' : 'unsuccessful';
+      console.log('Fallback: Copying text command was ' + msg);
+    } catch (err) {
+      console.error('Fallback: Oops, unable to copy', err);
+    }
+
+    document.body.removeChild(textArea);
+  }
+
+  detailsTooltip(value: any): any {
+    if (value) {
+      return 'Details available'; // Your tooltip text here
+    }
+    return null;
+  }
+
+  convertDateFormat(dateStr: string): string {
+    const parts = dateStr.split('-');
+    if (parts[0].length === 2) {
+      parts[0] = '20' + parts[0]; // Prepend '20' to make the year in 'yyyy' format
+    }
+    return parts.join('-'); // Reassemble the date string in 'yyyy-mm-dd' format
   }
 }

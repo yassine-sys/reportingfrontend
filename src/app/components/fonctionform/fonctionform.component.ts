@@ -26,6 +26,7 @@ export class FonctionformComponent implements OnInit {
   submoduleCtrl = new FormControl();
   filteredSubmodules!: Observable<any[]>;
   selectedSubmodule: any;
+  subModuleId: any;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -34,7 +35,9 @@ export class FonctionformComponent implements OnInit {
     private dialogRef: MatDialogRef<FonctionformComponent>,
     private moduleService: ModuleServicesService,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) {}
+  ) {
+    this.subModuleId = data.idSub;
+  }
 
   ngOnInit() {
     this.functionForm = this.formBuilder.group({
@@ -73,7 +76,20 @@ export class FonctionformComponent implements OnInit {
             this.submodules.push(submodule);
           }
         });
-        console.log(this.submodules);
+        if (this.subModuleId) {
+          console.log(this.subModuleId);
+          const foundModule = this.submodules.find(
+            (module) => module.id === this.subModuleId
+          );
+          if (foundModule) {
+            this.selectedSubmodule = foundModule;
+            console.log(foundModule);
+            this.functionForm.patchValue({
+              functionName: '',
+              submoduleId: this.selectedSubmodule.id,
+            });
+          }
+        }
       },
       (error) => {
         console.log('Error retrieving submodules', error);

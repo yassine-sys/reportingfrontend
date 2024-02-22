@@ -210,18 +210,12 @@ export class NestedTableComponent implements OnInit {
     }
   }
 
-  formatNumber(value: any): string {
+  formatNumber(value: any): number {
     if (typeof value === 'number') {
-      const options = {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 5,
-      };
-      const formattedValue = value.toLocaleString('en-GB', options);
-      const parts = formattedValue.split('.');
-      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-      const newValue = parts.join('.').replace(/,/g, ' '); // Replace commas with spaces
+      // Use toFixed to always display 4 values after the decimal point
+      const formattedValue = value.toFixed(4);
 
-      return newValue;
+      return parseFloat(formattedValue);
     }
     return value;
   }
@@ -463,6 +457,14 @@ export class NestedTableComponent implements OnInit {
           });
       }
     }
+  }
+
+  get isNameColumnPresent(): boolean {
+    return this.detailsCols.includes('Name');
+  }
+
+  get isNameColumnPresentLVL4(): boolean {
+    return this.columns.includes('Name');
   }
 
   isRowExpanded(row: any): boolean {
@@ -724,5 +726,18 @@ export class NestedTableComponent implements OnInit {
         });
       });
     }
+  }
+
+  checkColumnTypes(column: string, data: any): string {
+    //return typeof data[0][column] === 'number' ? 'numeric' : 'text';
+    if (
+      data &&
+      Array.isArray(data) &&
+      data.length > 0 &&
+      data[0][column] !== undefined
+    ) {
+      return typeof data[0][column] === 'number' ? 'numeric' : 'text';
+    }
+    return 'text';
   }
 }

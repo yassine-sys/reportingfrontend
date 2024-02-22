@@ -1,52 +1,24 @@
 <div class="wrapper text-sm">
   <app-loader *ngIf="loaderService.isLoading$ | async"></app-loader>
 
-  <nav
-    class="main-header navbar navbar-expand"
-    [ngClass]="{
+  <nav class="main-header navbar navbar-expand " [ngClass]="{
       'navbar-light': !darkModeEnabled,
       'bg-dark navbar-dark': darkModeEnabled
-    }"
-    *ngIf="!isLoading"
-  >
-    <ul class="navbar-nav">
+    }" *ngIf="!isLoading">
+    <ul class="navbar-nav ">
       <li class="nav-item">
-        <a class="nav-link" data-widget="pushmenu" role="button"
-          ><i class="fas fa-bars" (click)="openSidebar()"></i
-        ></a>
+        <a class="nav-link" data-widget="pushmenu" role="button"><i class="fas fa-bars" (click)="openSidebar()"></i></a>
+      </li>
+      <li class="nav-item">
+        <app-search></app-search>
       </li>
     </ul>
 
     <ul class="navbar-nav ml-auto">
-      <!-- <li class="nav-item">
-                <a class="nav-link" data-widget="navbar-search" href="#" role="button">
-                    <i class="fas fa-search"></i>
-                </a>
-                <div class="navbar-search-block">
-                    <form class="form-inline">
-                        <div class="input-group input-group-sm">
-                            <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search" />
-                            <div class="input-group-append">
-                                <button class="btn btn-navbar" type="submit">
-                  <i class="fas fa-search"></i>
-                </button>
-                                <button class="btn btn-navbar" type="button" data-widget="navbar-search">
-                  <i class="fas fa-times"></i>
-                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </li> -->
       <li class="nav-item">
         <div>
-          <input
-            type="checkbox"
-            class="checkbox"
-            id="checkbox"
-            [(ngModel)]="darkModeEnabled"
-            (ngModelChange)="toggleDarkMode()"
-          />
+          <input type="checkbox" class="checkbox" id="checkbox" [(ngModel)]="darkModeEnabled"
+            (ngModelChange)="toggleDarkMode()" />
           <label for="checkbox" class="checkbox-label">
             <i class="fas fa-moon"></i>
             <i class="fas fa-sun"></i>
@@ -60,22 +32,12 @@
         </a>
       </li>
       <li class="nav-item">
-        <a
-          class="nav-link"
-          data-widget="control-sidebar"
-          data-slide="true"
-          href="#"
-          role="button"
-        >
+        <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
           <i class="fas fa-th-large"></i>
         </a>
       </li>
       <li class="nav-item">
-        <button
-          class="btn btn-danger btn-block"
-          type="button"
-          (click)="logOut()"
-        >
+        <button class="btn btn-danger btn-block" type="button" (click)="logOut()">
           <span class="btn-icon"><i class="fas fa-sign-out-alt"></i></span>
           <span class="btn-text">Log Out</span>
         </button>
@@ -84,21 +46,21 @@
   </nav>
 
   <!-- sidebar -->
-  <aside
-    class="main-sidebar elevation-4"
-    [ngClass]="{
+  <aside class="main-sidebar elevation-4" [ngClass]="{
       'sidebar-light-primary': !darkModeEnabled,
       'sidebar-dark-primary': darkModeEnabled
-    }"
-  >
+    }">
+    <!-- <a href="#" class="brand-link">
+      <div class="img-container"
+        style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%;">
+        <img src="./assets/img/almadar.png" style="max-height: 50%; max-width: 50%; object-fit: cover" />
+      </div>
+    </a> -->
+
     <a href="#" class="brand-link">
-      <img
-        src="./assets/img/elite.png"
-        class="brand-image elevation-3"
-        style="opacity: 0.8; width: 80; height: 80"
-      />
-      <span class="brand-text font-weight-light">RafTools</span>
+      <img src="./assets/img/libyana.png" style="max-height: 100%; max-width: 100%; object-fit: contain" />
     </a>
+
     <div class="sidebar">
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
         <div class="info">
@@ -110,369 +72,167 @@
         </div>
       </div>
       <nav class="mt-2">
-        <ul
-          id="test"
-          class="nav nav-pills nav-sidebar flex-column"
-          data-widget="treeview"
-          role="menu"
-          data-accordion="false"
-        >
-          <li
-            *ngIf="user?.role?.role == 'Admin'"
-            [ngClass]="opened ? 'nav-item menu-open' : 'nav-item'"
-            role="group"
-          >
-            <a
-              class="nav-link"
-              (click)="toggle()"
-              [ngClass]="opened ? 'nav-link active' : 'nav-link'"
-            >
-              <i class="nav-icon fas fa-table"></i>
-              <p>
-                Management
-                <i class="fas fa-angle-left right"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item" role="menuitem">
-                <a routerLink="users" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Users Management</p>
-                </a>
-              </li>
-              <li class="nav-item" role="menuitem">
-                <a routerLink="group" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Group Management</p>
-                </a>
-              </li>
-              <li class="nav-item" role="menuitem">
-                <a routerLink="modules" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Module Management</p>
-                </a>
-              </li>
-              <li class="nav-item" role="menuitem">
-                <a
-                  class="nav-link"
-                  [href]="currentUrl"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Add Report</p>
-                </a>
-              </li>
-            </ul>
-          </li>
-          <li
-            *ngIf="user?.role?.role == 'Admin'"
-            [ngClass]="openedM ? 'nav-item menu-open' : 'nav-item'"
-            role="group"
-          >
-            <a
-              class="nav-link"
-              (click)="toggleM()"
-              [ngClass]="openedM ? 'nav-link active' : 'nav-link'"
-            >
-              <i class="nav-icon fas fa-tachometer-alt"></i>
-              <p>
-                Monitoring
-                <i class="fas fa-angle-left right"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item" role="menuitem">
-                <a
-                  routerLink="collect"
-                  routerLinkActive="active"
-                  class="nav-link"
-                >
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Collect Status</p>
-                </a>
-              </li>
-              <li class="nav-item" role="menuitem">
-                <a routerLink="missing-files" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Missing Files</p>
-                </a>
-              </li>
-              <li class="nav-item" role="menuitem">
-                <!--Libyana -->
-                <a routerLink="/dashboard/function/charts/12" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Duplicated CDRs</p>
-                </a>
-                <!-- dowaleya -->
-                <!-- <a
-                  routerLink="/dashboard/function/charts/892017"
-                  class="nav-link"
-                >
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Duplicated CDRs</p>
-                </a> -->
-              </li>
-            </ul>
-          </li>
-          <!-- <li class="nav-item" role="menuitem">
-                        <a routerLink="testCharts" class="nav-link">
-                            <i class="nav-icon fas fa-copy"></i>
-                            <p>
-                                Test Chart
-                            </p>
-                        </a>
-                    </li> -->
-
-          <!-- PlayLists -->
-          <li
-            *ngIf="user?.role?.role == 'Admin'"
-            [ngClass]="playlist ? 'nav-item menu-open' : 'nav-item'"
-            role="group"
-          >
-            <a
-              class="nav-link"
-              class="nav-link"
-              (click)="togglePlaylist()"
-              [ngClass]="playlist ? 'nav-link active' : 'nav-link'"
-            >
-              <i class="nav-icon far fa-image" aria-hidden="true"></i>
-              <p>
-                PlayLists
-                <i class="right fas fa-angle-left"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview" style="display: none">
-              <li class="nav-item" routerLinkActive="active" role="menuitem">
-                <a routerLink="playlists" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Manage PlayLists</p>
-                </a>
-              </li>
-              <ng-container *ngFor="let playlist of playlists">
-                <li class="nav-item" role="menuitem">
-                  <a
-                    [routerLink]="['/playlist/charts/', playlist.id]"
-                    routerLinkActive="active"
-                    class="nav-link"
-                  >
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>{{ playlist.playListName }}</p>
-                  </a>
-                </li>
-              </ng-container>
-            </ul>
-          </li>
-
-          <!-- PlayLists -->
-          <ng-container *ngFor="let module of modulesData">
-            <li
-              [ngClass]="module.isOpen ? 'nav-item menu-open' : 'nav-item'"
-              role="menuitem"
-            >
-              <a
-                class="nav-link module-heading"
-                (click)="toggleModuleOpen(module)"
-              >
-                <i class="nav-icon fas fa-copy"></i>
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+          <li *ngFor="let menuItem of SidebarmenuItems" [ngClass]="{
+              'nav-item': true,
+              'menu-open': menuItem.active,
+              active: menuItem.active
+            }">
+            <ng-container *ngIf="
+                menuItem.title === 'Management' ||
+                menuItem.title === 'Monitoring'
+                  ? user?.role?.role === 'Admin'
+                  : true
+              ">
+              <a href="javascript:void(0)" class="nav-link" [ngClass]="{ active: menuItem.active }"
+                (click)="toggletNavActive(menuItem, $event)" *ngIf="menuItem.type === 'sub'">
+                <app-feather-icons [icon]="menuItem.icon"></app-feather-icons>
                 <p>
-                  {{ module.moduleName }}
-                  <i class="fas fa-angle-left right"></i>
+                  {{ menuItem.title }}
+                  <i class="right fas fa-angle-left" *ngIf="menuItem.children?.length"></i>
                 </p>
+                <label class="badge rounded-pill bg-danger ml-2" *ngIf="menuItem.badgeType && menuItem.badgeValue">{{
+                  menuItem.badgeValue }}</label>
               </a>
-              <ul
-                class="nav nav-treeview"
-                [ngClass]="module.isOpen ? 'show' : 'collapse'"
-              >
-                <ng-container *ngFor="let subModule of module.listSubModule">
-                  <li
-                    [ngClass]="
-                      subModule.isOpen ? 'nav-item menu-open' : 'nav-item'
-                    "
-                    class="sub-module"
-                  >
-                    <a
-                      class="nav-link sub-module-heading"
-                      (click)="toggleSubModuleOpen(subModule)"
-                    >
-                      <i class="nav-icon far fa-plus-square"></i>
-                      <p>
-                        {{ subModule.subModuleName }}
-                        <i class="fas fa-angle-left right"></i>
-                      </p>
+              <!-- link -->
+              <a [routerLink]="!menuItem.type ? null : [menuItem.path]" routerLinkActive="active" class="nav-link"
+                [class.link-nav]="!menuItem.children" [ngClass]="{ active: menuItem.active }"
+                *ngIf="menuItem.type === 'link'">
+                <app-feather-icons [icon]="menuItem.icon"></app-feather-icons>
+                <p>
+                  {{ menuItem.title }}
+                </p>
+
+              </a>
+              <ul class="nav nav-treeview" *ngIf="menuItem.children"
+                [style.display]="menuItem.active ? 'block' : 'none'">
+                <li *ngFor="let childItem of menuItem.children" [ngClass]="{
+                    'nav-item': true,
+                    'menu-open': childItem.active,
+                    active: childItem.active
+                  }">
+                  <ng-container *ngIf="childItem.type === 'link'; else subMenuTemplate">
+                    <a [routerLink]="childItem.path" class="nav-link" [ngClass]="{ active: childItem.active }">
+                      <app-feather-icons [icon]="childItem.icon"></app-feather-icons>
+                      {{ childItem.title }}
+                      <label class="badge rounded-pill bg-danger ml-2 h-20"
+                        *ngIf="childItem.badgeType && childItem.badgeValue">{{ childItem.badgeValue }}</label>
                     </a>
-                    <ul
-                      class="nav nav-treeview functions"
-                      [ngClass]="subModule.isOpen ? 'show' : 'collapse'"
-                    >
-                      <ng-container
-                        *ngFor="let func of subModule.liste_functions"
-                      >
-                        <li class="function nav-item">
-                          <a
-                            [routerLink]="[
-                              '/dashboard/function/charts',
-                              func.id
-                            ]"
-                            routerLinkActive="active menu-open"
-                            class="nav-link"
-                          >
-                            <i class="function-icon fas fa-chart-bar"></i>
-                            <p class="function-name">{{ func.functionName }}</p>
-                          </a>
-                        </li>
-                      </ng-container>
+                  </ng-container>
+                  <ng-template #subMenuTemplate>
+                    <a href="javascript:void(0)" class="nav-link" [ngClass]="{ active: childItem.active }"
+                      (click)="toggletNavActive(childItem, $event)">
+                      <app-feather-icons [icon]="childItem.icon"></app-feather-icons>
+                      {{ childItem.title }}
+                      <i class="right fas fa-angle-left" *ngIf="childItem.children?.length"></i>
+                    </a>
+
+                    <ul class="nav nav-treeview" *ngIf="childItem.children"
+                      [style.display]="childItem.active ? 'block' : 'none'">
+                      <li *ngFor="let subChildItem of childItem.children" [ngClass]="{
+                          'nav-item': true,
+                          active: subChildItem.active
+                        }">
+                        <a [routerLink]="
+                            !subChildItem.type ? null : [subChildItem.path]
+                          " *ngIf="subChildItem.type === 'link'" routerLinkActive="active"
+                          [routerLinkActiveOptions]="{ exact: true }" class="nav-link"
+                          [ngClass]="{ active: subChildItem.active }">
+                          <app-feather-icons [icon]="subChildItem.icon"></app-feather-icons>
+                          {{ subChildItem.title }}
+                        </a>
+                      </li>
                     </ul>
-                  </li>
-                </ng-container>
+                  </ng-template>
+                </li>
               </ul>
-            </li>
-          </ng-container>
+            </ng-container>
+          </li>
         </ul>
       </nav>
     </div>
   </aside>
-  <div
-    class="content-wrapper"
-    [ngClass]="{
+
+  <div class="content-wrapper" [ngClass]="{
       'bg-dark': darkModeEnabled
-    }"
-    style="margin-top: 0"
-  >
-    <div
-      class="content-header"
-      [ngClass]="{
+    }" style="margin-top: 3%">
+    <div class="content-header" [ngClass]="{
         'bg-dark': darkModeEnabled
-      }"
-    >
-      <div
-        class="container-fluid"
-        [ngClass]="{
+      }">
+      <div class="container-fluid" [ngClass]="{
           'bg-dark': darkModeEnabled
-        }"
-      >
+        }">
         <router-outlet></router-outlet>
       </div>
     </div>
   </div>
   <!-- Filters -->
-  <aside
-    class="control-sidebar"
-    [ngClass]="{
+  <aside class="control-sidebar" [ngClass]="{
       'sidebar-light-primary': !darkModeEnabled,
       'sidebar-dark-primary': darkModeEnabled
-    }"
-  >
+    }">
     <form [formGroup]="form">
       <div class="filter-container" style="margin: 20px">
         <h5>Filter Report</h5>
         <hr class="mb-2" />
         <div class="form-group">
           <label for="selectedFilter">Filter By:</label>
-          <select
-            id="selectedFilter"
-            class="form-control"
-            [(ngModel)]="selectedFilter"
-            formControlName="selectedFilter"
-          >
+          <select id="selectedFilter" class="form-control" [(ngModel)]="selectedFilter"
+            formControlName="selectedFilter">
             <!-- <option [value]="filterType.Hour">Hour</option> -->
             <option [value]="filterType.Day">Day</option>
             <option [value]="filterType.Month">Month</option>
             <option [value]="filterType.Year">Year</option>
           </select>
-          <mat-error
-            *ngIf="
+          <mat-error *ngIf="
               form.get('selectedFilter')?.invalid &&
               form.get('selectedFilter')?.touched
-            "
-            >Filter Type is required</mat-error
-          >
+            ">Filter Type is required</mat-error>
         </div>
         <div class="form-group">
           <label for="startDate">Start Date:</label>
-          <input
-            id="startDate"
-            class="form-control"
-            type="date"
-            [(ngModel)]="startDate"
-            formControlName="startDate"
-          />
-          <mat-error
-            *ngIf="
+          <input id="startDate" class="form-control" type="date" [(ngModel)]="startDate" formControlName="startDate" />
+          <mat-error *ngIf="
               form.get('startDate')?.invalid && form.get('startDate')?.touched
-            "
-            >Start date is required</mat-error
-          >
+            ">Start date is required</mat-error>
         </div>
         <div class="form-group">
           <label for="endDate">End Date:</label>
-          <input
-            id="endDate"
-            class="form-control"
-            type="date"
-            [(ngModel)]="endDate"
-            formControlName="endDate"
-          />
-          <mat-error
-            *ngIf="form.get('endDate')?.invalid && form.get('endDate')?.touched"
-            >End Date is required</mat-error
-          >
+          <input id="endDate" class="form-control" type="date" [(ngModel)]="endDate" formControlName="endDate" />
+          <mat-error *ngIf="form.get('endDate')?.invalid && form.get('endDate')?.touched">End Date is
+            required</mat-error>
         </div>
         <div class="form-group form-check">
           <div class="form-check-inline">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [checked]="isVaration"
-              (change)="isVaration = !isVaration"
-              id="variation"
-            />
+            <input type="checkbox" class="form-check-input" [checked]="isVaration" (change)="isVaration = !isVaration"
+              id="variation" />
             <label class="form-check-label" for="variation">Variation</label>
           </div>
           <div class="form-check-inline">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [checked]="isPerHour"
-              (change)="isPerHour = !isPerHour"
-              id="perHour"
-            />
+            <input type="checkbox" class="form-check-input" [checked]="isPerHour" (change)="isPerHour = !isPerHour"
+              id="perHour" />
             <label class="form-check-label" for="perHour">Hours</label>
           </div>
         </div>
 
-        <mat-error
-          *ngIf="
+        <mat-error *ngIf="
             form.hasError('invalidDateRange') &&
             form.get('startDate')?.touched &&
             form.get('endDate')?.touched
-          "
-        >
+          ">
           Start date must be less than end date.
         </mat-error>
         <div class="perHourContainer" *ngIf="isPerHour">
           <div class="form-group">
             <label for="startHour">Start Hour:</label>
-            <input
-              type="time"
-              step="3600000"
-              id="startHour"
-              class="form-control"
-              [(ngModel)]="startHour"
-              formControlName="startHour"
-            />
+            <input type="time" step="3600000" id="startHour" class="form-control" [(ngModel)]="startHour"
+              formControlName="startHour" />
             <!-- <mat-error *ngIf="form.get('startHour')?.invalid && form.get('startHour')?.touched">Enter a valid start hour (00-23)</mat-error> -->
           </div>
           <div class="form-group">
             <label for="endHour">End Hour:</label>
-            <input
-              type="time"
-              step="3600000"
-              id="endHour"
-              class="form-control"
-              [(ngModel)]="endHour"
-              formControlName="endHour"
-            />
+            <input type="time" step="3600000" id="endHour" class="form-control" [(ngModel)]="endHour"
+              formControlName="endHour" />
             <!-- <mat-error *ngIf="form.get('endHour')?.invalid && form.get('endHour')?.touched">Enter a valid start hour (00-23)</mat-error> -->
           </div>
         </div>
@@ -483,16 +243,11 @@
     </form>
   </aside>
 
-  <footer
-    class="main-footer"
-    [ngClass]="{
+  <footer class="main-footer" [ngClass]="{
       'bg-dark': darkModeEnabled
-    }"
-  >
-    <strong
-      >Copyright &copy; 2010-2023
-      <a href="http://elite-business.net">Elite Business</a>.</strong
-    >
+    }">
+    <strong>Copyright &copy; 2010-2024
+      <a href="http://elite-business.net">Elite Business</a>.</strong>
     All rights reserved.
     <div class="float-right d-none d-sm-inline-block"><b>Version</b> 2.5.1</div>
   </footer>

@@ -16,6 +16,20 @@
             placeholder="Enter Email or username"
           />
         </div>
+        <div class="form-group">
+          <img [src]="captchaImageUrl" alt="CAPTCHA" class="captcha-image" />
+          <i class="pi pi-refresh" (click)="loadCaptcha()"></i>
+        </div>
+        <div class="form-group">
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="captchaInput"
+            name="captchaInput"
+            placeholder="Enter CAPTCHA"
+          />
+        </div>
+
         <div class="error-message red-text" *ngIf="errorMessage">
           {{ errorMessage }}
         </div>

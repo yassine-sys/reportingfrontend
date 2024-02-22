@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { SubmoduleService } from 'src/app/services/submodule.service';
 import { ModuleServicesService } from 'src/app/services/module-services.service';
 import { Module } from 'src/model/Module';
@@ -13,6 +13,7 @@ import { Observable, map, startWith } from 'rxjs';
   styleUrls: ['./submoduleform.component.css'],
 })
 export class SubmoduleformComponent implements OnInit {
+  moduleId: any;
   addSubmoduleForm!: FormGroup;
   modules: Module[] = [];
   moduleCtrl = new FormControl();
@@ -23,8 +24,11 @@ export class SubmoduleformComponent implements OnInit {
     private formBuilder: FormBuilder,
     private submoduleService: SubmoduleService,
     private moduleService: ModuleServicesService,
-    private dialogRef: MatDialogRef<SubmoduleformComponent>
-  ) {}
+    private dialogRef: MatDialogRef<SubmoduleformComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {
+    this.moduleId = data.idmodule;
+  }
 
   ngOnInit(): void {
     this.addSubmoduleForm = this.formBuilder.group({
@@ -35,6 +39,19 @@ export class SubmoduleformComponent implements OnInit {
     this.moduleService.getAllModules().subscribe(
       (data) => {
         this.modules = data;
+        if (this.moduleId) {
+          const foundModule = this.modules.find(
+            (module) => module.id === this.moduleId
+          );
+          if (foundModule) {
+            this.selectedModule = foundModule;
+            console.log(foundModule);
+            this.addSubmoduleForm.patchValue({
+              subModuleName: '',
+              moduleId: this.moduleId,
+            });
+          }
+        }
       },
       (error) => {
         console.log('Error retrieving modules', error);

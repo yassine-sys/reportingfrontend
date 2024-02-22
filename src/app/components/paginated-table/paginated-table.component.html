@@ -1,74 +1,70 @@
 <div class="card" class="card" [ngClass]="{ 'dark-mode': darkModeEnabled }">
-  <p-table
-    #dt2
-    [value]="jsonData"
-    [rows]="5"
-    [showCurrentPageReport]="true"
-    [rowsPerPageOptions]="[5, 10, 25, 50]"
-    [paginator]="true"
-    [globalFilterFields]="columns"
-    selectionMode="single"
-    (onRowSelect)="onRowSelect($event)"
-  >
+  <p-table #dt2 [value]="jsonData" [rows]="5" [showCurrentPageReport]="true" [resizableColumns]="true"
+    columnResizeMode="expand" [rowsPerPageOptions]="[5, 10, 25, 50]" [paginator]="true" [globalFilterFields]="columns"
+    selectionMode="single" (onRowSelect)="onRowSelect($event)">
     <ng-template pTemplate="caption">
       <div class="head">
-        <h5 class="title">{{ title }}</h5>
+        <!-- <h5 class="title">{{ title }}</h5> -->
         <div class="flex">
-          <button
-            pButton
-            label="Clear"
-            class="p-button-outlined"
-            icon="pi pi-filter-slash"
-            (click)="clear(dt2)"
-          ></button>
+          <button pButton label="Clear" class="p-button-outlined" icon="pi pi-filter-slash"
+            (click)="clear(dt2)"></button>
           <span class="p-input-icon-left ml-auto">
             <i class="pi pi-search"></i>
-            <input
-              pInputText
-              type="text"
-              #searchInput
-              (input)="applyFilterGlobal($event)"
-              placeholder="Search keyword"
-            />
+            <input pInputText type="text" #searchInput (input)="applyFilterGlobal($event)"
+              placeholder="Search keyword" />
           </span>
         </div>
       </div>
     </ng-template>
     <ng-template pTemplate="header">
       <tr>
-        <th
-          *ngFor="let column of columns"
-          [pSortableColumn]="column"
-          style="width: 10%"
-        >
-          <div class="flex align-items-center">
-            {{ column }} <p-sortIcon [field]="column"></p-sortIcon>
-            <p-columnFilter
-              type="text"
-              [field]="column"
-              display="menu"
-              [showClearButton]="true"
-              [showOperator]="true"
-              [showAddButton]="true"
-            ></p-columnFilter>
-          </div>
-        </th>
+        <ng-container *ngFor="let column of columns; let i = index">
+          <th style="width: 10%" *ngIf="!isNameColumnPresentLVL4 || i !== 0" pResizableColumn>
+            <div class="flex align-items-center">
+              <ng-container *ngIf="columns && columns.length > 0">
+                <div [pSortableColumn]="column" class="flex align-items-center">
+                  <p-sortIcon [field]="column"></p-sortIcon>
+                  {{ column }}
+                  <p-columnFilter *ngIf="checkColumnType(column) !== 'currency'" [type]="checkColumnTypes(column)"
+                    [field]="column" display="menu" [showClearButton]="true" [showOperator]="true"
+                    [showAddButton]="true"></p-columnFilter>
+                </div>
+              </ng-container>
+              <ng-container *ngIf="checkColumnType(column) === 'currency'">
+                <!-- Your currency-specific code here -->
+                <p-columnFilter [field]="column" [showMenu]="true" [showMatchModes]="false" [showOperator]="false"
+                  [showAddButton]="false" matchMode="in" display="menu">
+                  <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                    <p-dropdown [options]="currencies" optionLabel="monnai" [(ngModel)]="selectedCurrency"
+                      (onChange)="onCurrencyChange($event.value, column)" [filter]="true" filterBy="monnai"
+                      [showClear]="true"></p-dropdown>
+                  </ng-template>
+                </p-columnFilter>
+              </ng-container>
+            </div>
+          </th>
+        </ng-container>
+
         <!-- <th style="width: 10%">Details</th> -->
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-rowData>
       <tr [pSelectableRow]="rowData" [pSelectableRowDisabled]="!hasDetails">
-        <td *ngFor="let column of columns" style="width: 10%">
-          <ng-container *ngIf="column !== 'Status'; else statusColumn">
-            {{ formatNumber(rowData[column]) }}
-          </ng-container>
-          <ng-template #statusColumn>
-            <p-tag
-              [value]="rowData[column]"
-              [severity]="rowData[column] === 'UP' ? 'success' : 'danger'"
-            ></p-tag>
-          </ng-template>
-        </td>
+        <ng-container *ngFor="let column of columns; let i = index">
+          <td class="flex align-items-center" *ngIf="!isNameColumnPresentLVL4 || i !== 0">
+            <ng-container *ngIf="checkColumnType(column) === 'currency'">
+              {{ formatNumber(rowData[column]) }}
+              <b>{{ selectedCurrency.code_monnai }}</b>
+            </ng-container>
+            <ng-container *ngIf="checkColumnType(column) === 'status'">
+              <p-tag [value]="rowData[column]" [severity]="rowData[column] === 'UP' ? 'success' : 'danger'"></p-tag>
+            </ng-container>
+            <ng-container *ngIf="checkColumnType(column) === 'default'">
+              {{ formatNumber(rowData[column]) }}
+            </ng-container>
+          </td>
+        </ng-container>
+
         <!-- <td>
           <button
             pButton
@@ -76,13 +72,10 @@
             (click)="openDialog(rowData)"
           ></button>
         </td> -->
-      </tr></ng-template
-    >
+      </tr>
+    </ng-template>
   </p-table>
   <ng-container *ngIf="showProgressBar">
-    <p-progressBar
-      mode="indeterminate"
-      [style]="{ height: '6px' }"
-    ></p-progressBar>
+    <p-progressBar mode="indeterminate" [style]="{ height: '6px' }"></p-progressBar>
   </ng-container>
 </div>

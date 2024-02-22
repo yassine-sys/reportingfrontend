@@ -1,1 +1,37 @@
-@import '~primeicons/primeicons.css';
+@import "~primeicons/primeicons.css";
+
+/* * {
+  font-family: "Saira Condensed", sans-serif;
+} */
+/* For WebKit browsers (e.g., Chrome, Safari) */
+::-webkit-scrollbar {
+  width: 12px; /* Set the width of the scrollbar */
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Set the background color of the track */
+  border-radius: 10px; /* Set the border radius of the track */
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #d3d3d3; /* Set the background color of the handle to soft gray */
+  border-radius: 10px; /* Set the border radius of the handle */
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #a9a9a9; /* Set the background color of the handle on hover to a darker gray */
+}
+
+html {
+  font-size: 16px;
+  font-family: Roboto, Helvetica Neue Light, Helvetica Neue, Helvetica, Arial,
+    Lucida Grande, sans-serif;
+}
+/* body.offcanvas {
+  position: unset;
+  visibility: visible;
+  background: unset;
+} */

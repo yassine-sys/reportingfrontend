@@ -1,13 +1,34 @@
 #map {
-    width: 100%;
-    height: 80vh;
-    /* Adjust the height as needed */
+  width: 100%;
+  height: 80vh;
+  /* Adjust the height as needed */
 }
 
 .controls {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 .controls label {
-    margin-right: 10px;
+  margin-right: 10px;
+}
+
+.mapcontainer {
+  margin: 20px;
+}
+
+.map-filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 20px;
+}
+
+.filter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.p-inputtext {
+  width: 80px;
 }

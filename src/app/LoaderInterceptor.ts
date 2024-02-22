@@ -18,7 +18,6 @@ export class LoaderInterceptor implements HttpInterceptor {
     '/operators/interco',
     '/login/reponly/',
     '/login/repfiltreonly/',
-    '/login/rep/',
   ];
 
   constructor(private loaderService: LoaderService) {}

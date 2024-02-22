@@ -3,66 +3,37 @@
   <i class="pi pi-filter"></i>
 </button>
 
-<p-overlayPanel
-  #overlayPanel
-  [showCloseIcon]="true"
-  [dismissable]="true"
-  [style]="{ 'max-width': '200px' }"
->
+<p-overlayPanel #overlayPanel [showCloseIcon]="true" [dismissable]="true" [style]="{ 'max-width': '200px' }">
   <form [formGroup]="filterForm" (ngSubmit)="applyFilter()" class="p-fluid">
     <div class="p-field">
       <label for="startDate">Start Date:</label>
-      <input
-        id="startDate"
-        type="date"
-        formControlName="startDate"
-        class="p-inputtext"
-      />
+      <input id="startDate" type="date" formControlName="startDate" class="p-inputtext" />
     </div>
-    <div
-      *ngIf="
+    <div *ngIf="
         filterForm.get('startDate')?.hasError('required') &&
         filterForm.get('startDate')?.touched
-      "
-      class="text-danger"
-    >
+      " class="text-danger">
       Start Date is required
     </div>
     <div class="p-field">
       <label for="endDate">End Date:</label>
-      <input
-        id="endDate"
-        type="date"
-        formControlName="endDate"
-        class="p-inputtext"
-        [max]="date"
-      />
+      <input id="endDate" type="date" formControlName="endDate" class="p-inputtext" [max]="date" />
     </div>
-    <div
-      *ngIf="
+    <div *ngIf="
         filterForm.get('endDate')?.hasError('required') &&
         filterForm.get('endDate')?.touched
-      "
-      class="text-danger"
-    >
+      " class="text-danger">
       End Date is required
     </div>
-    <div
-      *ngIf="
+    <div *ngIf="
         filterForm.hasError('dateComparison') &&
         filterForm.get('endDate')?.touched
-      "
-      class="text-danger"
-    >
+      " class="text-danger">
       End Date must be greater than Start Date
     </div>
     <div class="p-field">
       <label for="filterType">Filter Type:</label>
-      <p-dropdown
-        id="filterType"
-        formControlName="type_Filter"
-        [options]="filterTypeOptions"
-      ></p-dropdown>
+      <p-dropdown id="filterType" formControlName="type_Filter" [options]="filterTypeOptions"></p-dropdown>
     </div>
     <div class="form-group d-flex">
       <!-- <div class="form-check-inline">
@@ -75,33 +46,41 @@
         <label class="form-check-label" for="variation">Variation</label>
       </div> -->
       <div class="form-check-inline">
-        <input
-          type="checkbox"
-          class="form-check-input"
-          formControlName="isPerHour"
-          id="perHour"
-        />
+        <input type="checkbox" class="form-check-input" formControlName="isPerHour" id="perHour" />
         <label class="form-check-label" for="perHour">Hours</label>
       </div>
     </div>
     <div *ngIf="filterForm.get('isPerHour')?.value" class="p-field">
       <label for="startHour">Start Hour:</label>
-      <input
-        id="startHour"
-        type="time"
-        formControlName="startHour"
-        class="p-inputtext"
-      />
+      <input id="startHour" type="time" formControlName="startHour" class="p-inputtext" />
     </div>
     <div *ngIf="filterForm.get('isPerHour')?.value" class="p-field">
       <label for="endHour">End Hour:</label>
-      <input
-        id="endHour"
-        type="time"
-        formControlName="endHour"
-        class="p-inputtext"
-      />
+      <input id="endHour" type="time" formControlName="endHour" class="p-inputtext" />
     </div>
+    <!-- Inside your form tag -->
+    <!-- <div formArrayName="rules" class="p-field">
+      <div *ngFor="let rule of rules; let i = index" [formGroupName]="i">
+        <button (click)="removeRule(i)" type="button" pButton icon="pi pi-minus-circle"
+          class="p-button-text p-button-sm">
+        </button>
+        <p-dropdown [options]="flow?.liste_champs" optionLabel="name_base" [showClear]="true"
+          (onChange)="onFieldSelect(i, $event.value)" formControlName="selectedField" placeholder="Select a Field"
+          class="m-0"></p-dropdown>
+        <input id="inputText" type="text" formControlName="inputText" class="p-inputtext"
+          placeholder="Enter operator" />
+        <p-dropdown *ngIf="rule.dependentOptions.length > 0" [options]="rule.dependentOptions"
+          formControlName="selectedDependentField" placeholder="Select Dependent Field"></p-dropdown>
+      </div>
+    </div>
+
+
+    <div class="m-10">
+      <button (click)="addRule()" type="button" pButton icon="pi pi-plus" class="p-button-text p-button-sm">
+        <span class="p-button-label">Add Filter</span>
+      </button>
+    </div> -->
+
     <div class="p-field">
       <button pButton type="button" (click)="applyFilter()">Apply</button>
     </div>

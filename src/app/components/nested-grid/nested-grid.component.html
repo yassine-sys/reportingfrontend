@@ -1,137 +1,288 @@
-<div class="content-header">
-    <div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1 class="m-0">Module Managment</h1>
-            </div>
-            <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item active">Module Managment</li>
-                </ol>
-            </div>
+<app-breadcrumb
+  [title]="'Module Managment'"
+  [items]="['Management']"
+  [active_item]="'Module Managment'"
+></app-breadcrumb>
+<div class="table-container">
+  <p-toolbar styleClass="mb-4 gap-2">
+    <ng-template pTemplate="left">
+      <button
+        pButton
+        pRipple
+        label="New Module"
+        icon="pi pi-plus"
+        class="p-button-primary mr-2"
+        (click)="openModuleForm()"
+      ></button>
+      <button
+        pButton
+        pRipple
+        label="New Sub Module"
+        icon="pi pi-plus"
+        class="p-button-primary mr-2"
+        (click)="openSubModuleForm(null)"
+      ></button>
+      <button
+        pButton
+        pRipple
+        label="New Function"
+        icon="pi pi-plus"
+        class="p-button-primary mr-2"
+        (click)="openFonctionForm(null)"
+      ></button>
+      <button
+        pButton
+        pRipple
+        label="Assign Rapport"
+        icon="pi pi-plus"
+        class="p-button-primary mr-2"
+        (click)="openRapportForm()"
+      ></button>
+    </ng-template>
+  </p-toolbar>
+  <div class="card">
+    <!-- Modules -->
+    <p-table
+      #dt
+      [value]="modules"
+      dataKey="id"
+      [paginator]="true"
+      [rows]="5"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      styleClass="p-datatable table  table-sm"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [filterDelay]="0"
+      [globalFilterFields]="['moduleName']"
+    >
+      <ng-template pTemplate="caption">
+        <div class="head">
+          <h5 class="title">Module Managment</h5>
+          <div class="flex">
+            <button
+              pButton
+              label="Clear"
+              class="p-button-outlined"
+              icon="pi pi-filter-slash"
+              (click)="clear(dt)"
+            ></button>
+            <span class="p-input-icon-left ml-auto">
+              <i class="pi pi-search"></i>
+              <input
+                pInputText
+                type="text"
+                #searchInput
+                (input)="applyFilterGlobal($event)"
+                placeholder="Search keyword"
+              />
+            </span>
+          </div>
         </div>
-    </div>
-</div>
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 5rem"></th>
+          <th pSortableColumn="id" style="width: 5rem">
+            Id <p-sortIcon field="id"></p-sortIcon>
+          </th>
+          <th pSortableColumn="moduleName">
+            Module Name <p-sortIcon field="moduleName"></p-sortIcon>
+          </th>
+          <th pSortableColumn="list_sub_modules">
+            Sub-Modules<p-sortIcon field="list_sub_modules"></p-sortIcon>
+          </th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-module let-expanded="expanded">
+        <tr>
+          <td>
+            <button
+              type="button"
+              pButton
+              pRipple
+              [pRowToggler]="module"
+              class="p-button-text p-button-rounded p-button-plain"
+              [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+            ></button>
+          </td>
+          <td>{{ module.id }}</td>
+          <td>{{ module.moduleName }}</td>
+          <td>{{ module.list_sub_modules.length }}</td>
+          <td>
+            <button
+              mat-icon-button
+              color="primary"
+              class="mat-success"
+              (click)="editElement(module)"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="warn"
+              class="mat-warning"
+              (click)="deleteElement(module.id)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="primary"
+              class="mat-success"
+              (click)="openSubModuleForm(module.id)"
+            >
+              <mat-icon>add</mat-icon>
+            </button>
+          </td>
+        </tr>
+      </ng-template>
 
-<div class="container">
-    <div class="btn-container">
-        <button mat-raised-button color="primary" (click)="openModuleForm()">Create New Module</button>
-        <button mat-raised-button color="primary" style="margin-left: 100px;" (click)="openSubModuleForm()">Create New SubModule</button>
-        <button mat-raised-button color="primary" style="margin-left: 100px;" (click)="openFonctionForm()">Create New Function</button>
-        <button mat-raised-button color="primary" style="margin-left: 50px;" (click)="openRapportForm()">Assign Rapport</button>
-
-    </div>
-    <table>
-        <thead>
-            <tr>
-                <th></th>
-                <th>ID</th>
-                <th>Module Name</th>
-                <th>Sub-Modules</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            <ng-container *ngFor="let module of modules">
-                <tr (click)="module.expanded = !module.expanded">
-                    <td class="expand-collapse-column">
-                        <button class="toggle-btn">
-                <mat-icon class="toggle-icon" [ngClass]="{'expanded': module.expanded, 'collapsed': !module.expanded}">keyboard_arrow_down</mat-icon>
-                </button>
-                    </td>
-                    <td>{{ module.id }}</td>
-                    <td>{{ module.moduleName }}</td>
-                    <td>{{module.list_sub_modules.length}}</td>
+      <!-- Sub Modules -->
+      <ng-template pTemplate="rowexpansion" let-module>
+        <tr>
+          <td colspan="5">
+            <div class="p-3">
+              <p-table
+                [value]="module.list_sub_modules"
+                dataKey="id"
+                [paginator]="true"
+                [rows]="5"
+                [rowsPerPageOptions]="[5, 10, 20]"
+                styleClass="p-datatable table table-bordered table-sm"
+                [globalFilterFields]="['subModuleName']"
+              >
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th style="width: 4rem"></th>
+                    <th pSortableColumn="id">
+                      Id <p-sortIcon field="id"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="subModuleName">
+                      Sub Module Name<p-sortIcon
+                        field="subModuleName"
+                      ></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="functions">
+                      Functions<p-sortIcon field="functions"></p-sortIcon>
+                    </th>
+                    <th></th>
+                  </tr>
+                </ng-template>
+                <ng-template
+                  pTemplate="body"
+                  let-submodule
+                  let-expanded2="expanded2"
+                >
+                  <tr>
                     <td>
-                        <button mat-icon-button (click)="editElement(module)" class="btn">
-                    <mat-icon class="edit">edit</mat-icon>
-                    </button>
-                        <button mat-icon-button (click)="deleteElement(module.id)" class="btn">
-                    <mat-icon class="delete">delete</mat-icon>
-                    </button>
+                      <button
+                        type="button"
+                        pButton
+                        pRipple
+                        [pRowToggler]="submodule"
+                        class="p-button-text p-button-rounded p-button-plain"
+                        [icon]="
+                          expanded2
+                            ? 'pi pi-chevron-down'
+                            : 'pi pi-chevron-right'
+                        "
+                      ></button>
                     </td>
-                </tr>
-                <tr *ngIf="module.expanded">
-                    <td></td>
-                    <td colspan="3">
-                        <table>
-                            <thead>
-                                <tr>
-
-                                    <th>ID</th>
-                                    <th>Sub-Module Name</th>
-                                    <th>Path</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <ng-container *ngFor="let subModule of module.list_sub_modules">
-                                    <tr>
-                                        <td>{{ subModule.id }}</td>
-                                        <td>{{ subModule.subModuleName }}</td>
-                                        <td>{{ subModule.path }}</td>
-                                        <td>
-                                            <button mat-icon-button (click)="deleteSubmodule(subModule.id)" class="btn">
-                                            <mat-icon class="delete">delete</mat-icon>
-                                        </button>
-
-
-                                            <button mat-icon-button class="btn" (click)="openUpdateSubmoduleModal(subModule)">
-                                        <mat-icon class="edit">edit</mat-icon>
-                                    </button>
-                                        </td>
-
-                                    </tr>
-                                    <tr *ngIf="subModule.functions.length">
-                                        <td class="expand-collapse-column"></td>
-                                        <td colspan="2">
-                                            <button class="toggle-btn" (click)="subModule.expanded = !subModule.expanded">
-                            <mat-icon class="toggle-icon" [ngClass]="{'expanded': subModule.expanded, 'collapsed': !subModule.expanded}">keyboard_arrow_down</mat-icon> Functions : {{subModule.functions.length}}
-                        </button>
-                                        </td>
-                                    </tr>
-                                    <tr *ngIf="subModule.expanded && subModule.functions.length">
-                                        <td></td>
-                                        <td colspan="2">
-                                            <table>
-                                                <thead>
-                                                    <tr>
-                                                        <th>ID</th>
-                                                        <th>Function Name</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <ng-container *ngFor="let func of subModule.functions">
-                                                        <tr>
-                                                            <td>{{ func.id }}</td>
-                                                            <td>{{ func.functionName }}</td>
-                                                            <td>
-                                                                <button mat-icon-button (click)="deleteFunction(func.id)" class="btn">
-                                                                <mat-icon class="delete">delete</mat-icon></button>
-                                                                <button mat-icon-button (click)="openUpdateFunctionModal(func)" class="btn">
-                                                                    <mat-icon class="edit">edit</mat-icon>
-                                                            </button>
-                                                                <button mat-icon-button (click)="onSelect(func)" class="btn">
-                                                                <mat-icon>info</mat-icon>
-                                                        </button>
-                                                            </td>
-                                                        </tr>
-                                                    </ng-container>
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </ng-container>
-                            </tbody>
-                        </table>
+                    <td>{{ submodule.id }}</td>
+                    <td>{{ submodule.subModuleName }}</td>
+                    <td>{{ submodule.functions.length }}</td>
+                    <td>
+                      <button
+                        mat-icon-button
+                        color="primary"
+                        class="mat-success"
+                        (click)="openUpdateSubmoduleModal(submodule)"
+                      >
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        mat-icon-button
+                        color="warn"
+                        class="mat-warn"
+                        (click)="deleteSubmodule(submodule.id)"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                      <button
+                        mat-icon-button
+                        color="primary"
+                        class="mat-success"
+                        (click)="openFonctionForm(submodule.id)"
+                      >
+                        <mat-icon>add</mat-icon>
+                      </button>
                     </td>
-                </tr>
-            </ng-container>
-        </tbody>
+                  </tr>
+                </ng-template>
 
-    </table>
-    <div class="pag">
-        <mat-paginator [pageSizeOptions]="[5,10, 20, 50]" showFirstLastButtons></mat-paginator>
-    </div>
-
+                <!-- Functions -->
+                <ng-template pTemplate="rowexpansion" let-submodule>
+                  <tr>
+                    <td colspan="5">
+                      <div class="p-3">
+                        <p-table
+                          [value]="submodule.functions"
+                          dataKey="id"
+                          [paginator]="true"
+                          [rows]="5"
+                          [rowsPerPageOptions]="[5, 10, 20]"
+                          styleClass="p-datatable table table-bordered table-sm"
+                          [globalFilterFields]="['functionName']"
+                        >
+                          <ng-template pTemplate="header">
+                            <tr>
+                              <th>ID</th>
+                              <th>Function Name</th>
+                              <th></th>
+                            </tr>
+                          </ng-template>
+                          <ng-template pTemplate="body" let-func>
+                            <tr>
+                              <td>{{ func.id }}</td>
+                              <td>{{ func.functionName }}</td>
+                              <td>
+                                <button
+                                  mat-icon-button
+                                  color="primary"
+                                  class="mat-success"
+                                  (click)="openUpdateFunctionModal(func)"
+                                >
+                                  <mat-icon>edit</mat-icon>
+                                </button>
+                                <button
+                                  mat-icon-button
+                                  color="warn"
+                                  class="mat-warn"
+                                  (click)="deleteFunction(func.id)"
+                                >
+                                  <mat-icon>delete</mat-icon>
+                                </button>
+                                <button
+                                  mat-icon-button
+                                  color="accent"
+                                  class="mat-accent"
+                                  (click)="onSelect(func)"
+                                >
+                                  <mat-icon>info</mat-icon>
+                                </button>
+                              </td>
+                            </tr>
+                          </ng-template>
+                        </p-table>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
 </div>

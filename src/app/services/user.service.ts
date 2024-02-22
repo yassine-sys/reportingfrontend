@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { EventEmitter, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { User } from 'src/model/User';
 
@@ -28,12 +28,21 @@ export class UserService {
     return this.http.get<User>(`${this.apiUrl}/user/username/${username}`);
   }
 
+  public getUserByEmail2(email: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/user/email2/${email}`);
+  }
+  public getUserByUsername2(username: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/user/username2/${username}`);
+  }
+
   public deleteUser(id: any) {
     return this.http.delete(`${this.apiUrl}/user/delete/` + id);
   }
 
-  public addUser(user: any, idGrp: any): Observable<Object> {
-    return this.http.post(`${this.apiUrl}/user/add/${idGrp}`, user);
+  public addUser(user: any, idGrp: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/user/add/${idGrp}`, user, {
+      responseType: 'text',
+    });
   }
 
   public assignRapport(id: any, rapports: any): Observable<Object> {
@@ -93,5 +102,28 @@ export class UserService {
     return this.http.put(`${this.apiUrl}/update-password`, info, {
       responseType: 'text' as 'json',
     });
+  }
+
+  loadCaptcha() {
+    return this.http.get(`${this.apiUrl}/captcha`).pipe(
+      map((response) => {
+        // Assuming response is of any type; you might want to define a more specific type
+        const captchaData: any = response;
+        const captchaImageSrc =
+          'data:image/png;base64,' + captchaData.captchaImage;
+        return {
+          captchaKey: captchaData.captchaKey,
+          captchaImageSrc: captchaImageSrc,
+        };
+      })
+    );
+  }
+
+  validateCaptcha(captchaKey: string, captchaInput: string) {
+    const payload = {
+      key: captchaKey,
+      value: captchaInput,
+    };
+    return this.http.post(`${this.apiUrl}/validate-captcha`, payload);
   }
 }

@@ -1,26 +1,12 @@
+<app-breadcrumb [title]="'Collect Status'" [items]="['Monitoring']" [active_item]="'Collect Status'"></app-breadcrumb>
 <div class="tables-container">
-  <app-paginated-table
-    *ngIf="columns2.length > 0"
-    [columns]="columns2"
-    [data]="data2"
-    [idrep]="idrep"
-    [title]="'Today Flow Status'"
-    [collect]="true"
-  ></app-paginated-table>
-  <app-paginated-table
-    *ngIf="columns.length > 0"
-    [columns]="columns"
-    [data]="data"
-    [idrep]="idrep"
-    [title]="'Last Day Flow Status'"
-    [collect]="true"
-  ></app-paginated-table>
-  <app-paginated-table
-    *ngIf="columnNames.length > 0"
-    [columns]="columnNames"
-    [data]="data1"
-    [idrep]="idrep"
-    [title]="'History Flow Status'"
-    [collect]="true"
-  ></app-paginated-table>
+  <h5 class="title">Today Flow Status</h5>
+  <app-paginated-table *ngIf="columns2.length > 0" [columns]="columns2" [data]="data2" [idrep]="idrep"
+    [title]="'Today Flow Status'" [collect]="true" [hasDetails]="true"></app-paginated-table>
+  <h5 class="title">Last Day Flow Status</h5>
+  <app-paginated-table *ngIf="columns.length > 0" [columns]="columns" [data]="data" [idrep]="idrep"
+    [title]="'Last Day Flow Status'" [collect]="true" [hasDetails]="true"></app-paginated-table>
+  <h5 class="title">History Flow Status</h5>
+  <app-paginated-table *ngIf="columnNames.length > 0" [columns]="columnNames" [data]="data1" [idrep]="idrep"
+    [title]="'History Flow Status'" [collect]="true" [hasDetails]="true"></app-paginated-table>
 </div>

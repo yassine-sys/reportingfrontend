@@ -253,3 +253,18 @@ table tbody tr {
   max-height: 370px;
   max-width: 1415px;
 }
+
+.dark-mode {
+  background-color: #333; /* Dark background */
+  color: #fff; /* Light text */
+}
+
+.dark-mode .title {
+  color: #ccc; /* Adjust title color */
+}
+
+.headd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

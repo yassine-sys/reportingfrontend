@@ -1,4 +1,8 @@
-<div class="card" *ngIf="!isnested">
+<div
+  class="card"
+  *ngIf="!isnested"
+  [ngClass]="{ 'dark-mode': darkModeEnabled }"
+>
   <p-table
     #dt2
     [value]="rows"
@@ -57,7 +61,7 @@
           <div class="flex align-items-center">
             {{ column }} <p-sortIcon [field]="column"></p-sortIcon>
             <p-columnFilter
-              type="text"
+              [type]="checkColumnTypes(column)"
               [field]="column"
               display="menu"
               [showClearButton]="true"

@@ -10,8 +10,11 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { OverlayPanel } from 'primeng/overlaypanel';
+import { ChartService } from 'src/app/services/chart.service';
+import { FilterOption } from 'src/model/FilterOption';
+import { FilterRule } from 'src/model/FilterRule';
 import { FilterType } from 'src/model/FilterType';
 import { Filters } from 'src/model/Filters';
 
@@ -22,11 +25,18 @@ import { Filters } from 'src/model/Filters';
 })
 export class FilterComponentComponent implements OnInit, OnChanges {
   @Input() filter: any;
+  @Input() idRep: any;
   @Output() filterApplied: EventEmitter<Filters> = new EventEmitter<Filters>();
   filterType = FilterType;
   @ViewChild('overlayPanel') overlayPanel!: OverlayPanel;
   filterForm!: FormGroup;
   date: any;
+
+  showMultiSelect: boolean = false;
+  flow: any;
+  selectedField: any;
+
+  rules: FilterRule[] = [];
 
   filterTypeOptions: any[] = [
     //{ label: 'Hour', value: 'per_hour' },
@@ -35,10 +45,15 @@ export class FilterComponentComponent implements OnInit, OnChanges {
     { label: 'Year', value: 'per_year' },
   ];
 
-  constructor(private fb: FormBuilder, private datePipe: DatePipe) {
+  constructor(
+    private fb: FormBuilder,
+    private datePipe: DatePipe,
+    private chartService: ChartService
+  ) {
     this.initializeForm();
   }
   ngOnInit(): void {
+    this.initializeForm();
     this.date = new Date().toISOString().slice(0, 10);
     if (this.filter) {
       this.setFormValues(this.filter);
@@ -55,9 +70,55 @@ export class FilterComponentComponent implements OnInit, OnChanges {
         isPerHour: [false],
         startHour: [''],
         endHour: [''],
+        rules: this.fb.array([]), // Initialize an empty FormArray for rules
       },
       { validators: this.dateComparisonValidator }
     );
+  }
+
+  get rulesFormArray() {
+    return this.filterForm.get('rules') as FormArray;
+  }
+
+  // Method to add a new rule to the FormArray
+  addRule(): void {
+    this.getFlowByIdRep();
+    const newRule: FilterRule = {
+      selectedField: '',
+      dependentOptions: [],
+      selectedDependentField: '',
+      inputText: '',
+    };
+
+    this.rules.push(newRule);
+    this.rulesFormArray.push(this.createRuleFormGroup(newRule));
+  }
+
+  createRuleFormGroup(rule: FilterRule): FormGroup {
+    return this.fb.group({
+      selectedField: [rule.selectedField],
+      dependentOptions: [rule.dependentOptions],
+      selectedDependentField: [rule.selectedDependentField],
+      inputText: [rule.inputText],
+    });
+  }
+
+  onFieldSelect(ruleIndex: number, selectedField: any): void {
+    console.log(selectedField);
+    this.chartService
+      .getDistinctValues(this.flow.table_name, selectedField.name_base)
+      .subscribe((options: FilterOption[]) => {
+        this.rules[ruleIndex].dependentOptions = options;
+        // Manually update the FormArray to reflect changes
+        this.rulesFormArray.at(ruleIndex).patchValue({
+          dependentOptions: options,
+          selectedDependentField: '', // Reset dependent field selection
+        });
+      });
+  }
+
+  removeRule(index: number) {
+    this.rulesFormArray.removeAt(index);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -91,6 +152,7 @@ export class FilterComponentComponent implements OnInit, OnChanges {
   }
 
   applyFilter() {
+    console.log(this.filterForm.value);
     const filterValues = this.filterForm.value;
     if (filterValues.startDate) {
       filterValues.startDate = this.datePipe.transform(
@@ -127,5 +189,17 @@ export class FilterComponentComponent implements OnInit, OnChanges {
     }
 
     return null;
+  }
+
+  toggleMultiSelect() {
+    this.showMultiSelect = !this.showMultiSelect;
+    this.getFlowByIdRep();
+  }
+
+  getFlowByIdRep() {
+    this.chartService.getFlowByIdRep(this.idRep).subscribe((flow) => {
+      this.flow = flow;
+      console.log(this.flow);
+    });
   }
 }

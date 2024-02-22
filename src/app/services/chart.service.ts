@@ -14,6 +14,7 @@ import { lcrComment } from 'src/model/lcrComment';
 export class ChartService {
   apiUrl = environment.chartApi;
   api = environment.apiUrl;
+  recAPi = environment.recApi;
 
   constructor(private http: HttpClient) {}
 
@@ -59,6 +60,27 @@ export class ChartService {
       headers,
     });
   }
+
+  public getChartWithDateFilter(
+    startDate: any,
+    endDate: any,
+    idRep: any
+  ): Observable<any> {
+    const body = new HttpParams()
+      .set('idrep', idRep)
+      .set('startDate', startDate)
+      .set('endDate', endDate)
+      .set('type_Filtre', 'per_day')
+      .set('startHour', '')
+      .set('endHour', '')
+      .toString();
+
+    const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    return this.http.post(`${this.apiUrl}/login/repfiltreonly/`, body, {
+      headers,
+    });
+  }
+
   public getFunctionChartFiltred(data: Filters): Observable<any> {
     const startDate = data.startDate ? new Date(data.startDate) : null;
     const endDate = data.endDate ? new Date(data.endDate) : null;
@@ -192,6 +214,17 @@ export class ChartService {
     });
   }
 
+  public getCollectDetails(
+    nameRep: any,
+    idFlow: any,
+    date: any,
+    switche: any
+  ): Observable<any> {
+    return this.http.get(
+      `${this.api}/details/${idFlow}/${date}/${nameRep}/${switche}`
+    );
+  }
+
   public getDetails(
     idrep: any,
     date: any,
@@ -251,6 +284,16 @@ export class ChartService {
     return this.http.post(`${this.apiUrl}/login/customrep`, body, { headers });
   }
 
+  public marginDetails(
+    country: any,
+    begindate: any,
+    endDate: any
+  ): Observable<any> {
+    return this.http.get<any>(
+      `${this.api}/cdr/margin/${country}/${begindate}/${endDate}`
+    );
+  }
+
   public getCdrsInfo(): Observable<Cdr> {
     return this.http.get<Cdr>(`${this.api}/cdr/`);
   }
@@ -301,5 +344,29 @@ export class ChartService {
 
   public getMissingSeq(): Observable<any> {
     return this.http.get<any>(`${this.api}/cdr/missingSequence/`);
+  }
+
+  public getFlowByIdRep(idRep: any): Observable<any> {
+    return this.http.get<any>(`${this.recAPi}/flowRep/${idRep}`);
+  }
+
+  public getDistinctValues(tableName: any, fieldName: any): Observable<any> {
+    return this.http.get<any>(
+      `${this.recAPi}/distinct-values/?tableName=${encodeURIComponent(
+        tableName
+      )}&fieldName=${encodeURIComponent(fieldName)}`
+    );
+  }
+
+  public getMapLocation(
+    startDate: any,
+    endDate: any,
+    typeCall: any,
+    order: any,
+    limit: any
+  ): Observable<any> {
+    return this.http.get<any>(
+      `${this.api}/cdr/map/${startDate}/${endDate}/${typeCall}/${order}/${limit}`
+    );
   }
 }
