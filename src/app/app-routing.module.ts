@@ -113,7 +113,7 @@ const routes: Routes = [
         component: TestChartsComponent,
         canActivate: [AuthGuard],
       },
-      { path: 'map', component: MapComponent, canActivate: [AuthGuard] },
+      { path: 'map/:type', component: MapComponent, canActivate: [AuthGuard] },
       {
         path: 'profile',
         component: ProfileComponent,

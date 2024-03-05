@@ -1,51 +1,23 @@
-<div
-  class="card"
-  *ngIf="!isnested"
-  [ngClass]="{ 'dark-mode': darkModeEnabled }"
->
-  <p-table
-    #dt2
-    [value]="rows"
-    [rows]="5"
-    [showCurrentPageReport]="true"
-    [rowsPerPageOptions]="[5, 10, 25, 50]"
-    [paginator]="true"
-    [globalFilterFields]="columns"
-    selectionMode="single"
-  >
+<div class="card" *ngIf="!isnested" [ngClass]="{ 'dark-mode': darkModeEnabled }">
+  <p-table *ngIf="chartType === 'table'" #dt2 [value]="rows" [rows]="5" [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[5, 10, 25, 50]" [paginator]="true" [globalFilterFields]="columns" selectionMode="single">
     <ng-template pTemplate="caption">
       <div class="head">
         <div class="flex">
-          <button
-            pButton
-            label="Clear"
-            class="p-button-outlined"
-            icon="pi pi-filter-slash"
-            (click)="clear(dt2)"
-          ></button>
+          <button pButton label="Clear" class="p-button-outlined" icon="pi pi-filter-slash"
+            (click)="clear(dt2)"></button>
           <span class="p-input-icon-left ml-auto">
             <i class="pi pi-search"></i>
-            <input
-              pInputText
-              type="text"
-              #searchInput
-              (input)="applyFilterGlobal($event)"
-              placeholder="Search keyword"
-            />
+            <input pInputText type="text" #searchInput (input)="applyFilterGlobal($event)"
+              placeholder="Search keyword" />
           </span>
         </div>
         <button type="button" class="btn btn-primary" (click)="saveAsXLSX()">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            fill="currentColor"
-            class="bi bi-file-earmark-arrow-down-fill"
-            viewBox="0 0 16 16"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+            class="bi bi-file-earmark-arrow-down-fill" viewBox="0 0 16 16">
             <path
-              d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zm-1 4v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 11.293V7.5a.5.5 0 0 1 1 0z"
-            ></path>
+              d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zm-1 4v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 11.293V7.5a.5.5 0 0 1 1 0z">
+            </path>
           </svg>
           Export XLSX
         </button>
@@ -53,21 +25,11 @@
     </ng-template>
     <ng-template pTemplate="header">
       <tr>
-        <th
-          *ngFor="let column of columns"
-          [pSortableColumn]="column"
-          style="width: 10%"
-        >
+        <th *ngFor="let column of columns" [pSortableColumn]="column" style="width: 10%">
           <div class="flex align-items-center">
             {{ column }} <p-sortIcon [field]="column"></p-sortIcon>
-            <p-columnFilter
-              [type]="checkColumnTypes(column)"
-              [field]="column"
-              display="menu"
-              [showClearButton]="true"
-              [showOperator]="true"
-              [showAddButton]="true"
-            ></p-columnFilter>
+            <p-columnFilter [type]="checkColumnTypes(column)" [field]="column" display="menu" [showClearButton]="true"
+              [showOperator]="true" [showAddButton]="true"></p-columnFilter>
           </div>
         </th>
         <!-- <th style="width: 10%">Details</th> -->
@@ -80,10 +42,7 @@
             {{ rowData[column] }}
           </ng-container>
           <ng-template #statusColumn>
-            <p-tag
-              [value]="rowData[column]"
-              [severity]="rowData[column] === 'UP' ? 'success' : 'danger'"
-            ></p-tag>
+            <p-tag [value]="rowData[column]" [severity]="rowData[column] === 'UP' ? 'success' : 'danger'"></p-tag>
           </ng-template>
         </td>
         <!-- <td>
@@ -93,22 +52,27 @@
             (click)="openDialog(rowData)"
           ></button>
         </td> -->
-      </tr></ng-template
-    >
+      </tr>
+    </ng-template>
   </p-table>
+  <highcharts-chart *ngIf="chartType !='table'" [Highcharts]="Highcharts" [options]="chartOptions"
+    style="width: 100%; height: 400px; display: block;">
+  </highcharts-chart>
+  <div class="card-footer">
+    <p-dropdown [options]="highchartsTypes" [(ngModel)]="chartType" optionLabel="label" placeholder="Select chart type"
+      (onChange)="updateChartType($event.value)" appendTo="body"></p-dropdown>
+  </div>
 </div>
 
 <div class="card" *ngIf="isnested">
-  <app-nested-table
-    [columns]="columns"
-    [data]="rows"
-    [idrep]="idrep"
-    [title]="title"
-    [operator]="isoperator"
-    [iscarrier]="iscarrier"
-    [lvl4]="lvl4"
-    [lvl1]="lvl1"
-    [lvl2]="lvl2"
-    [parent]="parentRow"
-  ></app-nested-table>
+  <app-nested-table *ngIf="chartType ==='table'" [columns]="columns" [data]="rows" [idrep]="idrep" [title]="title"
+    [operator]="isoperator" [iscarrier]="iscarrier" [lvl4]="lvl4" [lvl1]="lvl1" [lvl2]="lvl2" [parent]="parentRow"
+    [filter]="filter"></app-nested-table>
+  <highcharts-chart *ngIf="chartType !='table'" [Highcharts]="Highcharts" [options]="chartOptions"
+    style="width: 100%; height: 400px; display: block;">
+  </highcharts-chart>
+  <div class="card-footer">
+    <p-dropdown [options]="highchartsTypes" [(ngModel)]="chartType" optionLabel="label" placeholder="Select chart type"
+      (onChange)="updateChartType($event.value)" appendTo="body"></p-dropdown>
+  </div>
 </div>

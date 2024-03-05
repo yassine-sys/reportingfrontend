@@ -21,11 +21,11 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 // import { group_module } from 'src/model/group_module';
 // import { ModuleFunction } from 'src/model/ModuleFunction';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription, filter } from 'rxjs';
 import { DarkModeService } from '../../services/dark-mode.service';
 import { FunctionService } from 'src/app/services/function.service';
 import { HttpClient } from '@angular/common/http';
-import { NavService } from '../../services/nav.service';
+import { Menu, NavService } from '../../services/nav.service';
 //declare var $: any;
 
 @Component({
@@ -78,6 +78,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   currentUrl!: string;
 
   public SidebarmenuItems: any[] = [];
+  menuItems$: Observable<Menu[]>;
 
   playlists: any;
   constructor(
@@ -114,34 +115,69 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     );
 
-    this.navServices.items.subscribe((menuItems) => {
-      this.SidebarmenuItems = menuItems;
-      this.router.events.subscribe((event) => {
-        if (event instanceof NavigationEnd) {
-          menuItems.filter((items) => {
-            if (items.path === event.url) {
+    this.menuItems$ = this.navServices.items$;
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        this.menuItems$.subscribe((menuItems: any) => {
+          this.SidebarmenuItems = menuItems;
+          menuItems.filter((items: any) => {
+            if (items.path === decodeURIComponent(event.url)) {
               this.setNavActive(items);
             }
             if (!items.children) {
               return false;
             }
-            items.children.filter((subItems) => {
-              if (subItems.path === event.url) {
+            items.children.filter((subItems: any) => {
+              if (
+                `/dashboard/${subItems.path}` === decodeURIComponent(event.url)
+              ) {
                 this.setNavActive(subItems);
               }
               if (!subItems.children) {
                 return false;
               }
-              subItems.children.filter((subSubItems) => {
-                if (subSubItems.path === event.url) {
+              subItems.children.filter((subSubItems: any) => {
+                if (subSubItems.path === decodeURIComponent(event.url)) {
                   this.setNavActive(subSubItems);
                 }
               });
             });
           });
-        }
-      });
+        });
+      }
     });
+
+    // this.navServices.items.subscribe((menuItems) => {
+    //   this.SidebarmenuItems = menuItems;
+    //   console.log(this.SidebarmenuItems);
+    //   this.router.events.subscribe((event) => {
+    //     if (event instanceof NavigationEnd) {
+    //       menuItems.filter((items) => {
+    //         if (items.path === event.url) {
+    //           this.setNavActive(items);
+    //         }
+    //         if (!items.children) {
+    //           return false;
+    //         }
+    //         items.children.filter((subItems) => {
+    //           if (subItems.path === event.url) {
+    //             this.setNavActive(subItems);
+    //           }
+    //           if (!subItems.children) {
+    //             return false;
+    //           }
+    //           subItems.children.filter((subSubItems) => {
+    //             console.log(subSubItems.path);
+    //             console.log(event.url);
+    //             if (subSubItems.path === event.url) {
+    //               this.setNavActive(subSubItems);
+    //             }
+    //           });
+    //         });
+    //       });
+    //     }
+    //   });
+    // });
   }
 
   // Active Nave state
@@ -444,5 +480,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   sidebarToggle() {
     this.navServices.collapseSidebar = !this.navServices.collapseSidebar;
+  }
+
+  public getRouterOutletState(outlet: any) {
+    return outlet.isActivated ? outlet.activatedRoute : '';
   }
 }

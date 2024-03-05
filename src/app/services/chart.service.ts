@@ -61,6 +61,11 @@ export class ChartService {
     });
   }
 
+  public FilterChartV2(data: Filters, idRep: any): Observable<any> {
+    data.id_rep = idRep;
+    return this.http.post(`${this.apiUrl}/login/repfiltreonly/`, data);
+  }
+
   public getChartWithDateFilter(
     startDate: any,
     endDate: any,
@@ -363,10 +368,11 @@ export class ChartService {
     endDate: any,
     typeCall: any,
     order: any,
-    limit: any
+    limit: any,
+    typeCdr: any
   ): Observable<any> {
     return this.http.get<any>(
-      `${this.api}/cdr/map/${startDate}/${endDate}/${typeCall}/${order}/${limit}`
+      `${this.api}/cdr/maps/${startDate}/${endDate}/${typeCall}/${order}/${limit}/${typeCdr}`
     );
   }
 }

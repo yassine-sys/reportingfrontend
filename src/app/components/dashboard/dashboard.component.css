@@ -267,3 +267,41 @@ li {
     border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   height: 10%;
 }
+
+.custom {
+  padding: 0;
+}
+
+/* Ensure these styles only apply when the sidebar is collapsed */
+.sidebar-collapsed .nav-sidebar .nav-link p,
+.sidebar-collapsed .nav-sidebar .nav-item > .nav-link {
+  display: none; /* Hide text labels */
+}
+
+.sidebar-collapsed .nav-sidebar .nav-item {
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-collapsed .nav-sidebar .nav-link {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Adjust icon and container alignment */
+.sidebar-collapsed .nav-sidebar .nav-item {
+  justify-content: center; /* Center icons in the collapsed state */
+}
+
+/* Optional: Adjust the width of the collapsed sidebar to fit content */
+.sidebar-collapsed .main-sidebar {
+  width: 80px; /* Adjust based on your icon size and desired padding */
+}
+
+/* Transition effect for the sidebar elements */
+.sidebar-collapsed .nav-sidebar,
+.sidebar-collapsed .nav-sidebar .nav-link,
+.sidebar-collapsed .nav-sidebar .nav-item {
+  transition: all 0.3s ease;
+}

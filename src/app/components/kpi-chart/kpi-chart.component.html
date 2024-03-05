@@ -2,21 +2,21 @@
   <div class="col-lg-6">
     <div class="small-box bg-info">
       <div class="card-body">
-        <h5 class="card-title">Total Treated MSC CDRS</h5>
+        <h5 class="card-title">Total Treated Interco CDRS</h5>
         <div class="info">
           <div class="cdrs-info">
-            <p class="subtitle">Date: {{ cdrInfo.msc.latestMsc }}</p>
+            <p class="subtitle">Date: {{ cdrInfo.interco.latestInterco }}</p>
             <p class="card-text">
-              {{ formatNumber(cdrInfo.msc.countMscToday || 0) }}
+              {{ formatNumber(cdrInfo.interco.countIntercoToday || 0) }}
             </p>
           </div>
           <div class="separator"></div>
           <div class="cdrs-info">
             <p class="subtitle">
-              Date: {{ cdrInfo.msc.yesterdayMscDate }}
+              Date: {{ cdrInfo.interco.yesterdayIntercoDate }}
             </p>
             <p class="card-text">
-              {{ formatNumber(cdrInfo.msc.countMscYesterday || 0) }}
+              {{ formatNumber(cdrInfo.interco.countIntercoYesterday || 0) }}
             </p>
           </div>
         </div>
@@ -29,21 +29,21 @@
   <div class="col-lg-6">
     <div class="small-box bg-success">
       <div class="card-body">
-        <h5 class="card-title">Total Treated OCS CDRS</h5>
+        <h5 class="card-title">Total Treated IxTools CDRS</h5>
         <div class="info">
           <div class="cdrs-info">
-            <p class="subtitle">Date: {{ cdrInfo.ocs.latestOcsDate }}</p>
+            <p class="subtitle">Date: {{ cdrInfo.ixTools.latestIxTools }}</p>
             <p class="card-text">
-              {{ formatNumber(cdrInfo.ocs.countOcsToday || 0) }}
+              {{ formatNumber(cdrInfo.ixTools.countIxToolsToday || 0) }}
             </p>
           </div>
           <div class="separator"></div>
           <div class="cdrs-info">
             <p class="subtitle">
-              Date: {{ cdrInfo.ocs.yestesrdayOcsDate }}
+              Date: {{ cdrInfo.ixTools.yesterdayIxToolsDate }}
             </p>
             <p class="card-text">
-              {{ formatNumber(cdrInfo.ocs.countOcsYesterday || 0) }}
+              {{ formatNumber(cdrInfo.ixTools.countIxToolsYesterday || 0) }}
             </p>
           </div>
         </div>

@@ -67,15 +67,24 @@
         <p-dropdown [options]="flow?.liste_champs" optionLabel="name_base" [showClear]="true"
           (onChange)="onFieldSelect(i, $event.value)" formControlName="selectedField" placeholder="Select a Field"
           class="m-0"></p-dropdown>
-        <input id="inputText" type="text" formControlName="inputText" class="p-inputtext"
-          placeholder="Enter operator" />
-        <p-dropdown *ngIf="rule.dependentOptions.length > 0" [options]="rule.dependentOptions"
-          formControlName="selectedDependentField" placeholder="Select Dependent Field"></p-dropdown>
+        <p-dropdown *ngIf="rule.dependentOptions.length > 0" [options]="operatorOptions" id="inputText" type="text"
+          formControlName="inputText" placeholder="Select operator"></p-dropdown>
+        <input *ngIf="rule.showMultiSelect && rule.dependentOptions.length > 0" type="text"
+          formControlName="selectedDependentField" class="p-inputtext" placeholder="Enter Custom Condition" />
+
+        <p-multiSelect *ngIf="!rule.showMultiSelect && rule.dependentOptions.length > 0"
+          [options]="rule.dependentOptions" formControlName="selectedDependentField"
+          placeholder="Values"></p-multiSelect>
+        <div class="form-check" *ngIf="rule.dependentOptions.length > 0">
+          <input type="checkbox" class="form-check-input" (click)="toggleMultiSelect2(i)"
+            [checked]="rule.showMultiSelect" />
+          <label class="form-check-label">Custom Condition</label>
+        </div>
       </div>
-    </div>
+    </div> -->
 
 
-    <div class="m-10">
+    <!-- <div class="m-10">
       <button (click)="addRule()" type="button" pButton icon="pi pi-plus" class="p-button-text p-button-sm">
         <span class="p-button-label">Add Filter</span>
       </button>

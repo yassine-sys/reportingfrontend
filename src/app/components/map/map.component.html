@@ -1,7 +1,7 @@
 <div class="mapcontainer">
     <div class="map-filters">
         <div class="title">
-            <h5>National Roaming Traffic Between {{formatDate2(startDate)}} and {{formatDate2(endDate)}}</h5>
+            <h5>{{typeCdr | uppercase}} Traffic Between {{formatDate2(startDate)}} and {{formatDate2(endDate)}}</h5>
         </div>
         <div class="filter">
             <p-calendar [(ngModel)]="startDate" inputId="startDate" placeholder="Start Date"></p-calendar>
@@ -16,7 +16,12 @@
             <input type="number" pInputText [(ngModel)]="limit" placeholder="Limit" />
 
             <p-button label="Apply Filters" (onClick)="getMapLocations(startDate,endDate)"></p-button>
+            <!-- <p-inputSwitch (onChange)="toglleHeatMap()" onLabel="'Heat Map'" offLabel="'Markers'" onIcon="fa-toggle-on"
+                offIcon="fa-toggle-off" [(ngModel)]="heatMapEnabled"></p-inputSwitch> -->
         </div>
+
+        <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help"
+            (click)="exportExcel()"></button>
     </div>
     <div id="map"></div>
 </div>

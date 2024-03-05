@@ -353,8 +353,6 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private loadReports(listeRep: any[], isRefresh: boolean): void {
-    console.log(this.currentDateStr);
-    console.log(this.oneMonthEarlierStr);
     if (!isRefresh) {
       this.reportIds = listeRep.map((item) => ({
         id: item,
@@ -364,6 +362,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
         constructorType: '',
         chartType: '',
         customFilter: false,
+        subReport: [],
       }));
 
       const reportObservables: Observable<any>[] = this.reportIds.map((item) =>
@@ -401,7 +400,31 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
                   this.fillMissingDates(
                     report[0].list_de_donnees,
                     startDate,
-                    endDate
+                    endDate,
+                    report[0].list_de_donnees.length
+                  );
+              } else if (
+                report &&
+                report.length > 0 &&
+                !report[0].list_de_donnees?.length &&
+                this.reportIds[index].report[0].hasdate &&
+                this.reportIds[index].report[0].title !==
+                  ' Voice Call Rating Alert'
+              ) {
+                //console.log('m heeeeeere:' + this.reportIds[index].id);
+                const endDate = new Date().toISOString().split('T')[0];
+                const startDate = new Date(
+                  new Date().setDate(new Date().getDate() - 30)
+                )
+                  .toISOString()
+                  .split('T')[0];
+
+                this.reportIds[index].report[0].list_de_donnees =
+                  this.fillMissingDates(
+                    report[0].list_de_donnees,
+                    startDate,
+                    endDate,
+                    report[0].listnamereptab.length
                   );
               } else if (
                 this.reportIds[index].report &&
@@ -436,11 +459,13 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
   private fillMissingDates(
     data: any[],
     startDate: string,
-    endDate: string
+    endDate: string,
+    dataLength: any
   ): any[] {
     const filledData = [];
     const currentDate = new Date(startDate);
     const end = new Date(endDate);
+    const leng = data.length > 0 && data[0] ? data[0].length : dataLength;
 
     while (currentDate <= end) {
       const dateString = currentDate.toISOString().split('T')[0];
@@ -449,7 +474,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
       if (existingData) {
         filledData.push(existingData);
       } else {
-        const newData = [dateString, ...Array(data[0].length - 1).fill(0)];
+        const newData = [dateString, ...Array(leng - 1).fill(0)];
         filledData.push(newData);
       }
 
@@ -509,7 +534,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
           ),
         }));
 
-    console.log(seriesData);
+    //console.log(seriesData);
 
     // Process data for pie
     const isPieChart = data.chartType === 'pie';
@@ -524,6 +549,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
       });
     }
 
+    const chartService = this.chartService;
     let chartOptions: Highcharts.Options;
     chartOptions = {
       colors: [
@@ -557,6 +583,23 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
             enabled: false,
           },
         },
+        // events: {
+        //   load: function () {
+        //     const chart = this;
+        //     const updateData = () => {
+        //       chartService.getRepById(data.id).subscribe((newData: any) => {
+        //         chart.series[0].setData(
+        //           newData[0].list_de_donnees.map((datum: any) => [
+        //             console.log(datum),
+        //           ])
+        //         );
+        //       });
+        //     };
+        //     setInterval(() => {
+        //       updateData();
+        //     }, 10000);
+        //   },
+        // },
       },
       // title: {
       //   text:
@@ -1204,7 +1247,8 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
             this.fillMissingDates(
               newReport.list_de_donnees,
               startDate,
-              new Date().toISOString().split('T')[0]
+              new Date().toISOString().split('T')[0],
+              newReport.list_de_donnees.length
             );
         }
         this.chartOptions[index] = this.buildChart(this.reportIds[index]);
@@ -1238,7 +1282,8 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
             this.fillMissingDates(
               newReport.list_de_donnees,
               startDate,
-              new Date().toISOString().split('T')[0]
+              new Date().toISOString().split('T')[0],
+              newReport.list_de_donnees.length
             );
         }
 
@@ -1259,10 +1304,10 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private applyChartTheme() {
     if (this.darkModeEnabled) {
-      console.log('Applying dark theme');
+      //console.log('Applying dark theme');
       DarkTheme(Highcharts);
     } else {
-      console.log('Applying light theme');
+      //console.log('Applying light theme');
       DefaultTheme(Highcharts);
     }
     Highcharts.setOptions({}); // Reapply global options if needed
@@ -1270,11 +1315,11 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private updateAllCharts() {
     if (this.darkModeEnabled) {
-      console.log('Applying dark theme');
+      //console.log('Applying dark theme');
       DarkTheme(Highcharts);
       Highcharts.setOptions({});
     } else {
-      console.log('Applying light theme');
+      //console.log('Applying light theme');
       DefaultTheme(Highcharts);
       Highcharts.setOptions({});
     }
@@ -1285,7 +1330,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
         const chartInstance = this.chartInstances[index];
         if (chartInstance) {
           chartInstance.update(this.chartOptions[index], true, true);
-          console.log('chart is on dark mode');
+          //console.log('chart is on dark mode');
           chartInstance.redraw(); // Explicitly redraw the chart
         }
       }
@@ -1315,8 +1360,8 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
     if (typeof value === 'number') {
       // Use toFixed to always display 4 values after the decimal point
       const formattedValue = value.toFixed(4);
-      console.log(value);
-      console.log(formattedValue);
+      // console.log(value);
+      // console.log(formattedValue);
       return formattedValue;
     }
     return value;
@@ -1346,7 +1391,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
       navigator.clipboard
         .writeText(id)
         .then(() => {
-          console.log('ID copied to clipboard:', id);
+          //console.log('ID copied to clipboard:', id);
         })
         .catch((err) => {
           console.error('Error copying text to clipboard', err);
@@ -1370,7 +1415,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
     try {
       const successful = document.execCommand('copy');
       const msg = successful ? 'successful' : 'unsuccessful';
-      console.log('Fallback: Copying text command was ' + msg);
+      //console.log('Fallback: Copying text command was ' + msg);
     } catch (err) {
       console.error('Fallback: Oops, unable to copy', err);
     }

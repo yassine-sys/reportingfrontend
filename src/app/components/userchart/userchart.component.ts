@@ -56,7 +56,7 @@ import { HighchartsChartComponent } from 'highcharts-angular';
 import { PaginatedTableComponent } from '../paginated-table/paginated-table.component';
 import { CommentService } from '../../services/comment.service';
 import { OrderUserChartsComponent } from '../order-user-charts/order-user-charts.component';
-import { Message } from 'primeng/api';
+import { MenuItem, Message } from 'primeng/api';
 import IndicatorsAll from 'highcharts/indicators/indicators-all';
 import HDragPanes from 'highcharts/modules/drag-panes';
 import HAnnotationsAdvanced from 'highcharts/modules/annotations-advanced';
@@ -67,8 +67,10 @@ import IndicatorsCore from 'highcharts/indicators/indicators';
 import TrendLine from 'highcharts/indicators/trendLine';
 import ExportData from 'highcharts/modules/export-data';
 import { DarkModeService } from 'src/app/services/dark-mode.service';
-import DarkTheme from 'highcharts/themes/brand-dark';
-import DefaultTheme from 'highcharts/themes/brand-light';
+import DarkTheme from 'highcharts/themes/dark-unica';
+import DefaultTheme from 'highcharts/themes/grid-light';
+import { DialogService } from 'primeng/dynamicdialog';
+import { PlaylistComponent } from '../playlist/playlist.component';
 
 Accessibility(Highcharts);
 ExportingModule(Highcharts);
@@ -123,6 +125,8 @@ export class UserchartComponent implements OnInit, OnDestroy, AfterViewInit {
   private subscriptionDarkMode: Subscription = new Subscription();
   darkModeEnabled!: boolean;
 
+  itemssplit!: MenuItem[];
+
   constructor(
     private chartService: ChartService,
     private route: ActivatedRoute,
@@ -138,7 +142,8 @@ export class UserchartComponent implements OnInit, OnDestroy, AfterViewInit {
     private commentService: CommentService,
     private ngZone: NgZone,
     private authServive: AuthService,
-    private darkModeService: DarkModeService
+    private darkModeService: DarkModeService,
+    public dialogService: DialogService
   ) {}
 
   ngAfterViewInit(): void {
@@ -153,6 +158,33 @@ export class UserchartComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.itemssplit = [
+      {
+        tooltipOptions: {
+          tooltipLabel: 'Export XLSX',
+          tooltipPosition: 'top',
+        },
+        icon: 'pi pi-file-excel',
+        iconStyle: { 'background-color': 'white' },
+        command: () => {
+          this.exportXLSX(
+            this.reportGroup.report[0].list_de_donnees,
+            this.reportGroup.report[0].listnamereptab,
+            this.reportGroup.report[0].title
+          );
+        },
+      },
+      {
+        tooltipOptions: {
+          tooltipLabel: 'Remove From Dashboard',
+          tooltipPosition: 'top',
+        },
+        icon: 'pi pi-home',
+        command: () => {
+          this.removeFromDashboard(this.reportGroup.id);
+        },
+      },
+    ];
     this.authServive.getUser().subscribe((resp: User) => {
       this.user = resp;
       this.funcId = resp.uId;
@@ -307,6 +339,18 @@ export class UserchartComponent implements OnInit, OnDestroy, AfterViewInit {
     return filledData;
   }
 
+  isMonthYearFormat(dateStr: string) {
+    return /^\d{2}\/\d{4}$/.test(dateStr); // Regex for 'MM/YYYY' format
+  }
+
+  parseDateToUTC(dateStr: string): number {
+    const parts = dateStr.split('/');
+    const year = parseInt(parts[1], 10);
+    const month = parseInt(parts[0], 10) - 1; // Month is 0-indexed in JavaScript Date
+    const date = new Date(Date.UTC(year, month, 1)); // Use the first day of the month
+    return date.getTime();
+  }
+
   private buildChart(data: any): any {
     const chartData = data.report;
 
@@ -343,7 +387,9 @@ export class UserchartComponent implements OnInit, OnDestroy, AfterViewInit {
           id: `series-${i}`,
           name: name,
           data: chartData[0].list_de_donnees.map((datum: any) => [
-            new Date(datum[0] + 'T00:00:00Z').getTime(),
+            this.isMonthYearFormat(datum[0])
+              ? this.parseDateToUTC(datum[0])
+              : new Date(datum[0]).getTime(),
             datum[i + 1],
           ]),
         }))
@@ -354,6 +400,8 @@ export class UserchartComponent implements OnInit, OnDestroy, AfterViewInit {
             (data: { toString: () => any }[]) => data[i + 1]
           ),
         }));
+
+    console.log(seriesData);
 
     // Process data for pie
     const isPieChart = data.chartType === 'pie';
@@ -396,18 +444,23 @@ export class UserchartComponent implements OnInit, OnDestroy, AfterViewInit {
         style: {
           fontFamily: "'Open Sans', sans-serif",
         },
-      },
-      title: {
-        text:
-          chartData[0].title +
-          '<br><hr style="height:2px;color:white;background-color:gray">',
-        align: 'left',
-        useHTML: true,
-        style: {
-          fontSize: '18px',
-          fontWeight: 'bold',
+        zooming: {
+          mouseWheel: {
+            enabled: false,
+          },
         },
       },
+      // title: {
+      //   text:
+      //     chartData[0].title +
+      //     '<br><hr style="height:2px;color:white;background-color:gray">',
+      //   align: 'left',
+      //   useHTML: true,
+      //   style: {
+      //     fontSize: '18px',
+      //     fontWeight: 'bold',
+      //   },
+      // },
       responsive: {
         rules: [
           {
@@ -862,5 +915,78 @@ export class UserchartComponent implements OnInit, OnDestroy, AfterViewInit {
       DefaultTheme(Highcharts);
     }
     Highcharts.setOptions({}); // Reapply global options if needed
+  }
+
+  reportGroup: any;
+
+  handleSpeedDialClick(report: any) {
+    this.reportGroup = report;
+  }
+
+  showButton = false; // Flag to control button visibility
+  selectedId: any;
+  selectedPlaylists: any[] = []; // Array to store selected playlists
+  allPlaylists: any[] = [];
+  onAddToPlaylistClick() {
+    // Hide the button and show the dropdown
+    this.showButton = true;
+    this.selectedId = this.reportGroup.id;
+    const ref = this.dialogService.open(PlaylistComponent, {
+      header: 'Save To Playlist',
+      width: '30%',
+      contentStyle: { 'max-height': '500px', overflow: 'auto' }, // Optional: you can set custom styles
+      // If you need to pass data to your PlaylistComponent, use the data property:
+      data: {
+        id: this.selectedId, // pass any data you need
+      },
+    });
+
+    ref.onClose.subscribe((data) => {
+      // Handle the data received from the dialog
+    });
+  }
+
+  detailsTooltip(value: any): any {
+    if (value) {
+      return 'Details available'; // Your tooltip text here
+    }
+    return null;
+  }
+
+  copyToClipboard(id: any) {
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(id)
+        .then(() => {
+          console.log('ID copied to clipboard:', id);
+        })
+        .catch((err) => {
+          console.error('Error copying text to clipboard', err);
+        });
+    } else {
+      this.fallbackCopyTextToClipboard(id);
+    }
+  }
+
+  fallbackCopyTextToClipboard(text: string) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.top = '0';
+    textArea.style.left = '0';
+    textArea.style.position = 'fixed';
+
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+      const successful = document.execCommand('copy');
+      const msg = successful ? 'successful' : 'unsuccessful';
+      console.log('Fallback: Copying text command was ' + msg);
+    } catch (err) {
+      console.error('Fallback: Oops, unable to copy', err);
+    }
+
+    document.body.removeChild(textArea);
   }
 }

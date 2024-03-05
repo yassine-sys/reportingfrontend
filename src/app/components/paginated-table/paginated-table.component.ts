@@ -177,12 +177,12 @@ export class PaginatedTableComponent
     };
     this.originalCurrency = { ...this.selectedCurrency };
 
-    ////console.log(this.operator);
+    //////console.log(this.operator);
     if (this.title === ' Voice Call Rating Alert') {
       this.hasDetails = true;
     }
     // Fetch operators' data asynchronously
-    ////console.log(this.operator);
+    //////console.log(this.operator);
     this.chartService.getOperatorsInterco().subscribe((operatorsList) => {
       this.operatorsList = operatorsList;
       // Process each row of data
@@ -274,6 +274,7 @@ export class PaginatedTableComponent
 
   openDialog(row: any): void {
     if (this.title === 'LCR Alert') {
+      //console.log(row);
       const dialogRef = this.dialog.open(CommentFormComponent, {
         width: '400px',
         data: { data: row },
@@ -283,7 +284,7 @@ export class PaginatedTableComponent
         dialogRef.close();
       });
     } else if (this.collect) {
-      console.log(row);
+      //console.log(row);
       const idFlow = row.name_flow === 'Interco' ? 6063 : 3390;
       const columns: any[] = [
         'filename',
@@ -317,8 +318,8 @@ export class PaginatedTableComponent
           });
         });
     } else if (this.title === ' Voice Call Rating Alert') {
-      //console.log(row);
-      //console.log(this.convertDate(row.begin_date));
+      ////console.log(row);
+      ////console.log(this.convertDate(row.begin_date));
 
       const columns = [
         'plan_tarifaire',
@@ -376,7 +377,7 @@ export class PaginatedTableComponent
     } else if (
       this.title.includes('Rate vs. Cost Reconciliation by Destination')
     ) {
-      console.log(row);
+      //console.log(row);
       const columns = [
         'callingnumber',
         'callednumber',
@@ -445,7 +446,7 @@ export class PaginatedTableComponent
 
         this.startDate = this.formatDate(datePreviousMonth);
         this.endDate = this.formatDate(today);
-        ////console.log(this.filter);
+        //////console.log(this.filter);
       } else {
         this.startDate = this.filter.startDate;
         this.endDate = this.filter.endDate;
@@ -487,7 +488,7 @@ export class PaginatedTableComponent
 
                   if (destination) {
                     obj[firstKey] = destination.operateur;
-                    //console.log(obj);
+                    ////console.log(obj);
                   }
                 });
             }
@@ -497,7 +498,7 @@ export class PaginatedTableComponent
           this.parentRow = {
             [this.columns[0].toUpperCase()]: row[this.columns[0]],
           };
-          //console.log(this.parentRow);
+          ////console.log(this.parentRow);
 
           // this.dialog.open(TableDialogComponent, {
           //   data: {
@@ -511,7 +512,7 @@ export class PaginatedTableComponent
           // });
 
           const ref = this.dialogService.open(TableDialogComponent, {
-            header: `${this.title}`,
+            header: `${response.title}`,
             width: '70%',
             modal: true,
             maximizable: true,
@@ -520,11 +521,12 @@ export class PaginatedTableComponent
             data: {
               columns,
               rows: data,
-              title: this.title,
+              title: response.title,
               isoperator: response.operator,
               iscarrier: this.iscarrier,
               parentRow: this.parentRow,
               hasdetails: response.hasdetails,
+              report: response,
             },
           });
 
@@ -645,11 +647,11 @@ export class PaginatedTableComponent
   }
 
   convertCurrencyValues(column: string, newCurrency: any) {
-    //console.log(this.selectedCurrency);
+    ////console.log(this.selectedCurrency);
 
     // Iterate through the jsonData and update the currency values
     this.jsonData.forEach((row, index) => {
-      //console.log(row[column]);
+      ////console.log(row[column]);
       this.currencyService
         .convertCurrencyLocal(
           this.originalCurrency.id,

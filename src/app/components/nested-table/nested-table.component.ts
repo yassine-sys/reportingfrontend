@@ -228,14 +228,14 @@ export class NestedTableComponent implements OnInit {
   }
 
   updateRowsWithOperators(row: any): void {
-    console.log(this.iscarrier);
+    //console.log(this.iscarrier);
     if (this.operator) {
       this.chartService.getOperatorsDest().subscribe((operators) => {
         operators.forEach((opr: any) => {
           if (row[this.columns[0]] == opr.id) {
-            console.log(row[this.columns[0]]);
+            //console.log(row[this.columns[0]]);
             row[this.columns[0]] = opr.nomDestination;
-            console.log(row[this.columns[0]]);
+            //console.log(row[this.columns[0]]);
           }
         });
       });
@@ -243,9 +243,9 @@ export class NestedTableComponent implements OnInit {
       this.chartService.getOperatorsInterco().subscribe((operators) => {
         operators.forEach((opr: any) => {
           if (row[this.columns[0]] == opr.id) {
-            console.log(row[this.columns[0]]);
+            //console.log(row[this.columns[0]]);
             row[this.columns[0]] = opr.operateur;
-            console.log(row[this.columns[0]]);
+            //console.log(row[this.columns[0]]);
           }
         });
       });
@@ -283,7 +283,7 @@ export class NestedTableComponent implements OnInit {
 
       this.startDate = this.formatDate(datePreviousMonth);
       this.endDate = this.formatDate(today);
-      //console.log(this.filter);
+      ////console.log(this.filter);
     } else {
       this.startDate = this.filter.startDate;
       this.endDate = this.filter.endDate;
@@ -291,8 +291,8 @@ export class NestedTableComponent implements OnInit {
 
     if (!rowData.details) {
       this.isLoading = true; // Set loading flag to true
-      //console.log(this.filter);
-      console.log(this.lvl4);
+      ////console.log(this.filter);
+      console.log('level 4' + this.lvl4);
 
       if (!this.lvl4) {
         this.chartService
@@ -304,7 +304,7 @@ export class NestedTableComponent implements OnInit {
           )
           .pipe(finalize(() => (this.isLoading = false))) // Set loading flag back to false
           .subscribe((response) => {
-            //console.log(response);
+            ////console.log(response);
             const columns = response.listnamereptab;
             const data = response.list_de_donnees;
             this.detailsCols = columns;
@@ -313,7 +313,7 @@ export class NestedTableComponent implements OnInit {
             rowData.details = this.transformToJSON(data, columns);
             if (this.operator) {
               this.detailsCols.unshift('Name');
-              console.log(this.detailsCols);
+              //console.log(this.detailsCols);
               this.chartService.getOperatorsDest().subscribe((destinations) => {
                 rowData.details.forEach((detail: any) => {
                   const destination = destinations.find(
@@ -388,7 +388,7 @@ export class NestedTableComponent implements OnInit {
           )
           .pipe(finalize(() => (this.isLoading = false))) // Set loading flag back to false
           .subscribe((response) => {
-            console.log(response);
+            //console.log(response);
             const columns = response.listnamereptab;
             const data = response.list_de_donnees;
             this.detailsCols = columns;
@@ -397,7 +397,7 @@ export class NestedTableComponent implements OnInit {
             rowData.details = this.transformToJSON(data, columns);
             if (response.operator) {
               this.detailsCols.unshift('Name');
-              console.log(this.detailsCols);
+              //console.log(this.detailsCols);
               this.chartService.getOperatorsDest().subscribe((destinations) => {
                 rowData.details.forEach((detail: any) => {
                   const destination = destinations.find(
@@ -506,7 +506,7 @@ export class NestedTableComponent implements OnInit {
     this.exporting = true;
     this.exportProgress = 0;
 
-    console.log(data);
+    //console.log(data);
   }
 
   saveAs(blob: Blob | MediaSource, filename: string) {
@@ -521,7 +521,7 @@ export class NestedTableComponent implements OnInit {
 
   exportExcel(data: any) {
     if (this.lvl4) {
-      console.log(data);
+      //console.log(data);
       this.parentRow = this.parent;
       this.parentRow = {
         ...this.parentRow, // Keep the existing property
@@ -569,18 +569,14 @@ export class NestedTableComponent implements OnInit {
       [this.detailsCols[1]]: row[this.detailsCols[0]],
     };
 
-    console.log(this.parentRow);
+    //console.log(this.parentRow);
     if (this.title === 'LCR Alert') {
       const dialogRef = this.dialog.open(CommentFormComponent, {
         width: '400px', // Adjust the width as needed
         data: { data: row }, // You can pass data to the dialog if needed
       });
 
-      dialogRef.afterClosed().subscribe((comment: string) => {
-        // this.commentAdded.emit();
-        // let func1 =new FunctionChartsComponent(this.chartService,this.route,this.router,this.filterService,this.dialog,this.userService,this.service,this.toastr,this.loaderService,this.functionService,this.changeDetectorRef)
-        // func1.ngOnInit()
-      });
+      dialogRef.afterClosed().subscribe((comment: string) => {});
     }
     // Fetch data from the API
     else {
@@ -592,7 +588,7 @@ export class NestedTableComponent implements OnInit {
 
         this.startDate = this.formatDate(datePreviousMonth);
         this.endDate = this.formatDate(today);
-        //console.log(this.filter);
+        ////console.log(this.filter);
       } else {
         this.startDate = this.filter.startDate;
         this.endDate = this.filter.endDate;
@@ -611,7 +607,7 @@ export class NestedTableComponent implements OnInit {
         .getDetails(this.subRep1, this.subRepId, this.startDate, this.endDate)
         .pipe(finalize(() => (this.showProgressBar = false)))
         .subscribe((response) => {
-          console.log(response);
+          //console.log(response);
           const columns = response.listnamereptab;
           const data = response.list_de_donnees.map((d: any) => {
             let obj: { [key: string]: any } = {};
@@ -627,18 +623,6 @@ export class NestedTableComponent implements OnInit {
             response.operator,
             response.iscarrier
           );
-          // this.dialog.open(TableDialogComponent, {
-          //   data: {
-          //     columns,
-          //     rows: data,
-          //     title: response.title,
-          //     isnested: response.isnested,
-          //     lvl1: this.lvl1CountryName,
-          //     lvl2: this.lvl2CountryName,
-          //     idrep: response.id_report,
-          //     parentRow: this.parentRow,
-          //   },
-          // });
 
           const ref = this.dialogService.open(TableDialogComponent, {
             header: `${response.title}`,
@@ -655,7 +639,9 @@ export class NestedTableComponent implements OnInit {
               lvl1: this.lvl1CountryName,
               lvl2: this.lvl2CountryName,
               idrep: response.id_report,
+              report: response,
               parentRow: this.parentRow,
+              filter: this.filter,
             },
           });
 
@@ -674,7 +660,7 @@ export class NestedTableComponent implements OnInit {
   ): void {
     if (operator) {
       cols.unshift('Name');
-      console.log(cols);
+      //console.log(cols);
       this.chartService.getOperatorsDest().subscribe((destinations) => {
         data.forEach((detail: any) => {
           const destination = destinations.find(

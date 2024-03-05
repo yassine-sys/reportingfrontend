@@ -21,7 +21,9 @@
     "module": "ES2022",
     "useDefineForClassFields": false,
     "lib": ["ES2022", "dom"],
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "typeRoots": ["node_modules/@types"],
+    "types": ["d3", "xlsx"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

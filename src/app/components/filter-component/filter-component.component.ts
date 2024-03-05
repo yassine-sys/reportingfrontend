@@ -45,6 +45,20 @@ export class FilterComponentComponent implements OnInit, OnChanges {
     { label: 'Year', value: 'per_year' },
   ];
 
+  operatorOptions: any[] = [
+    { label: '=', value: '=' },
+    { label: '<>', value: '<>' },
+    { label: '!=', value: '!=' },
+    { label: '>', value: '>' },
+    { label: '<', value: '<' },
+    { label: '>=', value: '>=' },
+    { label: '<=', value: '<=' },
+    { label: 'IN', value: 'IN' },
+    { label: 'LIKE', value: 'LIKE' },
+    { label: 'IS', value: 'IS' },
+    { label: 'IS NOT', value: 'IS NOT' },
+  ];
+
   constructor(
     private fb: FormBuilder,
     private datePipe: DatePipe,
@@ -80,14 +94,15 @@ export class FilterComponentComponent implements OnInit, OnChanges {
     return this.filterForm.get('rules') as FormArray;
   }
 
-  // Method to add a new rule to the FormArray
   addRule(): void {
     this.getFlowByIdRep();
     const newRule: FilterRule = {
+      showMultiSelect: false,
       selectedField: '',
       dependentOptions: [],
       selectedDependentField: '',
       inputText: '',
+      filter: false,
     };
 
     this.rules.push(newRule);
@@ -96,7 +111,7 @@ export class FilterComponentComponent implements OnInit, OnChanges {
 
   createRuleFormGroup(rule: FilterRule): FormGroup {
     return this.fb.group({
-      selectedField: [rule.selectedField],
+      selectedField: [rule.selectedField.name_base],
       dependentOptions: [rule.dependentOptions],
       selectedDependentField: [rule.selectedDependentField],
       inputText: [rule.inputText],
@@ -104,7 +119,7 @@ export class FilterComponentComponent implements OnInit, OnChanges {
   }
 
   onFieldSelect(ruleIndex: number, selectedField: any): void {
-    console.log(selectedField);
+    //console.log(selectedField);
     this.chartService
       .getDistinctValues(this.flow.table_name, selectedField.name_base)
       .subscribe((options: FilterOption[]) => {
@@ -118,6 +133,10 @@ export class FilterComponentComponent implements OnInit, OnChanges {
   }
 
   removeRule(index: number) {
+    // Remove the rule from the UI state array
+    this.rules.splice(index, 1);
+
+    // Remove the corresponding FormGroup from the FormArray
     this.rulesFormArray.removeAt(index);
   }
 
@@ -152,27 +171,40 @@ export class FilterComponentComponent implements OnInit, OnChanges {
   }
 
   applyFilter() {
-    console.log(this.filterForm.value);
-    const filterValues = this.filterForm.value;
-    if (filterValues.startDate) {
-      filterValues.startDate = this.datePipe.transform(
-        filterValues.startDate,
-        'yy-MM-dd'
-      );
-    }
+    const formValue = this.filterForm.value;
 
-    if (filterValues.endDate) {
-      filterValues.endDate = this.datePipe.transform(
-        filterValues.endDate,
-        'yy-MM-dd'
-      );
-    }
-    if (filterValues.isPerHour) {
-      filterValues.startHour = filterValues.startHour.split(':')[0];
-      filterValues.endHour = filterValues.endHour.split(':')[0];
-      filterValues.type_Filter = 'per_day_Hour';
-    }
-    this.filterApplied.emit(filterValues);
+    // Transforming the form values to match the Filters interface
+    const transformedFormValue: Filters = {
+      startDate: formValue.startDate
+        ? this.datePipe.transform(formValue.startDate, 'yy-MM-dd')
+        : null,
+      endDate: formValue.endDate
+        ? this.datePipe.transform(formValue.endDate, 'yy-MM-dd')
+        : null,
+      type_Filter: formValue.type_Filter,
+      isVaration: formValue.isVaration,
+      isPerHour: formValue.isPerHour,
+      startHour: formValue.isPerHour ? formValue.startHour.split(':')[0] : null,
+      endHour: formValue.isPerHour ? formValue.endHour.split(':')[0] : null,
+      id_rep: this.idRep,
+      idfunction: 0,
+      rules: formValue.rules.map((rule: any) => ({
+        selectedField: {
+          id: rule.selectedField.id,
+          name_base: rule.selectedField.name_base,
+          mapping: rule.selectedField.mapping,
+          id_data_type: rule.selectedField.id_data_type,
+        },
+        selectedDependentField: Array.isArray(rule.selectedDependentField)
+          ? rule.selectedDependentField
+          : [rule.selectedDependentField],
+        inputText: rule.inputText,
+        filter: true,
+      })),
+    };
+
+    console.log(transformedFormValue);
+    this.filterApplied.emit(transformedFormValue);
     this.overlayPanel.hide();
   }
 
@@ -194,6 +226,15 @@ export class FilterComponentComponent implements OnInit, OnChanges {
   toggleMultiSelect() {
     this.showMultiSelect = !this.showMultiSelect;
     this.getFlowByIdRep();
+  }
+
+  toggleMultiSelect2(index: number): void {
+    this.rules[index].showMultiSelect = !this.rules[index].showMultiSelect;
+    // You may need to update the form control value if necessary
+    // For example, clear the selectedDependentField when toggling
+    this.rulesFormArray.at(index).patchValue({
+      selectedDependentField: this.rules[index].showMultiSelect ? [] : '',
+    });
   }
 
   getFlowByIdRep() {

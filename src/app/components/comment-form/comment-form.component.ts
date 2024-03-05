@@ -34,7 +34,7 @@ export class CommentFormComponent implements OnInit {
     console.log(data);
   }
   ngOnInit(): void {
-    this.lcroperator = this.data.data.Lcroperator;
+    this.lcroperator = this.data.data.LCR_Carrier;
     this.destinationName = this.data.data.Destination_name;
   }
 

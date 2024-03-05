@@ -32,3 +32,17 @@
 .p-inputtext {
   width: 80px;
 }
+.toggle-heatmap-control button {
+  background-color: #fff;
+  border: none;
+  cursor: pointer;
+  padding: 5px 10px;
+  text-align: center;
+}
+
+.toggle-heatmap-control {
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+  border-radius: 4px;
+  background-color: #fff;
+  padding: 6px;
+}

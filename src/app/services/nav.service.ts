@@ -91,9 +91,27 @@ export class NavService implements OnDestroy {
   map: Menu = {
     title: 'Map Location',
     icon: 'map', // Replace with the actual icon
-    type: 'link',
-    path: 'map',
-    children: [],
+    type: 'sub',
+    children: [
+      {
+        path: 'map/roa',
+        title: 'Roaming',
+        icon: 'navigation',
+        type: 'link',
+      },
+      {
+        path: 'map/natroa',
+        title: 'National Roaming',
+        icon: 'navigation',
+        type: 'link',
+      },
+      {
+        path: 'map/local',
+        title: 'Local',
+        icon: 'navigation',
+        type: 'link',
+      },
+    ],
   };
   private unsubscriber: Subject<any> = new Subject();
   public screenWidth: BehaviorSubject<number> = new BehaviorSubject(
@@ -184,11 +202,10 @@ export class NavService implements OnDestroy {
       const data = await firstValueFrom(this.authService.getFunctions());
       this.modulesData = data;
       this.menuItems = this.convertApiResponseToMenuItems(this.modulesData);
-      // this.menuItems.unshift(this.map);
+      //this.menuItems.unshift(this.map);
       this.menuItems.unshift(this.monetoring);
       this.menuItems.unshift(this.managementModule);
       this.addPlaylistsToMenuItems(this.menuItems);
-
       this.items.next(this.menuItems);
     } catch (error) {
       console.error('Error fetching functions:', error);
@@ -363,33 +380,7 @@ export class NavService implements OnDestroy {
     this.screenWidth.next(width);
   }
 
-  MENUITEMS: Menu[] = [
-    {
-      title: 'Simple Page',
-      icon: 'home',
-      type: 'sub',
-      badgeType: 'light-primary',
-      badgeValue: '2',
-      active: true,
-      children: [
-        { path: '/simple-page/first-page', title: 'First Page', type: 'link' },
-        {
-          path: '/simple-page/second-page',
-          title: 'Second Page',
-          type: 'link',
-        },
-      ],
-    },
-    {
-      path: '/single-page',
-      icon: 'search',
-      title: 'Single Page',
-      active: false,
-      type: 'link',
-      bookmark: true,
-    },
-  ];
-
   // Array
   items = new BehaviorSubject<Menu[]>(this.menuItems);
+  public items$ = this.items.asObservable();
 }

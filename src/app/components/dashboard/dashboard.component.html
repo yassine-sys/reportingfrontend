@@ -58,8 +58,16 @@
     </a> -->
 
     <a href="#" class="brand-link">
-      <img src="./assets/img/libyana.png" style="max-height: 100%; max-width: 100%; object-fit: contain" />
+      <img src="./assets/img/litc.png" style="max-height: 100%; max-width: 100%; object-fit: contain" />
     </a>
+
+    <!-- soutelma -->
+    <!-- <a href="#" class="brand-link custom">
+      <div class="img-container"
+        style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%; background-color: #005BA4;">
+        <img src="./assets/img/Logo_Onatel.png" style="max-height: 50%; max-width: 50%; object-fit: cover" />
+      </div>
+    </a> -->
 
     <div class="sidebar">
       <div class="user-panel mt-3 pb-3 mb-3 d-flex">
@@ -73,7 +81,7 @@
       </div>
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-          <li *ngFor="let menuItem of SidebarmenuItems" [ngClass]="{
+          <li *ngFor="let menuItem of menuItems$ | async as menuItems" [ngClass]="{
               'nav-item': true,
               'menu-open': menuItem.active,
               active: menuItem.active
@@ -112,7 +120,8 @@
                     active: childItem.active
                   }">
                   <ng-container *ngIf="childItem.type === 'link'; else subMenuTemplate">
-                    <a [routerLink]="childItem.path" class="nav-link" [ngClass]="{ active: childItem.active }">
+                    <a [routerLink]="childItem.path" class="nav-link" routerLinkActive="active"
+                      [routerLinkActiveOptions]="{ exact: true }" [ngClass]="{ active: childItem.active }">
                       <app-feather-icons [icon]="childItem.icon"></app-feather-icons>
                       {{ childItem.title }}
                       <label class="badge rounded-pill bg-danger ml-2 h-20"
@@ -131,6 +140,7 @@
                       [style.display]="childItem.active ? 'block' : 'none'">
                       <li *ngFor="let subChildItem of childItem.children" [ngClass]="{
                           'nav-item': true,
+                          
                           active: subChildItem.active
                         }">
                         <a [routerLink]="

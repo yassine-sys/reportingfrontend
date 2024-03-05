@@ -125,6 +125,7 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { SearchComponent } from './components/search/search.component';
 import { BadgeModule } from 'primeng/badge';
 import { ServiceWorkerModule } from '@angular/service-worker';
+import { InputSwitchModule } from 'primeng/inputswitch';
 
 @NgModule({
   declarations: [
@@ -185,6 +186,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
     SearchComponent,
   ],
   imports: [
+    InputSwitchModule,
     ToolbarModule,
     BrowserModule,
     AppRoutingModule,
@@ -239,12 +241,13 @@ import { ServiceWorkerModule } from '@angular/service-worker';
     PrimeNgDragDropModule,
     RecaptchaModule, //this is the recaptcha main module
     RecaptchaFormsModule, //this is the module for form incase form validation
-    BadgeModule, ServiceWorkerModule.register('ngsw-worker.js', {
-  enabled: !isDevMode(),
-  // Register the ServiceWorker as soon as the application is stable
-  // or after 30 seconds (whichever comes first).
-  registrationStrategy: 'registerWhenStable:30000'
-}),
+    BadgeModule,
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      // Register the ServiceWorker as soon as the application is stable
+      // or after 30 seconds (whichever comes first).
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
   ],
   providers: [
     DialogService,
