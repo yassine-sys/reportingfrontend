@@ -126,6 +126,7 @@ import { SearchComponent } from './components/search/search.component';
 import { BadgeModule } from 'primeng/badge';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { InputSwitchModule } from 'primeng/inputswitch';
+import { ToggleButtonModule } from 'primeng/togglebutton';
 
 @NgModule({
   declarations: [
@@ -239,6 +240,7 @@ import { InputSwitchModule } from 'primeng/inputswitch';
     CheckboxModule,
     DynamicDialogModule,
     PrimeNgDragDropModule,
+    ToggleButtonModule,
     RecaptchaModule, //this is the recaptcha main module
     RecaptchaFormsModule, //this is the module for form incase form validation
     BadgeModule,

@@ -135,7 +135,6 @@ export class TableDialogComponent {
       const rows = this.tableData.rows;
       const title = this.title;
       const parentRow = this.parentRow; // Assuming you have a parentRow object
-
       // Add parentRow to each row
       const rowsWithParent = rows.map((row: any) => ({
         ...parentRow,

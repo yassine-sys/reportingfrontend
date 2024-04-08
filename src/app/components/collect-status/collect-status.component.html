@@ -1,12 +1,36 @@
 <app-breadcrumb [title]="'Collect Status'" [items]="['Monitoring']" [active_item]="'Collect Status'"></app-breadcrumb>
 <div class="tables-container">
-  <h5 class="title">Today Flow Status</h5>
+
+  <div class="header">
+    <h5 class="title">Today Flow Status</h5>
+    <button type="button" pButton pRipple icon="pi pi-file-excel"
+      (click)="exportToExcel(columns2,data2,'Today Flow Status')" class="p-button-success mr-2" pTooltip="XLS"
+      tooltipPosition="bottom"></button>
+  </div>
   <app-paginated-table *ngIf="columns2.length > 0" [columns]="columns2" [data]="data2" [idrep]="idrep"
     [title]="'Today Flow Status'" [collect]="true" [hasDetails]="true"></app-paginated-table>
-  <h5 class="title">Last Day Flow Status</h5>
+
+
+
+  <div class="header">
+    <h5 class="title">Last Day Flow Status</h5>
+    <button type="button" pButton pRipple icon="pi pi-file-excel"
+      (click)="exportToExcel(columns,data,'Last Day Flow Status')" class="p-button-success mr-2" pTooltip="XLS"
+      tooltipPosition="bottom"></button>
+  </div>
   <app-paginated-table *ngIf="columns.length > 0" [columns]="columns" [data]="data" [idrep]="idrep"
     [title]="'Last Day Flow Status'" [collect]="true" [hasDetails]="true"></app-paginated-table>
-  <h5 class="title">History Flow Status</h5>
+
+
+
+
+
+  <div class="header">
+    <h5 class="title">History Flow Status</h5>
+    <button type="button" pButton pRipple icon="pi pi-file-excel"
+      (click)="exportToExcel(columnNames,data1,'History Flow Status')" class="p-button-success mr-2" pTooltip="XLS"
+      tooltipPosition="bottom"></button>
+  </div>
   <app-paginated-table *ngIf="columnNames.length > 0" [columns]="columnNames" [data]="data1" [idrep]="idrep"
     [title]="'History Flow Status'" [collect]="true" [hasDetails]="true"></app-paginated-table>
 </div>

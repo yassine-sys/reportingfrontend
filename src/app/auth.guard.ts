@@ -7,7 +7,7 @@ import {
   UrlTree,
 } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
-import { Observable } from 'rxjs';
+import { Observable, catchError, tap } from 'rxjs';
 import { AuthService } from './services/auth.service';
 
 @Injectable({
@@ -29,18 +29,43 @@ export class AuthGuard implements CanActivate {
     | boolean
     | UrlTree {
     const jwtToken = this.cookieService.get('jwtToken');
-    if (jwtToken) {
-      if (this.authService.checkToken()) {
-        return true;
-      } else {
-        this.cookieService.deleteAll();
-        this.router.navigate(['/login']);
-        return false; // Token is invalid or expired, redirect to login
-      }
-    } else {
-      this.cookieService.deleteAll();
+    // if (jwtToken) {
+    //   console.log(this.authService.checkToken());
+    //   if (this.authService.checkToken()) {
+    //     return true;
+    //   } else {
+    //     this.cookieService.deleteAll();
+    //     this.router.navigate(['/login']);
+    //     return false; // Token is invalid or expired, redirect to login
+    //   }
+    // } else {
+    //   this.cookieService.deleteAll();
+    //   this.router.navigate(['/login']);
+    //   return false;
+    // }
+
+    if (!jwtToken) {
+      console.log('No JWT token found, redirecting to login page.');
       this.router.navigate(['/login']);
       return false;
     }
+
+    return this.authService.checkToken().pipe(
+      tap((isValid) => {
+        if (!isValid) {
+          console.log(
+            'Token is invalid or expired, redirecting to login page.'
+          );
+          this.cookieService.deleteAll();
+          this.router.navigate(['/login']);
+        } else {
+          console.log('Token is valid, allowing access.');
+        }
+      }),
+      catchError((err) => {
+        console.error('Error occurred while checking token:', err);
+        return [false];
+      })
+    );
   }
 }

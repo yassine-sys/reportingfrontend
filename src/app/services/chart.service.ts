@@ -351,6 +351,10 @@ export class ChartService {
     return this.http.get<any>(`${this.api}/cdr/missingSequence/`);
   }
 
+  public getMissingFilesRec(): Observable<any> {
+    return this.http.get<any>(`${this.api}/cdr/missingFilesRec/`);
+  }
+
   public getFlowByIdRep(idRep: any): Observable<any> {
     return this.http.get<any>(`${this.recAPi}/flowRep/${idRep}`);
   }

@@ -55,7 +55,6 @@ export class AuthService {
           const token = response.headers.get('Authorization');
           if (token) {
             this.cookieService.set('jwtToken', token);
-            console.log(this.cookieService.get('jwtToken'));
           }
           return response.body;
         }),
@@ -70,7 +69,14 @@ export class AuthService {
     const token = this.getToken();
     const headers = new HttpHeaders().set('Authorization', `${token}`);
     //console.log(headers);
-    return this.httpClient.get<boolean>(`${this.apiUrl}/check?token=${token}`);
+    return this.httpClient
+      .get<boolean>(`${this.apiUrl}/check?token=${token}`)
+      .pipe(
+        catchError((error) => {
+          console.error('Error occurred while checking token:', error);
+          return of(false);
+        })
+      );
   }
 
   getUser(): Observable<User> {

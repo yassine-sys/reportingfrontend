@@ -35,6 +35,7 @@ import { FunctionService } from 'src/app/services/function.service';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { OrderFunctionComponent } from '../order-function/order-function.component';
 import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { Chart, SeriesAbandsOptions, SeriesPieOptions } from 'highcharts';
 import { DataUpdateService } from '../../services/data-update.service';
@@ -80,6 +81,8 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { PlaylistComponent } from '../playlist/playlist.component';
 import { CurrencyService } from 'src/app/services/currency.service';
 import { DatePipe } from '@angular/common';
+import { filter } from 'd3';
+import { colorSets } from '@swimlane/ngx-charts';
 
 Accessibility(Highcharts);
 ExportingModule(Highcharts);
@@ -110,7 +113,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
   reports: any[] = [];
   funcName: any;
   chartOptions: Highcharts.Options[] = [];
-
+  subchartOptions: Highcharts.Options[] = [];
   isLoading: boolean[] = [];
   isChartDisplayed: boolean[] = [];
   private destroy$ = new Subject<void>();
@@ -118,6 +121,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   isTable: boolean = false;
   chartInstances: any[] = [];
+  subChartInstances: any[] = [];
   highchartsTypes = HIGHCHARTS_TYPES;
 
   reportIds: {
@@ -128,7 +132,22 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
     constructorType: string;
     chartType: string;
     customFilter: boolean;
+    subReport: [];
+    showSubReport: boolean;
   }[] = [];
+
+  subreportIds: {
+    id: any;
+    loading: boolean;
+    error: string;
+    report: any;
+    constructorType: string;
+    chartType: string;
+    customFilter: boolean;
+    subReport: [];
+    showSubReport: boolean;
+  }[] = [];
+
   filtred!: Filters;
   globalFilter!: Filters;
 
@@ -164,6 +183,8 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
   reportGroup: any;
   selectedId: any;
 
+  diffRepIDs = [2905, 2910];
+
   constructor(
     private dataUpdateService: DataUpdateService,
     private chartService: ChartService,
@@ -196,6 +217,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   handleSpeedDialClick(report: any) {
+    console.log(report);
     this.reportGroup = report;
   }
 
@@ -256,25 +278,12 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
         },
       },
     ];
-    // this.chartService.getRepByFunctionId(929).subscribe((response: any) => {
-    //   this.playListIds = response;
-    // });
     this.route.params.subscribe((params) => {
       this.moduleName = params['moduleName'];
       this.subModuleName = params['subModuleName'];
       this.functionName = params['functionName'];
       this.funcId = params['id'];
-      //console.log(this.filtredSubscription);
       this.loadData();
-      // Refresh reports every X minutes
-      // const refreshInterval = 10 * 1000; // 10 minutes
-      // interval(refreshInterval)
-      //   .pipe(takeUntil(this.destroy$))
-      //   .subscribe(() => {
-      //     this.loadReports(this.listeRep, true);
-      //     this.reports = [];
-      //     this.chartOptions = [];
-      //   });
     });
     if (this.filtredSubscription) {
       this.filtredSubscription.unsubscribe();
@@ -307,7 +316,9 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
             this.chartService
               .getFunctionChartFiltred(this.globalFilter)
               .subscribe((resp) => {
+                this.loaderService.show();
                 this.updateReportsAfterFilter(resp);
+                this.loaderService.hide();
               });
           }
         }
@@ -363,6 +374,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
         chartType: '',
         customFilter: false,
         subReport: [],
+        showSubReport: false,
       }));
 
       const reportObservables: Observable<any>[] = this.reportIds.map((item) =>
@@ -411,7 +423,6 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
                 this.reportIds[index].report[0].title !==
                   ' Voice Call Rating Alert'
               ) {
-                //console.log('m heeeeeere:' + this.reportIds[index].id);
                 const endDate = new Date().toISOString().split('T')[0];
                 const startDate = new Date(
                   new Date().setDate(new Date().getDate() - 30)
@@ -433,6 +444,18 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
                   .includes('TRUNCK')
               ) {
                 this.reportIds[index].customFilter = true;
+              } else if (
+                report[0].listnamereptab &&
+                report[0].listnamereptab.length > 0 &&
+                report[0].listnamereptab[0].toLowerCase().includes('date') &&
+                report[0].list_de_donnees.length > 0
+              ) {
+                const firstDatum = report[0].list_de_donnees[0][0];
+                if (/^\d{6}$/.test(firstDatum)) {
+                  report[0].list_de_donnees.forEach((datum: any[]) => {
+                    datum[0] = this.parseCustomDateFormat(datum[0]);
+                  });
+                }
               }
 
               this.reportIds[index].chartType = report[0].chart_type;
@@ -454,6 +477,33 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
         );
       console.log(this.reportIds);
     }
+  }
+
+  generateSubReport(index: any, report: any) {
+    console.log('report passed', report);
+    if (this.diffRepIDs.includes(report.id_report)) {
+      const reportCopy = JSON.parse(JSON.stringify(report));
+      const sub = this.calculateDifferences(reportCopy);
+      this.reportIds[index].subReport = sub;
+
+      this.subchartOptions[index] = this.buildChartV2(this.reportIds[index]);
+      console.log(this.reportIds[index]);
+    }
+  }
+
+  calculateDifferences(data: any): any {
+    const response: any[] = [];
+    const differencesWithFirstColumn: any[][] = [];
+    for (const entry of data.list_de_donnees) {
+      const difference = Math.abs(entry[1] - entry[2]);
+      differencesWithFirstColumn.push([entry[0], difference]);
+    }
+    data.list_de_donnees = differencesWithFirstColumn;
+    data.listnamereptab = [data.listnamereptab[0], 'Difference'];
+    data.listnamerep = ['Difference'];
+
+    response.push(data);
+    return response;
   }
 
   private fillMissingDates(
@@ -484,9 +534,987 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
     return filledData;
   }
 
+  parseCustomDateFormat(dateString: any): any {
+    // Assuming the format is YYMMDD
+    const year = '20' + dateString.substring(0, 2);
+    const month = dateString.substring(2, 4);
+    const day = dateString.substring(4, 6);
+    return `${year}-${month}-${day}`;
+  }
+
   private buildChart(data: any): any {
     const chartData = data.report;
 
+    let subtitleText = chartData[0].title + ': ';
+    if (chartData[0].list_de_donnees.length === 1) {
+      subtitleText += 'Date: ' + chartData[0].list_de_donnees[0][0];
+    } else if (chartData[0].list_de_donnees.length >= 2) {
+      subtitleText +=
+        'Between ' +
+        chartData[0].list_de_donnees[0][0] +
+        ' and ' +
+        chartData[0].list_de_donnees[
+          chartData[0].list_de_donnees.length - 1
+        ][0];
+    }
+
+    let hasDateData = false;
+    // hasDateData = chartData[0].hasdate;
+    hasDateData =
+      chartData[0].listnamereptab &&
+      chartData[0].listnamereptab.length > 0 &&
+      chartData[0].listnamereptab[0].toLowerCase().includes('date');
+    data.constructorType = hasDateData ? 'stockChart' : 'chart';
+
+    if (chartData[0].listnamerep.length === 0) {
+      chartData[0].listnamerep = chartData[0].listnamereptab.slice(1); // Remove the first item
+    }
+
+    // Calculate the date 90 days ago and 30 days ago from today
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    // Process data for charts
+    const seriesData = hasDateData
+      ? chartData[0].listnamerep.map((name: string, i: number) => ({
+          id: `series-${i}`,
+          name: name,
+          data: chartData[0].list_de_donnees.map((datum: any) => [
+            this.isMonthYearFormat(datum[0])
+              ? this.parseDateToUTC(datum[0])
+              : new Date(datum[0]).getTime(),
+
+            chartData[0].listnamereptab[i + 1] === 'CallDuration(Minutes)'
+              ? Math.round(datum[i + 1])
+              : parseFloat(datum[i + 1]),
+          ]),
+        }))
+      : chartData[0].listnamerep.slice(0).map((name: any, i: number) => ({
+          id: `series-${i}`,
+          name: name,
+          data: chartData[0].list_de_donnees.map(
+            (data: { toString: () => any }[]) => data[i + 1]
+          ),
+        }));
+
+    // Process data for pie
+    const isPieChart = data.chartType === 'pie';
+    let pieData: any;
+
+    if (isPieChart) {
+      pieData = chartData[0].list_de_donnees.map((item: any) => {
+        return {
+          name: item[0], // Assuming the first value is the name
+          y: item[1], // Assuming the second value is the data point
+        };
+      });
+    }
+
+    let chartOptions: Highcharts.Options;
+    chartOptions = {
+      colors: [
+        '#058DC7',
+        '#50B432',
+        '#ED561B',
+        '#DDDF00',
+        '#24CBE5',
+        '#64E572',
+        '#FF9655',
+        '#FFF263',
+        '#6AF9C4',
+      ],
+      credits: {
+        enabled: false,
+      },
+      chart: {
+        type: data.chartType,
+        height: '50%',
+        animation: true,
+        colorCount: 100,
+        reflow: true,
+        plotBorderWidth: 1,
+        plotShadow: true,
+        borderRadius: 10,
+        style: {
+          fontFamily: "'Open Sans', sans-serif",
+        },
+        zooming: {
+          mouseWheel: {
+            enabled: false,
+          },
+        },
+      },
+      responsive: {
+        rules: [
+          {
+            condition: {
+              maxWidth: 500,
+            },
+            chartOptions: {
+              legend: {
+                layout: 'horizontal',
+                align: 'center',
+                verticalAlign: 'bottom',
+              },
+            },
+          },
+        ],
+      },
+      xAxis: {
+        type: hasDateData ? 'datetime' : 'category',
+        gridLineWidth: 1,
+        alignTicks: true,
+        title: {
+          text: chartData[0].listnamereptab[0],
+        },
+        labels: {
+          style: {
+            fontSize: '12px',
+          },
+        },
+        categories: hasDateData
+          ? null
+          : chartData[0].list_de_donnees.map((datum: any[]) => datum[0]),
+      },
+      yAxis: {
+        title: {
+          text: 'Values',
+        },
+        gridLineWidth: 1,
+        alignTicks: true,
+      },
+      legend: {
+        enabled: true,
+      },
+      exporting: {
+        enabled: true,
+        fallbackToExportServer: false,
+        libURL: 'assets/js/',
+        chartOptions: {
+          chart: {
+            width: 1000,
+            height: 800,
+          },
+        },
+        buttons: {
+          contextButton: {
+            menuItems: [
+              'viewFullscreen',
+              'separator',
+              'downloadPNG',
+              'downloadPDF',
+              'downloadSVG',
+              'downloadCSV',
+            ],
+          },
+        },
+      },
+      tooltip: hasDateData
+        ? {
+            backgroundColor: '#2b2b2b',
+            style: {
+              color: '#E0E0E3',
+            },
+            shared: true,
+            useHTML: true,
+            formatter: function () {
+              if (!this.points) {
+                return '';
+              }
+              if (typeof this.x !== 'number') {
+                return 'Invalid date';
+              }
+              let tooltipHtml = `<b>${Highcharts.dateFormat(
+                '%A, %b %e, %Y',
+                this.x
+              )}</b><br/>`;
+              let values: Array<number> = [];
+              this.points.forEach(function (point) {
+                if (typeof point.y === 'number') {
+                  values.push(point.y);
+                  tooltipHtml += `<span style="color:${
+                    point.color
+                  }">\u25CF</span> ${
+                    point.series.name
+                  }: <b>${Highcharts.numberFormat(point.y, 2)}</b><br/>`;
+                }
+              });
+
+              // Check if chartData[0].isdiff is true
+              if (chartData[0].rapport.isdiff && values.length === 2) {
+                const difference = Math.abs(values[0] - values[1]);
+                const percentDifference = (difference / values[0]) * 100;
+                tooltipHtml += `<span style="color:red">Difference: <b>${Highcharts.numberFormat(
+                  difference,
+                  2
+                )}</b> (${Highcharts.numberFormat(
+                  percentDifference,
+                  2
+                )}%)</span><br/>`;
+              }
+              return tooltipHtml;
+            },
+
+            xDateFormat: '%A, %b %e, %Y',
+          }
+        : {
+            valueDecimals: 1,
+            pointFormat: '{point.name}: <b>{point.y:.2f}</b>',
+          },
+      plotOptions: {
+        pie: isPieChart
+          ? {
+              allowPointSelect: true,
+              cursor: 'pointer',
+              dataLabels: {
+                enabled: true,
+                distance: 20,
+                format: '<b>{point.name}</b>: {point.percentage:.2f}%',
+              },
+              borderRadius: 10,
+              showInLegend: true,
+              slicedOffset: 20,
+            }
+          : {},
+        series: !isPieChart
+          ? {
+              dataLabels: {
+                enabled: true,
+                format: '{point.y:.2f}',
+              },
+            }
+          : {},
+      },
+      rangeSelector: hasDateData
+        ? {
+            buttons: [
+              {
+                type: 'week',
+                count: 1,
+                text: '1w',
+              },
+              {
+                type: 'month',
+                count: 1,
+                text: '1m',
+              },
+              {
+                type: 'all',
+                text: 'All',
+              },
+            ],
+            buttonTheme: {
+              width: 60,
+            },
+            inputEnabled: true,
+            inputPosition: {
+              align: 'right',
+              x: 0,
+              y: 0,
+            },
+            buttonPosition: {
+              align: 'left',
+              x: 0,
+              y: 0,
+            },
+            selected: 1,
+          }
+        : {},
+      navigator: {
+        enabled: hasDateData ? true : false,
+      },
+      scrollbar: {
+        enabled: hasDateData ? true : false,
+      },
+      stockTools: {
+        gui: {
+          buttons: [
+            'indicators',
+            'separator',
+            'simpleShapes',
+            'flags',
+            'verticalLabels',
+            'measure',
+            'separator',
+            'zoomChange',
+            'currentPriceIndicator',
+            'fullScreen',
+            'separator',
+            'toggleAnnotations',
+          ],
+        },
+      },
+      series: isPieChart
+        ? [
+            {
+              animation: {
+                duration: 2000,
+              },
+              colorByPoint: true,
+              data: pieData,
+              type: 'pie',
+            },
+          ]
+        : seriesData,
+    };
+    return chartOptions;
+  }
+
+  parseDateToUTC(dateStr: string): number {
+    const parts = dateStr.split('/');
+    const year = parseInt(parts[1], 10);
+    const month = parseInt(parts[0], 10) - 1; // Month is 0-indexed in JavaScript Date
+    const date = new Date(Date.UTC(year, month, 1)); // Use the first day of the month
+    return date.getTime();
+  }
+
+  isMonthYearFormat(dateStr: string) {
+    return /^\d{2}\/\d{4}$/.test(dateStr); // Regex for 'MM/YYYY' format
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.filtredSubscription.unsubscribe();
+    this.filterService.clearFilters();
+
+    this.subscriptionDarkMode.unsubscribe();
+  }
+
+  getFunctionName() {
+    console.log(this.funcId);
+    this.functionService.getFunctionById(this.funcId).subscribe((f: any) => {
+      this.funcName = f.functionName;
+    });
+  }
+
+  containsTableChart(reportGroup: any[]): boolean {
+    return reportGroup.some((report) => report.chart_type === 'table');
+  }
+
+  addToDashboard(id: any) {
+    this.newuser = this.service.uuser;
+    this.userService.addToDashboard(this.newuser.uId, id).subscribe(() => {
+      this.toastr.success('Repport added successfully!', 'Success');
+    });
+  }
+
+  exportXLSX(cols: any, rows: any, fileName: any) {
+    console.log(cols);
+    console.log(rows);
+    rows = rows.filter((row: any) => row !== 'Name');
+
+    const isRowsEmpty =
+      rows.length === 0 || (rows.length === 1 && rows[0] === '');
+
+    if (isRowsEmpty) {
+      rows = [
+        'date_appel',
+        'voice',
+        'sms',
+        'data',
+        'roaming',
+        'offer',
+        'transert',
+        'com',
+        'loan',
+        'evd',
+        'mobile_money',
+        'total',
+      ];
+    }
+    const worksheetName = 'Sheet1';
+    const worksheetData = cols.map((col: { [x: string]: any }, i: any) => {
+      return rows.reduce(
+        (
+          rowObj: { [x: string]: any },
+          rowName: string | number,
+          j: string | number
+        ) => {
+          rowObj[rowName] = col[j];
+          return rowObj;
+        },
+        {}
+      );
+    });
+    const worksheetColumns = rows;
+
+    const sheet = XLSX.utils.json_to_sheet(worksheetData, {
+      header: worksheetColumns,
+    }); // Create the sheet
+
+    const headerCellStyle = {
+      font: { bold: true },
+      border: { bottom: { style: 'thin' } },
+      fill: { type: 'pattern', pattern: 'solid', fgColor: { rgb: 'ECECEC' } },
+    };
+
+    const bodyCellStyle = {
+      border: { bottom: { style: 'thin' } },
+    };
+
+    const sheetRange = XLSX.utils.decode_range(sheet['!ref'] || '');
+    const { s: startCell, e: endCell } = sheetRange;
+
+    for (let col = startCell.c; col <= endCell.c; col++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: startCell.r, c: col });
+      const cell = sheet[cellAddress];
+      if (cell && cell.t === 's' && cell.v) {
+        cell.s = headerCellStyle; // Apply the style to the cell in the sheet
+      }
+    }
+
+    // const columnWidths = cols.map(() => ({ width: 10 }));
+    // console.log(columnWidths);
+    // worksheetData.forEach((rowData: any) => {
+    //   Object.keys(rowData).forEach((key, index) => {
+    //     const value = rowData[key];
+    //     const contentLength = value ? String(value).length : 0;
+    //     if (contentLength > columnWidths[index].width) {
+    //       columnWidths[index].width = contentLength;
+    //     }
+    //   });
+    // });
+
+    // columnWidths.forEach((width: any, index: any) => {
+    //   const column = XLSX.utils.encode_col(index);
+    //   sheet['!cols'] = sheet['!cols'] || [];
+    //   sheet['!cols'].push({ wch: width.width });
+    // });
+
+    const range = `A1:${XLSX.utils.encode_col(worksheetColumns.length - 1)}${
+      worksheetData.length + 1
+    }`;
+    sheet['!ref'] = range;
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, sheet, worksheetName); // Append the sheet to the workbook
+    XLSX.writeFile(workbook, `${fileName}.xlsx`); // Save the workbook as an Excel file
+  }
+
+  // exportXLSX(cols: any, rows: any, fileName: any) {
+  //   const worksheet: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet([cols, ...rows]);
+  //   const workbook: XLSX.WorkBook = {
+  //     Sheets: { data: worksheet },
+  //     SheetNames: ['data'],
+  //   };
+  //   const excelBuffer: any = XLSX.write(workbook, {
+  //     bookType: 'xlsx',
+  //     type: 'array',
+  //   });
+  //   const dataBlob = new Blob([excelBuffer], {
+  //     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
+  //   });
+  //   saveAs(dataBlob, fileName + '.xlsx');
+  // }
+
+  updateChartType(chartIndex: number, event: MatSelectChange) {
+    if (event.value === 'table') {
+      this.isTable = true;
+      this.reportIds[chartIndex].chartType = event.value;
+      this.chartOptions[chartIndex] = {};
+    } else {
+      this.isTable = false;
+      this.chartOptions[chartIndex] = this.buildChart(
+        this.reportIds[chartIndex]
+      );
+    }
+  }
+
+  openOrderDiag(): void {
+    const dialogRef = this.dialog.open(OrderFunctionComponent, {
+      width: '350px',
+      data: { funcId: this.funcId },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      this.ngOnInit();
+    });
+  }
+
+  isChartOptionsEmpty(index: number): boolean {
+    return (
+      this.chartOptions[index] &&
+      Object.keys(this.chartOptions[index]).length === 0
+    );
+  }
+
+  loader: boolean = false;
+  onFilterApplied(filterData: any, report: any, index: any) {
+    // Handle filter data here
+    this.currentDateStr = filterData.startDate;
+    this.oneMonthEarlierStr = filterData.endDate;
+
+    this.loader = true;
+    if (filterData) {
+      filterData.type_Filter = filterData.isPerHour
+        ? FilterType.Custom
+        : filterData.type_Filter;
+      this.filtred = filterData;
+      this.reportIds[index].loading = true;
+      this.chartService
+        .FilterChart(filterData, report.id_report)
+        .subscribe((resp) => {
+          //remove Name from listenamereptab
+          if (
+            this.reportIds[index].report &&
+            this.reportIds[index].report[0].listnamereptab &&
+            this.reportIds[index].report[0].listnamereptab.includes('Name')
+          ) {
+            this.reportIds[index].report[0].listnamereptab = this.reportIds[
+              index
+            ].report[0].listnamereptab.filter((item: any) => item !== 'Name');
+          }
+          //console.log(this.reportIds[index].report[0]);
+          // Update the report data
+          this.reportIds[index].report[0].list_de_donnees =
+            resp.list_de_donnees;
+
+          // Update the chart options
+          if (this.reportIds[index].chartType !== 'table') {
+            this.chartOptions[index] = this.buildChart(this.reportIds[index]);
+            // Ensure the chart instance is available and responsive before updating
+            const chartInstance = this.chartInstances[index];
+            if (chartInstance && chartInstance.responsive) {
+              chartInstance.update(this.chartOptions[index]);
+            }
+          } else {
+            this.chartOptions[index] = {};
+          }
+          this.changeDetectorRef.detectChanges();
+          this.reportIds[index].loading = false;
+          this.loader = false;
+        });
+    }
+  }
+
+  private updateReportsAfterFilter(filteredData: any[]): void {
+    // Iterate over the filtered data
+    for (const filterResult of filteredData) {
+      // Find the corresponding report in reportIds using id_report
+      const index = this.reportIds.findIndex(
+        (item) => item.id === filterResult.id_report
+      );
+
+      if (index !== -1) {
+        this.reportIds[index].loading = true;
+        // Update the list_de_donnees in the existing report
+        if (this.reportIds[index].report[0].hasdate) {
+          this.reportIds[index].report[0].list_de_donnees =
+            filterResult.list_de_donnees.length > 0 &&
+            this.isMonthYearFormat(filterResult.list_de_donnees[0][0])
+              ? filterResult.list_de_donnees
+              : this.fillMissingDatesFilter(
+                  filterResult.list_de_donnees,
+                  this.globalFilter.startDate,
+                  this.globalFilter.endDate,
+
+                  this.reportIds[index].report[0].listnamereptab.length
+                );
+        } else {
+          this.reportIds[index].report[0].list_de_donnees =
+            filterResult.list_de_donnees;
+        }
+
+        // Update the chart options
+        if (this.reportIds[index].chartType !== 'table') {
+          this.chartOptions[index] = this.buildChart(this.reportIds[index]);
+          if (this.reportIds[index].showSubReport) {
+            this.generateSubReport(index, this.reportIds[index].report[0]);
+          }
+
+          // Ensure the chart instance is available and responsive before updating
+          const chartInstance = this.chartInstances[index];
+          const subchartInstance = this.subChartInstances[index];
+          if (chartInstance && chartInstance.responsive) {
+            chartInstance.update(this.chartOptions[index]);
+          }
+          if (subchartInstance && subchartInstance.responsive) {
+            subchartInstance.update(this.subChartInstances[index]);
+          }
+
+          console.log(this.reportIds[index]);
+        } else {
+          this.chartOptions[index] = {};
+        }
+        this.changeDetectorRef.detectChanges();
+        this.reportIds[index].loading = false;
+      }
+    }
+  }
+
+  private fillMissingDatesFilter(
+    data: any[],
+    startDate: string,
+    endDate: string,
+    size: any
+  ): any[] {
+    const filledData = [];
+    const startYear = '20' + startDate.split('-')[0];
+    const endYear = '20' + endDate.split('-')[0];
+    const formattedStartDate = startDate.replace(/^\d{2}/, startYear);
+    const formattedEndDate = endDate.replace(/^\d{2}/, endYear);
+    const currentDate = new Date(formattedStartDate);
+    const end = new Date(formattedEndDate);
+
+    while (currentDate <= end) {
+      const dateString = currentDate.toISOString().split('T')[0];
+      const existingData = data.find((d) => d[0] === dateString);
+
+      if (existingData) {
+        filledData.push(existingData);
+      } else {
+        const newData = [dateString, ...Array(size - 1).fill(0)];
+        filledData.push(newData);
+      }
+
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return filledData;
+  }
+
+  onChartInit(chart: Highcharts.Chart, index: number) {
+    this.chartInstances[index] = chart;
+  }
+
+  onSubChartInit(chart: Highcharts.Chart, index: number) {
+    this.subChartInstances[index] = chart;
+  }
+
+  deepEqual(obj1: any, obj2: any): boolean {
+    if (obj1 === obj2) return true;
+    if (
+      typeof obj1 !== 'object' ||
+      obj1 === null ||
+      typeof obj2 !== 'object' ||
+      obj2 === null
+    )
+      return false;
+    const keys1 = Object.keys(obj1);
+    const keys2 = Object.keys(obj2);
+    return (
+      keys1.length === keys2.length &&
+      keys1.every(
+        (key) => keys2.includes(key) && this.deepEqual(obj1[key], obj2[key])
+      )
+    );
+  }
+
+  private startLiveUpdate() {
+    this.updateSubscription = interval(30000)
+      .pipe(
+        switchMap(() => {
+          // Check if any reports are currently loading
+          const anyReportLoading = this.reportIds.some(
+            (report) => report.loading
+          );
+          // Only proceed if no reports are loading and globalFilter dates are set
+          if (
+            !anyReportLoading &&
+            this.globalFilter &&
+            this.globalFilter.startDate &&
+            this.globalFilter.endDate
+          ) {
+            console.log('filter');
+            return this.chartService
+              .getFunctionChartFiltred(this.globalFilter)
+              .pipe(
+                map((resp) =>
+                  resp.map((report: { id_report: any }) => ({
+                    id: report.id_report,
+                    data: [report],
+                  }))
+                ),
+                catchError((error) => {
+                  console.error('Error fetching filtered reports', error);
+                  return of([]);
+                })
+              );
+          } else if (!anyReportLoading) {
+            console.log('no filter');
+            return forkJoin(
+              this.reportIds.map((report) =>
+                this.fetchReport(report.id).pipe(
+                  map((data) => ({ id: report.id, data: [data] }))
+                )
+              )
+            );
+          } else {
+            // Skip fetching reports if any are still loading
+            return of([]);
+          }
+        })
+      )
+      .subscribe((reports) => {
+        console.log('reulst:', reports);
+        reports.forEach((reportData: { data: any[]; id: any }) => {
+          const newReport = reportData.data[0]; // Assuming each data array has one report
+          const reportId = reportData.id;
+          const reportIndex = this.reportIds.findIndex(
+            (report) => report.id === reportId
+          );
+
+          if (
+            reportIndex !== -1 &&
+            !this.deepEqual(this.reportIds[reportIndex].report, newReport)
+          ) {
+            console.log(
+              'changes detected on report:',
+              this.reportIds[reportIndex]
+            );
+            if (newReport.title !== ' Voice Call Rating Alert') {
+              this.updateChart(reportIndex, newReport);
+            }
+          }
+        });
+      });
+  }
+
+  updateChart(index: number, newReportData: any) {
+    this.ngZone.run(() => {
+      let newReport;
+      // Check if the new report data is from getFunctionChartFiltred or getRepById
+      if (Array.isArray(newReportData)) {
+        // Assuming getFunctionChartFiltred returns an array of reports
+        newReport = newReportData[0];
+      } else {
+        // Assuming getRepById returns a single report object
+        newReport = newReportData;
+      }
+
+      if (!newReport || !newReport.list_de_donnees) {
+        console.error('Invalid report data received:', newReport);
+        return;
+      }
+      // Update the chart options
+      if (this.reportIds[index].chartType !== 'table') {
+        let startDate, endDate;
+        let hasDateData = false;
+        hasDateData = this.reportIds[index].report[0].hasdate;
+
+        if (
+          this.globalFilter &&
+          this.globalFilter &&
+          this.globalFilter.startDate &&
+          this.globalFilter.endDate
+        ) {
+          startDate = this.globalFilter.startDate;
+          endDate = this.globalFilter.endDate;
+          this.reportIds[index].report[0].list_de_donnees =
+            this.fillMissingDatesFilter(
+              newReport.list_de_donnees,
+              startDate,
+              endDate,
+              this.reportIds[index].report[0].listnamereptab.length
+            );
+        } else {
+          startDate = newReport.list_de_donnees[0][0];
+          endDate =
+            newReport.list_de_donnees[newReport.list_de_donnees.length - 1][0];
+          this.reportIds[index].report[0].list_de_donnees =
+            this.fillMissingDates(
+              newReport.list_de_donnees,
+              startDate,
+              new Date().toISOString().split('T')[0],
+              newReport.list_de_donnees.length
+            );
+        }
+        this.chartOptions[index] = this.buildChart(this.reportIds[index]);
+
+        const chartInstance = this.chartInstances[index];
+
+        if (chartInstance && chartInstance.responsive) {
+          chartInstance.update(this.chartOptions[index]);
+        }
+      } else {
+        this.reportIds[index].loading = true;
+        let startDate, endDate;
+        if (
+          this.globalFilter &&
+          this.globalFilter &&
+          this.globalFilter.startDate &&
+          this.globalFilter.endDate
+        ) {
+          startDate = this.globalFilter.startDate;
+          endDate = this.globalFilter.endDate;
+          this.reportIds[index].report[0].list_de_donnees =
+            this.fillMissingDatesFilter(
+              newReport.list_de_donnees,
+              startDate,
+              endDate,
+              this.reportIds[index].report[0].listnamereptab.length
+            );
+        } else {
+          startDate = newReport.list_de_donnees[0][0];
+          endDate =
+            newReport.list_de_donnees[newReport.list_de_donnees.length - 1][0];
+          this.reportIds[index].report[0].list_de_donnees =
+            this.fillMissingDates(
+              newReport.list_de_donnees,
+              startDate,
+              new Date().toISOString().split('T')[0],
+              newReport.list_de_donnees.length
+            );
+        }
+
+        console.log(this.reportIds[index].report[0]);
+        this.chartOptions[index] = {};
+      }
+      this.dataUpdateService.updateData(
+        this.reportIds[index].report[0].list_de_donnees
+      );
+      this.changeDetectorRef.detectChanges();
+      this.reportIds[index].loading = false;
+    });
+  }
+
+  fetchReport(reportId: number) {
+    return this.chartService.getRepById(reportId);
+  }
+
+  private applyChartTheme() {
+    if (this.darkModeEnabled) {
+      //console.log('Applying dark theme');
+      DarkTheme(Highcharts);
+    } else {
+      //console.log('Applying light theme');
+      DefaultTheme(Highcharts);
+    }
+    Highcharts.setOptions({}); // Reapply global options if needed
+  }
+
+  private updateAllCharts() {
+    if (this.darkModeEnabled) {
+      //console.log('Applying dark theme');
+      DarkTheme(Highcharts);
+      Highcharts.setOptions({});
+    } else {
+      //console.log('Applying light theme');
+      DefaultTheme(Highcharts);
+      Highcharts.setOptions({});
+    }
+
+    this.reportIds.forEach((reportId, index) => {
+      if (this.reportIds[index].chartType !== 'table') {
+        this.chartOptions[index] = this.buildChart(this.reportIds[index]);
+        const chartInstance = this.chartInstances[index];
+        if (chartInstance) {
+          chartInstance.update(this.chartOptions[index], true, true);
+          //console.log('chart is on dark mode');
+          chartInstance.redraw(); // Explicitly redraw the chart
+        }
+      }
+    });
+    this.changeDetectorRef.detectChanges();
+  }
+
+  formatDate(date: Date): string {
+    const year = date.getFullYear().toString().slice(-2); // Get the last two digits of the year
+    const month = ('0' + (date.getMonth() + 1)).slice(-2); // Add 1 to the month because it's 0-indexed
+    const day = ('0' + date.getDate()).slice(-2);
+    return `${year}-${month}-${day}`;
+  }
+
+  transformToJSON(data: any[], columns: string[]): any[] {
+    const jsonData = data.map((row) => {
+      const obj: { [key: string]: any } = {};
+      columns.forEach((column, index) => {
+        obj[column] = this.formatNumber(row[index]);
+      });
+      return obj;
+    });
+    return jsonData;
+  }
+
+  formatNumber(value: any): string {
+    if (typeof value === 'number') {
+      // Use toFixed to always display 4 values after the decimal point
+      const formattedValue = value.toFixed(4);
+      // console.log(value);
+      // console.log(formattedValue);
+      return formattedValue;
+    }
+    return value;
+  }
+
+  onAddToPlaylistClick() {
+    // Hide the button and show the dropdown
+    this.showButton = true;
+    this.selectedId = this.reportGroup.id;
+    const ref = this.dialogService.open(PlaylistComponent, {
+      header: 'Save To Playlist',
+      width: '30%',
+      contentStyle: { 'max-height': '500px', overflow: 'auto' }, // Optional: you can set custom styles
+      // If you need to pass data to your PlaylistComponent, use the data property:
+      data: {
+        id: this.selectedId, // pass any data you need
+      },
+    });
+
+    ref.onClose.subscribe((data) => {
+      // Handle the data received from the dialog
+    });
+  }
+
+  copyToClipboard(id: any) {
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(id)
+        .then(() => {
+          //console.log('ID copied to clipboard:', id);
+        })
+        .catch((err) => {
+          console.error('Error copying text to clipboard', err);
+        });
+    } else {
+      this.fallbackCopyTextToClipboard(id);
+    }
+  }
+
+  fallbackCopyTextToClipboard(text: string) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.top = '0';
+    textArea.style.left = '0';
+    textArea.style.position = 'fixed';
+
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+      const successful = document.execCommand('copy');
+      const msg = successful ? 'successful' : 'unsuccessful';
+      //console.log('Fallback: Copying text command was ' + msg);
+    } catch (err) {
+      console.error('Fallback: Oops, unable to copy', err);
+    }
+
+    document.body.removeChild(textArea);
+  }
+
+  detailsTooltip(value: any): any {
+    if (value) {
+      return 'Details available'; // Your tooltip text here
+    }
+    return null;
+  }
+
+  convertDateFormat(dateStr: string): string {
+    const parts = dateStr.split('-');
+    if (parts[0].length === 2) {
+      parts[0] = '20' + parts[0]; // Prepend '20' to make the year in 'yyyy' format
+    }
+    return parts.join('-'); // Reassemble the date string in 'yyyy-mm-dd' format
+  }
+
+  private buildChartV2(data: any): any {
+    console.log(data);
+    const chartData = data.subReport;
+    console.log(chartData);
     let subtitleText = chartData[0].title + ': ';
     if (chartData[0].list_de_donnees.length === 1) {
       subtitleText += 'Date: ' + chartData[0].list_de_donnees[0][0];
@@ -828,613 +1856,5 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
         : seriesData,
     };
     return chartOptions;
-  }
-
-  parseDateToUTC(dateStr: string): number {
-    const parts = dateStr.split('/');
-    const year = parseInt(parts[1], 10);
-    const month = parseInt(parts[0], 10) - 1; // Month is 0-indexed in JavaScript Date
-    const date = new Date(Date.UTC(year, month, 1)); // Use the first day of the month
-    return date.getTime();
-  }
-
-  isMonthYearFormat(dateStr: string) {
-    return /^\d{2}\/\d{4}$/.test(dateStr); // Regex for 'MM/YYYY' format
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-    this.filtredSubscription.unsubscribe();
-    this.filterService.clearFilters();
-
-    this.subscriptionDarkMode.unsubscribe();
-  }
-
-  getFunctionName() {
-    console.log(this.funcId);
-    this.functionService.getFunctionById(this.funcId).subscribe((f: any) => {
-      this.funcName = f.functionName;
-    });
-  }
-
-  containsTableChart(reportGroup: any[]): boolean {
-    return reportGroup.some((report) => report.chart_type === 'table');
-  }
-
-  addToDashboard(id: any) {
-    this.newuser = this.service.uuser;
-    this.userService.addToDashboard(this.newuser.uId, id).subscribe(() => {
-      this.toastr.success('Repport added successfully!', 'Success');
-    });
-  }
-
-  exportXLSX(cols: any, rows: any, fileName: any) {
-    rows = rows.filter((row: any) => row !== 'Name');
-
-    const isRowsEmpty =
-      rows.length === 0 || (rows.length === 1 && rows[0] === '');
-
-    if (isRowsEmpty) {
-      rows = [
-        'date_appel',
-        'voice',
-        'sms',
-        'data',
-        'roaming',
-        'offer',
-        'transert',
-        'com',
-        'loan',
-        'evd',
-        'mobile_money',
-        'total',
-      ];
-    }
-    const worksheetName = 'Sheet1';
-    const worksheetData = cols.map((col: { [x: string]: any }, i: any) => {
-      return rows.reduce(
-        (
-          rowObj: { [x: string]: any },
-          rowName: string | number,
-          j: string | number
-        ) => {
-          rowObj[rowName] = col[j];
-          return rowObj;
-        },
-        {}
-      );
-    });
-    const worksheetColumns = rows;
-
-    const sheet = XLSX.utils.json_to_sheet(worksheetData, {
-      header: worksheetColumns,
-    }); // Create the sheet
-
-    const headerCellStyle = {
-      font: { bold: true },
-      border: { bottom: { style: 'thin' } },
-      fill: { type: 'pattern', pattern: 'solid', fgColor: { rgb: 'ECECEC' } },
-    };
-
-    const bodyCellStyle = {
-      border: { bottom: { style: 'thin' } },
-    };
-
-    const sheetRange = XLSX.utils.decode_range(sheet['!ref'] || '');
-    const { s: startCell, e: endCell } = sheetRange;
-
-    for (let col = startCell.c; col <= endCell.c; col++) {
-      const cellAddress = XLSX.utils.encode_cell({ r: startCell.r, c: col });
-      const cell = sheet[cellAddress];
-      if (cell && cell.t === 's' && cell.v) {
-        cell.s = headerCellStyle; // Apply the style to the cell in the sheet
-      }
-    }
-
-    const columnWidths = cols.map(() => ({ width: 10 }));
-    worksheetData.forEach((rowData: any) => {
-      Object.keys(rowData).forEach((key, index) => {
-        const value = rowData[key];
-        const contentLength = value ? String(value).length : 0;
-        if (contentLength > columnWidths[index].width) {
-          columnWidths[index].width = contentLength;
-        }
-      });
-    });
-
-    columnWidths.forEach((width: any, index: any) => {
-      const column = XLSX.utils.encode_col(index);
-      sheet['!cols'] = sheet['!cols'] || [];
-      sheet['!cols'].push({ wch: width.width });
-    });
-
-    const range = `A1:${XLSX.utils.encode_col(worksheetColumns.length - 1)}${
-      worksheetData.length + 1
-    }`;
-    sheet['!ref'] = range;
-
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, sheet, worksheetName); // Append the sheet to the workbook
-    XLSX.writeFile(workbook, `${fileName}.xlsx`); // Save the workbook as an Excel file
-  }
-
-  updateChartType(chartIndex: number, event: MatSelectChange) {
-    if (event.value === 'table') {
-      this.isTable = true;
-      this.reportIds[chartIndex].chartType = event.value;
-      this.chartOptions[chartIndex] = {};
-    } else {
-      this.isTable = false;
-      this.chartOptions[chartIndex] = this.buildChart(
-        this.reportIds[chartIndex]
-      );
-    }
-  }
-
-  openOrderDiag(): void {
-    const dialogRef = this.dialog.open(OrderFunctionComponent, {
-      width: '350px',
-      data: { funcId: this.funcId },
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      this.ngOnInit();
-    });
-  }
-
-  isChartOptionsEmpty(index: number): boolean {
-    return (
-      this.chartOptions[index] &&
-      Object.keys(this.chartOptions[index]).length === 0
-    );
-  }
-
-  loader: boolean = false;
-  onFilterApplied(filterData: any, report: any, index: any) {
-    // Handle filter data here
-    this.currentDateStr = filterData.startDate;
-    this.oneMonthEarlierStr = filterData.endDate;
-
-    this.loader = true;
-    if (filterData) {
-      this.filtred = filterData;
-      this.reportIds[index].loading = true;
-      this.chartService
-        .FilterChart(filterData, report.id_report)
-        .subscribe((resp) => {
-          //remove Name from listenamereptab
-          if (
-            this.reportIds[index].report &&
-            this.reportIds[index].report[0].listnamereptab &&
-            this.reportIds[index].report[0].listnamereptab.includes('Name')
-          ) {
-            this.reportIds[index].report[0].listnamereptab = this.reportIds[
-              index
-            ].report[0].listnamereptab.filter((item: any) => item !== 'Name');
-          }
-          //console.log(this.reportIds[index].report[0]);
-          // Update the report data
-          this.reportIds[index].report[0].list_de_donnees =
-            resp.list_de_donnees;
-
-          // Update the chart options
-          if (this.reportIds[index].chartType !== 'table') {
-            this.chartOptions[index] = this.buildChart(this.reportIds[index]);
-            // Ensure the chart instance is available and responsive before updating
-            const chartInstance = this.chartInstances[index];
-            if (chartInstance && chartInstance.responsive) {
-              chartInstance.update(this.chartOptions[index]);
-            }
-          } else {
-            this.chartOptions[index] = {};
-          }
-          this.changeDetectorRef.detectChanges();
-          this.reportIds[index].loading = false;
-          this.loader = false;
-        });
-    }
-  }
-
-  private updateReportsAfterFilter(filteredData: any[]): void {
-    console.log(this.globalFilter.startDate);
-    // Iterate over the filtered data
-    for (const filterResult of filteredData) {
-      // Find the corresponding report in reportIds using id_report
-      const index = this.reportIds.findIndex(
-        (item) => item.id === filterResult.id_report
-      );
-
-      if (index !== -1) {
-        this.reportIds[index].loading = true;
-        // Update the list_de_donnees in the existing report
-        if (this.reportIds[index].report[0].hasdate) {
-          this.reportIds[index].report[0].list_de_donnees =
-            this.isMonthYearFormat(filterResult.list_de_donnees[0][0])
-              ? filterResult.list_de_donnees
-              : this.fillMissingDatesFilter(
-                  filterResult.list_de_donnees,
-                  this.globalFilter.startDate,
-                  this.globalFilter.endDate
-                );
-        } else {
-          this.reportIds[index].report[0].list_de_donnees =
-            filterResult.list_de_donnees;
-        }
-
-        // Update the chart options
-        if (this.reportIds[index].chartType !== 'table') {
-          this.chartOptions[index] = this.buildChart(this.reportIds[index]);
-
-          // Ensure the chart instance is available and responsive before updating
-          const chartInstance = this.chartInstances[index];
-          if (chartInstance && chartInstance.responsive) {
-            chartInstance.update(this.chartOptions[index]);
-          }
-        } else {
-          this.chartOptions[index] = {};
-        }
-        this.changeDetectorRef.detectChanges();
-        this.reportIds[index].loading = false;
-      }
-    }
-  }
-
-  private fillMissingDatesFilter(
-    data: any[],
-    startDate: string,
-    endDate: string
-  ): any[] {
-    const filledData = [];
-    const startYear = '20' + startDate.split('-')[0];
-    const endYear = '20' + endDate.split('-')[0];
-    const formattedStartDate = startDate.replace(/^\d{2}/, startYear);
-    const formattedEndDate = endDate.replace(/^\d{2}/, endYear);
-    const currentDate = new Date(formattedStartDate);
-    const end = new Date(formattedEndDate);
-
-    while (currentDate <= end) {
-      const dateString = currentDate.toISOString().split('T')[0];
-      const existingData = data.find((d) => d[0] === dateString);
-
-      if (existingData) {
-        filledData.push(existingData);
-      } else {
-        const newData = [dateString, ...Array(data[0].length - 1).fill(0)];
-        filledData.push(newData);
-      }
-
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-
-    return filledData;
-  }
-
-  onChartInit(chart: Highcharts.Chart, index: number) {
-    this.chartInstances[index] = chart;
-  }
-
-  deepEqual(obj1: any, obj2: any): boolean {
-    if (obj1 === obj2) return true;
-    if (
-      typeof obj1 !== 'object' ||
-      obj1 === null ||
-      typeof obj2 !== 'object' ||
-      obj2 === null
-    )
-      return false;
-    const keys1 = Object.keys(obj1);
-    const keys2 = Object.keys(obj2);
-    return (
-      keys1.length === keys2.length &&
-      keys1.every(
-        (key) => keys2.includes(key) && this.deepEqual(obj1[key], obj2[key])
-      )
-    );
-  }
-
-  private startLiveUpdate() {
-    this.updateSubscription = interval(30000)
-      .pipe(
-        switchMap(() => {
-          // Check if any reports are currently loading
-          const anyReportLoading = this.reportIds.some(
-            (report) => report.loading
-          );
-          // Only proceed if no reports are loading and globalFilter dates are set
-          if (
-            !anyReportLoading &&
-            this.globalFilter &&
-            this.globalFilter.startDate &&
-            this.globalFilter.endDate
-          ) {
-            console.log('filter');
-            return this.chartService
-              .getFunctionChartFiltred(this.globalFilter)
-              .pipe(
-                map((resp) =>
-                  resp.map((report: { id_report: any }) => ({
-                    id: report.id_report,
-                    data: [report],
-                  }))
-                ),
-                catchError((error) => {
-                  console.error('Error fetching filtered reports', error);
-                  return of([]);
-                })
-              );
-          } else if (!anyReportLoading) {
-            console.log('no filter');
-            return forkJoin(
-              this.reportIds.map((report) =>
-                this.fetchReport(report.id).pipe(
-                  map((data) => ({ id: report.id, data: [data] }))
-                )
-              )
-            );
-          } else {
-            // Skip fetching reports if any are still loading
-            return of([]);
-          }
-        })
-      )
-      .subscribe((reports) => {
-        console.log('reulst:', reports);
-        reports.forEach((reportData: { data: any[]; id: any }) => {
-          const newReport = reportData.data[0]; // Assuming each data array has one report
-          const reportId = reportData.id;
-          const reportIndex = this.reportIds.findIndex(
-            (report) => report.id === reportId
-          );
-
-          if (
-            reportIndex !== -1 &&
-            !this.deepEqual(this.reportIds[reportIndex].report, newReport)
-          ) {
-            console.log(
-              'changes detected on report:',
-              this.reportIds[reportIndex]
-            );
-            if (newReport.title !== ' Voice Call Rating Alert') {
-              this.updateChart(reportIndex, newReport);
-            }
-          }
-        });
-      });
-  }
-
-  updateChart(index: number, newReportData: any) {
-    this.ngZone.run(() => {
-      let newReport;
-      // Check if the new report data is from getFunctionChartFiltred or getRepById
-      if (Array.isArray(newReportData)) {
-        // Assuming getFunctionChartFiltred returns an array of reports
-        newReport = newReportData[0];
-      } else {
-        // Assuming getRepById returns a single report object
-        newReport = newReportData;
-      }
-
-      if (!newReport || !newReport.list_de_donnees) {
-        console.error('Invalid report data received:', newReport);
-        return;
-      }
-      // Update the chart options
-      if (this.reportIds[index].chartType !== 'table') {
-        let startDate, endDate;
-        let hasDateData = false;
-        hasDateData = this.reportIds[index].report[0].hasdate;
-
-        if (
-          this.globalFilter &&
-          this.globalFilter &&
-          this.globalFilter.startDate &&
-          this.globalFilter.endDate
-        ) {
-          startDate = this.globalFilter.startDate;
-          endDate = this.globalFilter.endDate;
-          this.reportIds[index].report[0].list_de_donnees =
-            this.fillMissingDatesFilter(
-              newReport.list_de_donnees,
-              startDate,
-              endDate
-            );
-        } else {
-          startDate = newReport.list_de_donnees[0][0];
-          endDate =
-            newReport.list_de_donnees[newReport.list_de_donnees.length - 1][0];
-          this.reportIds[index].report[0].list_de_donnees =
-            this.fillMissingDates(
-              newReport.list_de_donnees,
-              startDate,
-              new Date().toISOString().split('T')[0],
-              newReport.list_de_donnees.length
-            );
-        }
-        this.chartOptions[index] = this.buildChart(this.reportIds[index]);
-
-        const chartInstance = this.chartInstances[index];
-        if (chartInstance && chartInstance.responsive) {
-          chartInstance.update(this.chartOptions[index]);
-        }
-      } else {
-        this.reportIds[index].loading = true;
-        let startDate, endDate;
-        if (
-          this.globalFilter &&
-          this.globalFilter &&
-          this.globalFilter.startDate &&
-          this.globalFilter.endDate
-        ) {
-          startDate = this.globalFilter.startDate;
-          endDate = this.globalFilter.endDate;
-          this.reportIds[index].report[0].list_de_donnees =
-            this.fillMissingDatesFilter(
-              newReport.list_de_donnees,
-              startDate,
-              endDate
-            );
-        } else {
-          startDate = newReport.list_de_donnees[0][0];
-          endDate =
-            newReport.list_de_donnees[newReport.list_de_donnees.length - 1][0];
-          this.reportIds[index].report[0].list_de_donnees =
-            this.fillMissingDates(
-              newReport.list_de_donnees,
-              startDate,
-              new Date().toISOString().split('T')[0],
-              newReport.list_de_donnees.length
-            );
-        }
-
-        console.log(this.reportIds[index].report[0]);
-        this.chartOptions[index] = {};
-      }
-      this.dataUpdateService.updateData(
-        this.reportIds[index].report[0].list_de_donnees
-      );
-      this.changeDetectorRef.detectChanges();
-      this.reportIds[index].loading = false;
-    });
-  }
-
-  fetchReport(reportId: number) {
-    return this.chartService.getRepById(reportId);
-  }
-
-  private applyChartTheme() {
-    if (this.darkModeEnabled) {
-      //console.log('Applying dark theme');
-      DarkTheme(Highcharts);
-    } else {
-      //console.log('Applying light theme');
-      DefaultTheme(Highcharts);
-    }
-    Highcharts.setOptions({}); // Reapply global options if needed
-  }
-
-  private updateAllCharts() {
-    if (this.darkModeEnabled) {
-      //console.log('Applying dark theme');
-      DarkTheme(Highcharts);
-      Highcharts.setOptions({});
-    } else {
-      //console.log('Applying light theme');
-      DefaultTheme(Highcharts);
-      Highcharts.setOptions({});
-    }
-
-    this.reportIds.forEach((reportId, index) => {
-      if (this.reportIds[index].chartType !== 'table') {
-        this.chartOptions[index] = this.buildChart(this.reportIds[index]);
-        const chartInstance = this.chartInstances[index];
-        if (chartInstance) {
-          chartInstance.update(this.chartOptions[index], true, true);
-          //console.log('chart is on dark mode');
-          chartInstance.redraw(); // Explicitly redraw the chart
-        }
-      }
-    });
-    this.changeDetectorRef.detectChanges();
-  }
-
-  formatDate(date: Date): string {
-    const year = date.getFullYear().toString().slice(-2); // Get the last two digits of the year
-    const month = ('0' + (date.getMonth() + 1)).slice(-2); // Add 1 to the month because it's 0-indexed
-    const day = ('0' + date.getDate()).slice(-2);
-    return `${year}-${month}-${day}`;
-  }
-
-  transformToJSON(data: any[], columns: string[]): any[] {
-    const jsonData = data.map((row) => {
-      const obj: { [key: string]: any } = {};
-      columns.forEach((column, index) => {
-        obj[column] = this.formatNumber(row[index]);
-      });
-      return obj;
-    });
-    return jsonData;
-  }
-
-  formatNumber(value: any): string {
-    if (typeof value === 'number') {
-      // Use toFixed to always display 4 values after the decimal point
-      const formattedValue = value.toFixed(4);
-      // console.log(value);
-      // console.log(formattedValue);
-      return formattedValue;
-    }
-    return value;
-  }
-
-  onAddToPlaylistClick() {
-    // Hide the button and show the dropdown
-    this.showButton = true;
-    this.selectedId = this.reportGroup.id;
-    const ref = this.dialogService.open(PlaylistComponent, {
-      header: 'Save To Playlist',
-      width: '30%',
-      contentStyle: { 'max-height': '500px', overflow: 'auto' }, // Optional: you can set custom styles
-      // If you need to pass data to your PlaylistComponent, use the data property:
-      data: {
-        id: this.selectedId, // pass any data you need
-      },
-    });
-
-    ref.onClose.subscribe((data) => {
-      // Handle the data received from the dialog
-    });
-  }
-
-  copyToClipboard(id: any) {
-    if (navigator.clipboard) {
-      navigator.clipboard
-        .writeText(id)
-        .then(() => {
-          //console.log('ID copied to clipboard:', id);
-        })
-        .catch((err) => {
-          console.error('Error copying text to clipboard', err);
-        });
-    } else {
-      this.fallbackCopyTextToClipboard(id);
-    }
-  }
-
-  fallbackCopyTextToClipboard(text: string) {
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    textArea.style.top = '0';
-    textArea.style.left = '0';
-    textArea.style.position = 'fixed';
-
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-
-    try {
-      const successful = document.execCommand('copy');
-      const msg = successful ? 'successful' : 'unsuccessful';
-      //console.log('Fallback: Copying text command was ' + msg);
-    } catch (err) {
-      console.error('Fallback: Oops, unable to copy', err);
-    }
-
-    document.body.removeChild(textArea);
-  }
-
-  detailsTooltip(value: any): any {
-    if (value) {
-      return 'Details available'; // Your tooltip text here
-    }
-    return null;
-  }
-
-  convertDateFormat(dateStr: string): string {
-    const parts = dateStr.split('-');
-    if (parts[0].length === 2) {
-      parts[0] = '20' + parts[0]; // Prepend '20' to make the year in 'yyyy' format
-    }
-    return parts.join('-'); // Reassemble the date string in 'yyyy-mm-dd' format
   }
 }

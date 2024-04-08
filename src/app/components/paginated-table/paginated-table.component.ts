@@ -170,10 +170,11 @@ export class PaginatedTableComponent
   }
 
   ngOnInit(): void {
+    //console.log(this.data);
     this.selectedCurrency = {
       id: 4,
-      code_monnai: 'LYD',
-      monnai: 'LYD',
+      code_monnai: 'FCFA',
+      monnai: 'FCFA',
     };
     this.originalCurrency = { ...this.selectedCurrency };
 
@@ -467,8 +468,14 @@ export class PaginatedTableComponent
           })
         )
         .subscribe((response) => {
-          ////console.log(response);
-          const columns = response.listnamereptab;
+          console.log(response);
+          let columns: any;
+          if (response.listnamereptab.length == 1) {
+            columns = [...response.listnamereptab, ...response.listnamerep];
+          } else {
+            columns = response.listnamereptab;
+          }
+          console.log(columns);
           let data = response.list_de_donnees.map((d: any) => {
             let obj: { [key: string]: any } = {};
 
@@ -498,18 +505,6 @@ export class PaginatedTableComponent
           this.parentRow = {
             [this.columns[0].toUpperCase()]: row[this.columns[0]],
           };
-          ////console.log(this.parentRow);
-
-          // this.dialog.open(TableDialogComponent, {
-          //   data: {
-          //     columns,
-          //     rows: data,
-          //     title: this.title,
-          //     isoperator: response.operator,
-          //     iscarrier: this.iscarrier,
-          //     parentRow: this.parentRow,
-          //   },
-          // });
 
           const ref = this.dialogService.open(TableDialogComponent, {
             header: `${response.title}`,

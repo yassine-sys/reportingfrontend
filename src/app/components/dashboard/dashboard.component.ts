@@ -316,7 +316,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       const filtred: Filters = {
         startDate: this.formatDateToString(startDate),
         endDate: this.formatDateToString(endDate),
-        type_Filter: this.selectedFilter,
+        type_Filter: this.isPerHour ? FilterType.Custom : this.selectedFilter,
         isVaration: this.isVaration,
         isPerHour: this.isPerHour,
         startHour: this.startHour ? this.startHour.split(':')[0] : null,

@@ -381,6 +381,6 @@ export class NavService implements OnDestroy {
   }
 
   // Array
-  items = new BehaviorSubject<Menu[]>(this.menuItems);
+  items = new BehaviorSubject<Menu[]>([]);
   public items$ = this.items.asObservable();
 }

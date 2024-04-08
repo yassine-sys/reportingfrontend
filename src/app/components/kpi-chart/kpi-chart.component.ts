@@ -15,7 +15,7 @@ export class KpiChartComponent implements OnInit {
     private chartService: ChartService,
     private service: AuthService
   ) {}
-  cdrInfo: IxInterResp | undefined;
+  cdrInfo: CdrMscOcs | undefined;
   user!: User;
 
   ngOnInit(): void {
@@ -23,7 +23,7 @@ export class KpiChartComponent implements OnInit {
       this.user = user;
     });
 
-    this.chartService.getCdrsMSCInfo().subscribe((data: IxInterResp) => {
+    this.chartService.getCdrsMSC().subscribe((data: CdrMscOcs) => {
       this.cdrInfo = data;
     });
   }

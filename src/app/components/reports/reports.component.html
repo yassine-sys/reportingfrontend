@@ -90,10 +90,17 @@
               </div>
             </div>
             <div class="card-body">
+
+
               <highcharts-chart *ngIf="!isChartOptionsEmpty(i); else tableDisplay" [Highcharts]="Highcharts"
                 [options]="chartOptions[i]" [constructorType]="reportGroup.constructorType"
                 style="width: 100%; display: block" [runOutsideAngular]="true"
                 (chartInstance)="onChartInit($event, i)"></highcharts-chart>
+              <highcharts-chart *ngIf="reportGroup.showSubReport" [Highcharts]="Highcharts"
+                [options]="subchartOptions[i]" [constructorType]="reportGroup.constructorType"
+                style="width: 100%; display: block" [runOutsideAngular]="true"
+                (chartInstance)="onSubChartInit($event, i)"></highcharts-chart>
+
               <ng-template #tableDisplay>
                 <ng-container *ngIf="!reportGroup.report[0].isnested">
                   <app-paginated-table #tableComponent *ngIf="reportGroup.chartType === 'table'"
@@ -112,11 +119,17 @@
                     [filter]="filtred !== undefined ? filtred : globalFilter"></app-nested-table>
                 </ng-container>
               </ng-template>
+
             </div>
             <div class="card-footer">
               <div class="button-container">
                 <p-speedDial [model]="itemssplit" direction="right" (onClick)="handleSpeedDialClick(reportGroup)">
                 </p-speedDial>
+
+                <p-toggleButton *ngIf="diffRepIDs.includes(reportGroup.id)" [(ngModel)]="reportGroup.showSubReport"
+                  (click)="generateSubReport(i,reportGroup.report[0])" onLabel="Difference report enabled"
+                  offLabel="Difference report disabled" onIcon="pi pi-check" offIcon="pi pi-times"></p-toggleButton>
+
                 <!-- <button
                   mat-raised-button
                   color="primary"

@@ -290,11 +290,10 @@ export class NestedTableComponent implements OnInit {
     }
 
     if (!rowData.details) {
-      this.isLoading = true; // Set loading flag to true
-      ////console.log(this.filter);
-      console.log('level 4' + this.lvl4);
+      this.isLoading = true;
 
       if (!this.lvl4) {
+        console.log('level 4 not enabled' + this.lvl4);
         this.chartService
           .getDetails(
             this.idrep,
@@ -374,9 +373,10 @@ export class NestedTableComponent implements OnInit {
 
         this.lvl1CountryName = rowData[this.columns[0]];
         this.parentRow = { [this.columns[0]]: rowData[this.columns[0]] };
-
+        console.log(this.parentRow);
         //Level 4 details
       } else {
+        console.log('level 4 is enabled ' + this.lvl4);
         this.chartService
           .getDetailsLVL4(
             this.idrep,
@@ -566,7 +566,7 @@ export class NestedTableComponent implements OnInit {
     this.lvl2CountryName = row[this.detailsCols[1]];
     this.parentRow = {
       ...this.parentRow,
-      [this.detailsCols[1]]: row[this.detailsCols[0]],
+      [this.detailsCols[0]]: row[this.detailsCols[0]],
     };
 
     //console.log(this.parentRow);

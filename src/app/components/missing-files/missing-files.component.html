@@ -1,18 +1,28 @@
+<app-breadcrumb [title]="'Missing Files'" [items]="['Monitoring']" [active_item]="'Missing Files'"></app-breadcrumb>
+
 <div class="tables-container">
+
+
+  <ng-container *ngIf="missngFiles && missngFiles.length > 0">
+    <h3>Rec ixtools switch missing files</h3>
+    <app-paginated-table [columns]="columns2" [data]="missngFiles"
+      [title]="'Rec ixtools switch missing files'"></app-paginated-table>
+  </ng-container>
+
+
   <div *ngIf="!isEmptyResponse">
     <div *ngFor="let flowName of flowData | keyvalue">
-      <app-paginated-table
-        [columns]="columns"
-        [data]="flowName.value"
-        [title]="'Missing Sequences ' + flowName.key"
-      ></app-paginated-table>
+      <h3>{{'Missing Sequences '+ flowName.key}}</h3>
+      <button type="button" pButton pRipple icon="pi pi-file-excel"
+        (click)="exportToExcel(columns,flowName.value,flowName.key)" class="p-button-success mr-2" pTooltip="XLS"
+        tooltipPosition="bottom"></button>
+      <app-paginated-table [columns]="columns" [data]="flowName.value"
+        [title]="'Missing Sequences ' + flowName.key"></app-paginated-table>
     </div>
   </div>
 
   <div *ngIf="isEmptyResponse">
-    <app-paginated-table
-      [columns]="columns"
-      [title]="'Missing Sequences '"
-    ></app-paginated-table>
+    <h3>Missing Sequences</h3>
+    <app-paginated-table [columns]="columns" [title]="'Missing Sequences '"></app-paginated-table>
   </div>
 </div>

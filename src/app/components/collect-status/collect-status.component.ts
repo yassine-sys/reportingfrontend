@@ -1,6 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Table } from 'primeng/table';
 import { ChartService } from 'src/app/services/chart.service';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-collect-status',
@@ -232,5 +234,24 @@ export class CollectStatusComponent implements OnInit {
 
     // Format the date as "YYYY-MM-DD"
     return `${year}-${month}-${day}`;
+  }
+
+  exportToExcel(columns: any[], data: any[], fileName: string) {
+    const worksheet: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet([
+      columns,
+      ...data,
+    ]);
+    const workbook: XLSX.WorkBook = {
+      Sheets: { data: worksheet },
+      SheetNames: ['data'],
+    };
+    const excelBuffer: any = XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'array',
+    });
+    const dataBlob = new Blob([excelBuffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
+    });
+    saveAs(dataBlob, fileName + '.xlsx');
   }
 }
