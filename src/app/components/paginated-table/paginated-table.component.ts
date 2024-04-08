@@ -173,8 +173,8 @@ export class PaginatedTableComponent
     //console.log(this.data);
     this.selectedCurrency = {
       id: 4,
-      code_monnai: 'FCFA',
-      monnai: 'FCFA',
+      code_monnai: 'LYD',
+      monnai: 'Libyan Dinar',
     };
     this.originalCurrency = { ...this.selectedCurrency };
 
