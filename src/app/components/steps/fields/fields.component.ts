@@ -54,6 +54,25 @@ export class FieldsComponent implements OnInit {
   onRowEditCancel(field: any, ri: number) {
     field.editing = false;
   }
+
+  onDeleteRow(field: any) {
+    const index = this.selectedFields.findIndex(
+      (selectedField) => selectedField.id === field.id
+    );
+    if (index !== -1) {
+      this.selectedFields.splice(index, 1);
+    }
+    const repIndex = this.repRapportsXList.findIndex(
+      (rep) => rep.id_field === field.id
+    );
+
+    if (repIndex !== -1) {
+      this.repRapportsXList.splice(repIndex, 1);
+    }
+
+    console.log(this.addService.report);
+  }
+
   nextPage() {
     this.addService.report.rep_rapports_x = this.repRapportsXList;
     console.log(this.addService.report);
