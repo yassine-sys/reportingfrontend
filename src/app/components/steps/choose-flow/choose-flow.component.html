@@ -1,0 +1,25 @@
+<div class="stepsdemo-content">
+    <p-card>
+        <ng-template pTemplate="title"> Choose Flow </ng-template>
+        <ng-template pTemplate="subtitle"> Please select a flow </ng-template>
+        <ng-template pTemplate="content">
+            <div class="p-fluid">
+                <div class="field">
+                    <label for="reportType">Select Report Type</label>
+                    <p-dropdown [options]="reportTypes" [(ngModel)]="selectedReportType" optionLabel="name"
+                        placeholder="Select a report type"></p-dropdown>
+                </div>
+                <div class="field" *ngIf="selectedReportType">
+                    <label for="flow">Select Flow</label>
+                    <p-dropdown [options]="flows" [(ngModel)]="selectedFlow" optionLabel="name"
+                        placeholder="Select a flow" [filter]="true" filterPlaceholder="Search flows"></p-dropdown>
+                </div>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <div class="grid grid-nogutter justify-content-end">
+                <p-button label="Next" (onClick)="nextPage()" icon="pi pi-angle-right" iconPos="right"></p-button>
+            </div>
+        </ng-template>
+    </p-card>
+</div>

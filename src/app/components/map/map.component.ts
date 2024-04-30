@@ -99,7 +99,7 @@ export class MapComponent implements OnInit, AfterViewInit {
       this.typeCdr = params['type'];
       const today = new Date();
       const yesterday = new Date(today.setDate(today.getDate() - 1));
-      this.getMapLocations(today, yesterday);
+      this.getMapLocations(today, yesterday, true);
     });
   }
 
@@ -236,7 +236,9 @@ export class MapComponent implements OnInit, AfterViewInit {
     return Math.log(value);
   }
 
-  getMapLocations(startDate: any, endDate: any): void {
+  getMapLocations(startDate: any, endDate: any, onStart: boolean): void {
+    const limit = onStart ? -1 : this.limit;
+
     this.startDate = startDate;
     this.endDate = endDate;
 
@@ -252,7 +254,7 @@ export class MapComponent implements OnInit, AfterViewInit {
         endDate,
         this.typeCall,
         this.order,
-        this.limit,
+        limit,
         this.typeCdr
       )
       .subscribe((locations: any) => {

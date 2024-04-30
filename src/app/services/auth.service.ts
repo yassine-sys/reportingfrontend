@@ -65,7 +65,7 @@ export class AuthService {
       );
   }
 
-  checkToken(): Observable<boolean> {
+  checkToken(): Observable<any> {
     const token = this.getToken();
     const headers = new HttpHeaders().set('Authorization', `${token}`);
     //console.log(headers);

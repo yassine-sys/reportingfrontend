@@ -299,7 +299,8 @@ export class NestedTableComponent implements OnInit {
             this.idrep,
             rowData[this.columns[0]],
             this.startDate,
-            this.endDate
+            this.endDate,
+            null
           )
           .pipe(finalize(() => (this.isLoading = false))) // Set loading flag back to false
           .subscribe((response) => {
@@ -569,7 +570,6 @@ export class NestedTableComponent implements OnInit {
       [this.detailsCols[0]]: row[this.detailsCols[0]],
     };
 
-    //console.log(this.parentRow);
     if (this.title === 'LCR Alert') {
       const dialogRef = this.dialog.open(CommentFormComponent, {
         width: '400px', // Adjust the width as needed
@@ -603,8 +603,16 @@ export class NestedTableComponent implements OnInit {
       } else {
         this.subRepId = row[this.detailsCols[0]];
       }
+
+      const values = Object.values(this.parentRow);
       this.chartService
-        .getDetails(this.subRep1, this.subRepId, this.startDate, this.endDate)
+        .getDetails(
+          this.subRep1,
+          this.subRepId,
+          this.startDate,
+          this.endDate,
+          values[0]
+        )
         .pipe(finalize(() => (this.showProgressBar = false)))
         .subscribe((response) => {
           //console.log(response);

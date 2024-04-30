@@ -458,7 +458,8 @@ export class PaginatedTableComponent
           this.idrep,
           row[this.columns[0]],
           this.startDate,
-          this.endDate
+          this.endDate,
+          null
         )
         .pipe(
           catchError((error) => {

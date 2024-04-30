@@ -55,7 +55,7 @@ export class NavService implements OnDestroy {
         type: 'link',
       },
       {
-        path: '/management/add-report',
+        path: 'steps/choose-flow',
         title: 'Add Report',
         icon: 'plus-circle',
         type: 'link',
@@ -202,7 +202,7 @@ export class NavService implements OnDestroy {
       const data = await firstValueFrom(this.authService.getFunctions());
       this.modulesData = data;
       this.menuItems = this.convertApiResponseToMenuItems(this.modulesData);
-      //this.menuItems.unshift(this.map);
+      this.menuItems.unshift(this.map);
       this.menuItems.unshift(this.monetoring);
       this.menuItems.unshift(this.managementModule);
       this.addPlaylistsToMenuItems(this.menuItems);

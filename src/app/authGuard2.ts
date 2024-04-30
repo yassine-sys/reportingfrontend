@@ -31,9 +31,9 @@ export class authGuard2 implements CanActivate {
     | UrlTree {
     const jwtToken = this.cookieService.get('jwtToken');
     if (jwtToken) {
-      return this.authService.getUser().pipe(
+      return this.authService.checkToken().pipe(
         map((user: any) => {
-          if (user && user.role && user.role.role === 'Admin') {
+          if (user.role.role === 'Admin') {
             return true;
           } else {
             this.router.navigate(['/unauthorized']);

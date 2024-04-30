@@ -29,21 +29,6 @@ export class AuthGuard implements CanActivate {
     | boolean
     | UrlTree {
     const jwtToken = this.cookieService.get('jwtToken');
-    // if (jwtToken) {
-    //   console.log(this.authService.checkToken());
-    //   if (this.authService.checkToken()) {
-    //     return true;
-    //   } else {
-    //     this.cookieService.deleteAll();
-    //     this.router.navigate(['/login']);
-    //     return false; // Token is invalid or expired, redirect to login
-    //   }
-    // } else {
-    //   this.cookieService.deleteAll();
-    //   this.router.navigate(['/login']);
-    //   return false;
-    // }
-
     if (!jwtToken) {
       console.log('No JWT token found, redirecting to login page.');
       this.router.navigate(['/login']);
@@ -52,7 +37,7 @@ export class AuthGuard implements CanActivate {
 
     return this.authService.checkToken().pipe(
       tap((isValid) => {
-        if (!isValid) {
+        if (!isValid.valid) {
           console.log(
             'Token is invalid or expired, redirecting to login page.'
           );

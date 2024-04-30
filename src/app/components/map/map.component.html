@@ -15,7 +15,7 @@
 
             <input type="number" pInputText [(ngModel)]="limit" placeholder="Limit" />
 
-            <p-button label="Apply Filters" (onClick)="getMapLocations(startDate,endDate)"></p-button>
+            <p-button label="Apply Filters" (onClick)="getMapLocations(startDate,endDate,false)"></p-button>
             <!-- <p-inputSwitch (onChange)="toglleHeatMap()" onLabel="'Heat Map'" offLabel="'Markers'" onIcon="fa-toggle-on"
                 offIcon="fa-toggle-off" [(ngModel)]="heatMapEnabled"></p-inputSwitch> -->
         </div>

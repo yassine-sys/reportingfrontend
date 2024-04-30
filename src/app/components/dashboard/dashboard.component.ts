@@ -269,12 +269,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         this.cookieService.delete('jwtToken');
       }
     );
-    this.user?.user_group?.module_groups.forEach((group) => {
-      group.isOpen = false; // set isOpen to false for each group
-      group.list_sub_modules.forEach((subModule) => {
-        subModule.isOpen = false; // set isOpen to false for each sub-module
-      });
-    });
+    // this.user?.user_group?.module_groups.forEach((group) => {
+    //   group.isOpen = false; // set isOpen to false for each group
+    //   group.list_sub_modules.forEach((subModule) => {
+    //     subModule.isOpen = false; // set isOpen to false for each sub-module
+    //   });
+    // });
     this.loaderService.hide();
     this.loaderService.isLoading$.subscribe(
       (isLoading) => (this.isLoading = isLoading)

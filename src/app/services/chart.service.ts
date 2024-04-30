@@ -234,13 +234,15 @@ export class ChartService {
     idrep: any,
     date: any,
     startdate: any,
-    enddate: any
+    enddate: any,
+    firstRep: any
   ): Observable<any> {
     const body = new HttpParams()
       .set('idrep', idrep)
       .set('date', date)
       .set('startdate', startdate)
       .set('enddate', enddate)
+      .set('firstRep', firstRep)
       .toString();
 
     const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };

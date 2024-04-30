@@ -29,6 +29,7 @@ import { OrderUserChartsComponent } from './components/order-user-charts/order-u
 import { UserchartComponent } from './components/userchart/userchart.component';
 import { PlaylistdashboardComponent } from './components/playlistdashboard/playlistdashboard.component';
 import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
+import { StepsModule } from './components/steps/steps.module';
 
 const routes: Routes = [
   { path: 'unauthorized', component: UnauthorizedComponent },
@@ -66,6 +67,11 @@ const routes: Routes = [
         path: 'modules',
         component: NestedGridComponent,
         canActivate: [authGuard2],
+      },
+      {
+        path: 'steps', // Child route for steps
+        loadChildren: () =>
+          import('./components/steps/steps.module').then((m) => m.StepsModule),
       },
       {
         path: 'users',

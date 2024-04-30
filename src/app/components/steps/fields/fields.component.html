@@ -1,0 +1,108 @@
+<div class="stepsdemo-content">
+    <p-card>
+        <ng-template pTemplate="title"> Seat Information </ng-template>
+        <ng-template pTemplate="subtitle"> Choose your seat </ng-template>
+        <ng-template pTemplate="content">
+            <div class="p-fluid formgrid grid">
+                <div *ngIf="flow" class="field">
+                    <label for="fields">Select Fields</label>
+                    <p-multiSelect [options]="flow.liste_champs" [(ngModel)]="selectedFields"
+                        defaultLabel="Select Fields" optionLabel="name_base" [filter]="true"
+                        filterPlaceholder="Search fields"></p-multiSelect>
+                </div>
+            </div>
+
+            <div *ngIf="selectedFields.length > 0">
+                <p-table [value]="selectedFields" dataKey="id" editMode="row" [tableStyle]="{ 'min-width': '50rem' }">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th style="width: 20%">Table Rep</th>
+                            <th style="width: 20%">Field Name</th>
+                            <th style="width: 20%">Filtre</th>
+                            <th style="width: 20%">Field Reporting</th>
+                            <th style="width: 20%">Operation</th>
+                            <th style="width: 20%">Table Join</th>
+                            <th style="width: 20%">Is Y Cust Field 1</th>
+                            <th style="width: 20%"></th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-field let-editing="editing" let-ri="rowIndex">
+                        <tr [pEditableRow]="field">
+                            <td>{{flow.table_name}}</td>
+                            <td>{{ field.name_base }}</td>
+                            <td>
+                                <p-cellEditor>
+                                    <ng-template pTemplate="input">
+                                        <input pInputText type="text" [(ngModel)]="field.filtre">
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        {{ field.filtre }}
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
+                            <td>
+                                <p-cellEditor>
+                                    <ng-template pTemplate="input">
+                                        <input pInputText type="text" [(ngModel)]="field.field_reporting">
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        {{ field.field_reporting }}
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
+                            <td>
+                                <p-cellEditor>
+                                    <ng-template pTemplate="input">
+                                        <input pInputText type="text" [(ngModel)]="field.operation">
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        {{ field.operation }}
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
+                            <td>
+                                <p-cellEditor>
+                                    <ng-template pTemplate="input">
+                                        <input pInputText type="text" [(ngModel)]="field.table_join">
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        {{ field.table_join }}
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
+                            <td>
+                                <p-cellEditor>
+                                    <ng-template pTemplate="input">
+                                        <p-checkbox [(ngModel)]="field.isYcustfield1"></p-checkbox>
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                        {{ field.isYcustfield1 }}
+                                    </ng-template>
+                                </p-cellEditor>
+                            </td>
+                            <td>
+                                <div class="flex align-items-center justify-content-center gap-2">
+                                    <button *ngIf="!editing" pButton pRipple type="button" pInitEditableRow
+                                        icon="pi pi-pencil" (click)="onRowEditInit(field)"
+                                        class="p-button-rounded p-button-text"></button>
+                                    <button *ngIf="editing" pButton pRipple type="button" pSaveEditableRow
+                                        icon="pi pi-check" (click)="onRowEditSave(field)"
+                                        class="p-button-rounded p-button-text p-button-success mr-2"></button>
+                                    <button *ngIf="editing" pButton pRipple type="button" pCancelEditableRow
+                                        icon="pi pi-times" (click)="onRowEditCancel(field, ri)"
+                                        class="p-button-rounded p-button-text p-button-danger"></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <div class="grid grid-nogutter justify-content-between d-flex">
+                <p-button label="Back" (onClick)="prevPage()" icon="pi pi-angle-left"></p-button>
+                <p-button label="Next" (onClick)="nextPage()" icon="pi pi-angle-right" iconPos="right"></p-button>
+            </div>
+        </ng-template>
+    </p-card>
+</div>
