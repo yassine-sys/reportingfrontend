@@ -14,9 +14,16 @@ import { DropdownModule } from 'primeng/dropdown';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FieldsComponent } from './fields/fields.component';
 import { TableModule } from 'primeng/table';
+import { ReactiveFormsModule } from '@angular/forms';
+import { ReportInfoComponent } from './report-info/report-info.component';
 
 @NgModule({
-  declarations: [StepsComponent, ChooseFlowComponent, FieldsComponent],
+  declarations: [
+    StepsComponent,
+    ChooseFlowComponent,
+    FieldsComponent,
+    ReportInfoComponent,
+  ],
   imports: [
     CommonModule,
     FormsModule,
@@ -29,6 +36,7 @@ import { TableModule } from 'primeng/table';
     DropdownModule,
     MultiSelectModule,
     TableModule,
+    ReactiveFormsModule,
   ],
 })
 export class StepsModule {}

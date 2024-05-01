@@ -12,8 +12,10 @@ import { colorSets } from '@swimlane/ngx-charts';
 })
 export class FieldsComponent implements OnInit {
   selectedFields: any[] = []; // Array to hold selected fields
+  selectedFieldsY: any[] = [];
   flow: any;
   repRapportsXList: RepRapportX[] = [];
+  showYDropdown: boolean = false;
   constructor(public addService: AddReportService, private router: Router) {}
 
   ngOnInit(): void {
@@ -30,25 +32,6 @@ export class FieldsComponent implements OnInit {
 
   onRowEditSave(field: any) {
     field.editing = false;
-    const repX: RepRapportX = {
-      filtre: field.filtre,
-      field_name: field.name_base,
-      field_reporting: field.field_reporting,
-      id_field: field.id,
-      operation: field.operation,
-      table_rep: this.flow.table_name,
-      tableref_field_appears: '',
-      tableref_field_query: '',
-      col1: '',
-      col2: '',
-      table_join: field.table_join,
-      isycustfield: false,
-      is_join: false,
-      isYcustfield1: false,
-      list_rep_rapport_y: [],
-    };
-    this.repRapportsXList.push(repX);
-    console.log(this.addService.report);
   }
 
   onRowEditCancel(field: any, ri: number) {
@@ -71,18 +54,88 @@ export class FieldsComponent implements OnInit {
     }
 
     console.log(this.addService.report);
+    console.log(this.selectedFields);
+  }
+  areAllFieldsFilled(): boolean {
+    return this.selectedFields.every(
+      (field) =>
+        field.filtre &&
+        field.field_reporting &&
+        field.operation &&
+        field.selectedFieldsY != undefined
+    );
   }
 
+  addRepRapportsY(field: any) {
+    this.showYDropdown = !this.showYDropdown;
+    field.selectedFieldsY.forEach((yField: any) => (yField.editingY = false));
+  }
+
+  onRowEditInitY(yField: any) {
+    yField.editingY = true;
+  }
+
+  onRowEditSaveY(yField: any) {
+    yField.editingY = false;
+  }
+
+  onRowEditCancelY(yField: any) {
+    yField.editingY = false;
+  }
+
+  nextPageClicked: boolean = false;
   nextPage() {
+    console.log(this.selectedFields);
+    if (!this.areAllFieldsFilled()) {
+      return; // Exit the method if not all fields are filled
+    }
+
+    // Prevent multiple clicks on the "Next" button
+    if (this.nextPageClicked) {
+      return;
+    }
+    this.nextPageClicked = true;
+
+    this.selectedFields.forEach((field) => {
+      //create Y fields
+      const repX: RepRapportX = {
+        filtre: field.filtre,
+        field_name: field.name_base,
+        field_reporting: field.field_reporting,
+        id_field: field.id,
+        operation: field.operation,
+        table_rep: this.flow.table_name,
+        tableref_field_appears: '',
+        tableref_field_query: '',
+        col1: '',
+        col2: '',
+        table_join: field.table_join,
+        isycustfield: false,
+        is_join: false,
+        isYcustfield1: false,
+        list_rep_rapport_y: [],
+      };
+      //create Y fields
+      field.selectedFieldsY.forEach((fieldY: any) => {
+        const repY: RepRapportsY = {
+          field_name: fieldY.name_base,
+          field_reporting: fieldY.field_reporting,
+          id_field: fieldY.id,
+          operation: fieldY.operation,
+        };
+        repX.list_rep_rapport_y.push(repY);
+      });
+
+      this.repRapportsXList.push(repX);
+    });
+
     this.addService.report.rep_rapports_x = this.repRapportsXList;
     console.log(this.addService.report);
-    this.router.navigate(['steps/payment']);
+    this.router.navigate(['/dashboard/steps/report-info']);
   }
 
   prevPage() {
-    this.addService.report.fields = [];
     this.addService.report.rep_rapports_x = [];
-    console.log(this.addService.report);
     this.router.navigate(['/dashboard/steps/choose-flow']);
   }
 }

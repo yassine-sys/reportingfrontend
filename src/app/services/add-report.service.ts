@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { RepRapportX } from '../components/steps/models/rep_rapports_x';
+import { rapport } from '../components/steps/models/rapport';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +18,7 @@ export class AddReportService {
   report = {
     report_type: '',
     flow: [],
-    fields: [] as any[],
+    rep_rapport: {} as rapport,
     rep_rapports_x: [] as RepRapportX[],
   };
 
@@ -37,6 +38,6 @@ export class AddReportService {
   }
 
   public getFlows(): Observable<any> {
-    return this.httpClient.get<any>(`${this.recAPi}/flows`);
+    return this.httpClient.get<any>(`${this.recAPi}/statflows`);
   }
 }

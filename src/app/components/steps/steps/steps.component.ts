@@ -17,20 +17,20 @@ export class StepsComponent implements OnInit {
   ngOnInit(): void {
     this.items = [
       {
-        label: 'Flow',
+        label: 'Choose Flow',
         routerLink: 'choose-flow',
       },
       {
-        label: 'X-Axis',
-        routerLink: 'choose-flow',
+        label: 'Report Axis',
+        routerLink: 'fields',
       },
       {
-        label: 'Y-Axis',
-        routerLink: 'choose-flow',
+        label: 'Report Informations',
+        routerLink: 'report-info',
       },
       {
         label: 'Confirmation',
-        routerLink: 'choose-flow',
+        routerLink: 'f',
       },
     ];
 
