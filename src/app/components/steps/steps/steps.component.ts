@@ -30,7 +30,7 @@ export class StepsComponent implements OnInit {
       },
       {
         label: 'Confirmation',
-        routerLink: 'f',
+        routerLink: 'confirmation',
       },
     ];
 

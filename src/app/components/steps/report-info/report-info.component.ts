@@ -32,7 +32,7 @@ export class ReportInfoComponent implements OnInit {
     ) {
       // this.router.navigate(['steps/seat']);
       const rep: rapport = {
-        chart_type: this.reportnfo.chart_type.label,
+        chart_type: this.reportnfo.chart_type.value,
         name: this.reportnfo.name,
         seriessubtitle: '',
         title: this.reportnfo.title,
@@ -66,10 +66,10 @@ export class ReportInfoComponent implements OnInit {
       };
       this.addService.report.rep_rapport = rep;
       console.log(this.addService.getReportInformation());
-      return;
     }
 
     this.submitted = true;
+    this.router.navigate(['/dashboard/steps/confirmation']);
   }
 
   prevPage() {

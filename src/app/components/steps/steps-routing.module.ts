@@ -5,6 +5,7 @@ import { AuthGuard } from 'src/app/auth.guard';
 import { ChooseFlowComponent } from './choose-flow/choose-flow.component';
 import { FieldsComponent } from './fields/fields.component';
 import { ReportInfoComponent } from './report-info/report-info.component';
+import { GenerateReportComponent } from './generate-report/generate-report.component';
 
 const routes: Routes = [
   {
@@ -25,6 +26,11 @@ const routes: Routes = [
       {
         path: 'report-info',
         component: ReportInfoComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'confirmation',
+        component: GenerateReportComponent,
         canActivate: [AuthGuard],
       },
     ],

@@ -16,6 +16,8 @@ import { FieldsComponent } from './fields/fields.component';
 import { TableModule } from 'primeng/table';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ReportInfoComponent } from './report-info/report-info.component';
+import { GenerateReportComponent } from './generate-report/generate-report.component';
+import { HighchartsChartModule } from 'highcharts-angular';
 
 @NgModule({
   declarations: [
@@ -23,6 +25,7 @@ import { ReportInfoComponent } from './report-info/report-info.component';
     ChooseFlowComponent,
     FieldsComponent,
     ReportInfoComponent,
+    GenerateReportComponent,
   ],
   imports: [
     CommonModule,
@@ -37,6 +40,7 @@ import { ReportInfoComponent } from './report-info/report-info.component';
     MultiSelectModule,
     TableModule,
     ReactiveFormsModule,
+    HighchartsChartModule,
   ],
 })
 export class StepsModule {}

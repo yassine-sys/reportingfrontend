@@ -11,7 +11,7 @@ export class ChooseFlowComponent implements OnInit {
   info: any;
   submitted: boolean = false;
   flows: any[] = []; // Array to hold flows
-  selectedFlow: any; // Variable to hold selected flow
+  selectedFlow: any[] = []; // Variable to hold selected flow
   selectedReportType: any;
   reportTypes: any[] = [
     { id: 1, name: 'Normal Report' },
