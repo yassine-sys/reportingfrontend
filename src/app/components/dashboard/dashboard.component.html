@@ -125,6 +125,7 @@
                     'menu-open': childItem.active,
                     active: childItem.active
                   }">
+
                   <ng-container *ngIf="childItem.type === 'link'; else subMenuTemplate">
                     <a [routerLink]="childItem.path" class="nav-link" routerLinkActive="active"
                       [routerLinkActiveOptions]="{ exact: true }" [ngClass]="{ active: childItem.active }">

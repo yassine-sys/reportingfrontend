@@ -274,7 +274,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
         },
         icon: 'pi pi-star-fill',
         command: () => {
-          this.onAddToPlaylistClick();
+          //this.onAddToPlaylistClick();
         },
       },
     ];
@@ -399,6 +399,22 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
               this.reportIds[index].report[0].list_de_donnees =
                 report[0].list_de_donnees;
               if (
+                report &&
+                report.length > 0 &&
+                report[0].list_de_donnees.length > 0 &&
+                this.reportIds[index].report[0].chart_type == 'table'
+              ) {
+                const startDate = report[0].list_de_donnees[0][0];
+                const endDate = new Date().toISOString().split('T')[0];
+                this.reportIds[index].report[0].list_de_donnees =
+                  this.reportIds[index].report[0].list_de_donnees.sort(
+                    (a: any, b: any) => {
+                      const dateA = new Date(a[0]);
+                      const dateB = new Date(b[0]);
+                      return dateB.getTime() - dateA.getTime();
+                    }
+                  );
+              } else if (
                 report &&
                 report.length > 0 &&
                 report[0].list_de_donnees.length > 0 &&
@@ -630,7 +646,7 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
       },
       chart: {
         type: data.chartType,
-        height: '50%',
+        height: '40%',
         animation: true,
         colorCount: 100,
         reflow: true,
@@ -1010,10 +1026,10 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
   //   saveAs(dataBlob, fileName + '.xlsx');
   // }
 
-  updateChartType(chartIndex: number, event: MatSelectChange) {
-    if (event.value === 'table') {
+  updateChartType(chartIndex: number, event: any) {
+    if (event === 'table') {
       this.isTable = true;
-      this.reportIds[chartIndex].chartType = event.value;
+      this.reportIds[chartIndex].chartType = event;
       this.chartOptions[chartIndex] = {};
     } else {
       this.isTable = false;
@@ -1440,10 +1456,10 @@ export class ReportsComponent implements OnInit, OnDestroy, AfterViewInit {
     return value;
   }
 
-  onAddToPlaylistClick() {
+  onAddToPlaylistClick(idRep: any) {
     // Hide the button and show the dropdown
     this.showButton = true;
-    this.selectedId = this.reportGroup.id;
+    this.selectedId = idRep;
     const ref = this.dialogService.open(PlaylistComponent, {
       header: 'Save To Playlist',
       width: '30%',

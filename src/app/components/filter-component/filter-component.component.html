@@ -1,7 +1,9 @@
 <!-- filter-component.component.html -->
-<button pButton type="button" (click)="overlayPanel.toggle($event)">
+<!-- <button pButton type="button" (click)="overlayPanel.toggle($event)">
   <i class="pi pi-filter"></i>
-</button>
+</button> -->
+<button type="button" pButton pRipple icon="pi pi-filter" (click)="overlayPanel.toggle($event)"
+  class="p-button-info ml-auto" tooltipPosition="bottom"></button>
 
 <p-overlayPanel #overlayPanel [showCloseIcon]="true" [dismissable]="true" [style]="{ 'max-width': '200px' }">
   <form [formGroup]="filterForm" (ngSubmit)="applyFilter()" class="p-fluid">

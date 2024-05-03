@@ -4,6 +4,9 @@ import { AddReportService } from 'src/app/services/add-report.service';
 import * as Highcharts from 'highcharts';
 import HC_exporting from 'highcharts/modules/exporting';
 import HC_accessibility from 'highcharts/modules/accessibility';
+import { MatDialog } from '@angular/material/dialog';
+import { ToastrService } from 'ngx-toastr';
+import { ConfirmationDialogComponentComponent } from '../../confirmation-dialog-component/confirmation-dialog-component.component';
 
 HC_accessibility(Highcharts);
 HC_exporting(Highcharts);
@@ -14,32 +17,19 @@ HC_exporting(Highcharts);
 })
 export class GenerateReportComponent implements OnInit {
   Highcharts: typeof Highcharts = Highcharts;
-  constructor(public addService: AddReportService, private router: Router) {}
+  constructor(
+    public addService: AddReportService,
+    private router: Router,
+    private dialog: MatDialog,
+    private toastr: ToastrService
+  ) {}
   chartData: any;
   chartOptions: Highcharts.Options;
   query: any;
   errorMessage: any;
 
   ngOnInit(): void {
-    this.chartData = {
-      query:
-        ' SELECT  T0.dateappel0 , T0.totalduree0, T1.totalduree1 FROM ( SELECT substr(dateappel,1,6) AS dateappel0 ,sum(totalduree) AS totalduree0 FROM stat.stattraficmsc WHERE 1=1 GROUP BY dateappel0 ORDER BY dateappel0 DESC  LIMIT 100) AS T0  FULL JOIN ( SELECT substr(dateappel,1,6) AS dateappel1 ,sum(totalduree) AS totalduree1 FROM stat.stattraficocs WHERE 1=1 GROUP BY dateappel1 ORDER BY dateappel1 DESC  LIMIT 100) AS T1 ON T1.dateappel1 =  T0.dateappel0',
-      chart_type: 'line',
-      chartName: 'test',
-      data: [
-        ['240502', 440953744, 352565613],
-        ['240501', 1400805329, 762217085],
-        ['240430', 1403104524, 756659205],
-        ['240429', 1136319822, 564617387],
-        ['240428', 1194242943, 615549181],
-        ['240427', 1347156195, 727653584],
-        ['240426', 1405531196, 758489503],
-      ],
-      axisName: ['datteMSc', 'duration', 'durationOCS'],
-      title: null,
-      erroMessage: null,
-    };
-    this.getQuery();
+    //this.getQuery();
     this.fetchChartData();
   }
 
@@ -65,6 +55,32 @@ export class GenerateReportComponent implements OnInit {
     );
   }
 
+  saveReport() {
+    this.addService.saveReport(this.addService.report).subscribe(
+      (data: any) => {
+        this.toastr.success('Report saved successfully', 'Success');
+        this.router.navigate(['/dashboard/steps/choose-flow']);
+      },
+      (error: any) => {
+        console.error('Error fetching chart data:', error.error.errorMessage);
+        this.errorMessage = error.error.errorMessage;
+        this.toastr.error(this.errorMessage, 'Error');
+      }
+    );
+  }
+
+  saveReportWithConfirmation() {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponentComponent, {
+      width: '250px',
+      data: 'Are you sure you want to save the report?',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.saveReport();
+      }
+    });
+  }
   renderChart() {
     // Check if chartData exists and has data
     if (

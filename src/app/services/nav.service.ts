@@ -54,12 +54,12 @@ export class NavService implements OnDestroy {
         icon: 'airplay',
         type: 'link',
       },
-      {
-        path: 'steps/choose-flow',
-        title: 'Add Report',
-        icon: 'plus-circle',
-        type: 'link',
-      },
+      // {
+      //   path: 'steps/choose-flow',
+      //   title: 'Add Report',
+      //   icon: 'plus-circle',
+      //   type: 'link',
+      // },
     ],
   };
   monetoring: Menu = {

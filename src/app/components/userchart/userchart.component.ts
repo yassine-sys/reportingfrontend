@@ -434,7 +434,7 @@ export class UserchartComponent implements OnInit, OnDestroy, AfterViewInit {
       },
       chart: {
         type: data.chartType,
-        height: '50%',
+        height: '40%',
         animation: true,
         colorCount: 100,
         reflow: true,
@@ -785,10 +785,10 @@ export class UserchartComponent implements OnInit, OnDestroy, AfterViewInit {
     XLSX.writeFile(workbook, `${fileName}.xlsx`); // Save the workbook as an Excel file
   }
 
-  updateChartType(chartIndex: number, event: MatSelectChange) {
-    if (event.value === 'table') {
+  updateChartType(chartIndex: number, event: any) {
+    if (event === 'table') {
       this.isTable = true;
-      this.reportIds[chartIndex].report[0].ChartType = event.value;
+      this.reportIds[chartIndex].report[0].ChartType = event;
       this.chartOptions[chartIndex] = {};
     } else {
       this.isTable = false;

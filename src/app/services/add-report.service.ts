@@ -17,7 +17,7 @@ export class AddReportService {
 
   report = {
     report_type: '',
-    flow: [],
+    flow: [] as any[],
     rep_rapport: {} as rapport,
     rep_rapports_x: [] as RepRapportX[],
   };
@@ -39,5 +39,29 @@ export class AddReportService {
 
   public getFlows(): Observable<any> {
     return this.httpClient.get<any>(`${this.recAPi}/statflows`);
+  }
+
+  public getChartData(reportInfo: any): Observable<any> {
+    const { flow, ...modifiedReportInfo } = reportInfo;
+    return this.httpClient.post<any>(
+      `${this.api}/rapport/getData`,
+      modifiedReportInfo
+    );
+  }
+
+  public getQuery(reportInfo: any): Observable<any> {
+    const { flow, ...modifiedReportInfo } = reportInfo;
+    return this.httpClient.post<any>(
+      `${this.api}/rapport/query`,
+      modifiedReportInfo
+    );
+  }
+
+  public saveReport(reportInfo: any): Observable<any> {
+    const { flow, ...modifiedReportInfo } = reportInfo;
+    return this.httpClient.post<any>(
+      'http://localhost/reporting/rapport/add',
+      modifiedReportInfo
+    );
   }
 }

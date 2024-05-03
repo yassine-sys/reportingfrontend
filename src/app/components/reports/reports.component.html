@@ -81,9 +81,19 @@
                     style="background: none; border: none; cursor: pointer" pTooltip="Copy Id"
                     tooltipPosition="top"></button>
                 </div>
-
                 <div class="filtre">
-                  <app-filter-component [idRep]="reportGroup.id" [filter]="filtred" (filterApplied)="
+                  <button type="button" pButton pRipple icon="pi pi-file-excel" class="p-button-success mr-2"
+                    pTooltip="XLS" tooltipPosition="bottom" (click)="exportXLSX(
+                      reportGroup.report[0].list_de_donnees,
+                      reportGroup.report[0].listnamereptab,
+                      reportGroup.report[0].title
+                    )"></button>
+                  <button type="button" (click)="addToDashboard(reportGroup.id)" pButton pRipple icon="pi pi-home"
+                    class="mr-2" pTooltip="Add To Dashboard" tooltipPosition="bottom"></button>
+                  <button type="button" (click)="onAddToPlaylistClick(reportGroup.id)" pButton pRipple icon="pi pi-play"
+                    class="p-button-warning mr-2" pTooltip="Add To Playlist" tooltipPosition="bottom"></button>
+                  <app-filter-component class="p-button-info ml-auto" pTooltip="Filter" tooltipPosition="bottom"
+                    [idRep]="reportGroup.id" [filter]="filtred" (filterApplied)="
                       onFilterApplied($event, reportGroup.report[0], i)
                     "></app-filter-component>
                 </div>
@@ -123,8 +133,8 @@
             </div>
             <div class="card-footer">
               <div class="button-container">
-                <p-speedDial [model]="itemssplit" direction="right" (onClick)="handleSpeedDialClick(reportGroup)">
-                </p-speedDial>
+                <!-- <p-speedDial [model]="itemssplit" direction="right" (onClick)="handleSpeedDialClick(reportGroup)">
+                </p-speedDial> -->
 
                 <p-toggleButton *ngIf="diffRepIDs.includes(reportGroup.id)" [(ngModel)]="reportGroup.showSubReport"
                   (click)="generateSubReport(i,reportGroup.report[0])" onLabel="Difference report enabled"
@@ -158,12 +168,15 @@
                 >
                   Export XLSX
                 </button> -->
-                <mat-form-field>
+                <!-- <mat-form-field>
                   <mat-label>Select chart type</mat-label>
                   <mat-select [(value)]="reportGroup.chartType" (selectionChange)="updateChartType(i, $event)">
                     <mat-option *ngFor="let type of highchartsTypes" [value]="type.value">{{ type.label }}</mat-option>
                   </mat-select>
-                </mat-form-field>
+                </mat-form-field> -->
+                <p-dropdown [options]="highchartsTypes" [(ngModel)]="reportGroup.chartType"
+                  (onChange)="updateChartType(i, $event.value)" placeholder="Select chart type"></p-dropdown>
+
               </div>
             </div>
           </div>

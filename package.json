@@ -36,6 +36,7 @@
     "angular-bootstrap-md": "^15.0.0",
     "angular-highcharts": "^16.0.0",
     "angular-material": "^1.2.5",
+    "angular2-query-builder": "^0.6.2",
     "apexcharts": "^3.41.1",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.0",

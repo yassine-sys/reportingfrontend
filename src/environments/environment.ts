@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://raftools.moov-africa.ml:8443/reportingback',
-  recApi: 'https://raftools.moov-africa.ml:8443/rec',
-  chartApi: 'https://raftools.moov-africa.ml:8443/RaftoolsReporting/rest',
+  apiUrl: 'http://172.16.54.7:8080/reportingback',
+  recApi: 'http://172.16.54.7:8080/rec',
+  chartApi: 'http://172.16.54.7:8080/RaftoolsReporting/rest',
   recaptchaSiteKey: '6LfMIGcpAAAAAH0ZGLLgnLu72CgNOIhHvkN3jMDi',
 };

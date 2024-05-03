@@ -58,7 +58,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     startDate: null,
     endDate: null,
     idfunction: 0,
-    type_Filter: this.filterType.None,
+    type_Filter: this.filterType.Day,
     isVaration: false,
     isPerHour: false,
     startHour: null,
@@ -79,6 +79,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public SidebarmenuItems: any[] = [];
   menuItems$: Observable<Menu[]>;
+  filterTypes = {
+    Hour: 'Hour',
+    Day: 'Day',
+    Month: 'Month',
+    Year: 'Year',
+  };
+
+  types: FilterType;
 
   playlists: any;
   constructor(
@@ -237,6 +245,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.selectedFilter = this.filterType.Day;
     this.getCurrentUrl();
     this.loadPlayLists();
     //console.log(this.route.snapshot)
@@ -303,6 +312,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   updateFilters() {
+    console.log(this.form.valid);
+    console.log(this.selectedFilter);
     if (this.form.valid) {
       const startDate =
         typeof this.startDate === 'string'

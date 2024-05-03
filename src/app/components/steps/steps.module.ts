@@ -18,6 +18,9 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ReportInfoComponent } from './report-info/report-info.component';
 import { GenerateReportComponent } from './generate-report/generate-report.component';
 import { HighchartsChartModule } from 'highcharts-angular';
+import { QuerybuilderComponent } from './querybuilder/querybuilder.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [
@@ -26,9 +29,10 @@ import { HighchartsChartModule } from 'highcharts-angular';
     FieldsComponent,
     ReportInfoComponent,
     GenerateReportComponent,
+    QuerybuilderComponent,
   ],
   imports: [
-    CommonModule,
+    CommonModule, // Use CommonModule instead of BrowserModule
     FormsModule,
     StepsRoutingModule,
     STM,
@@ -41,6 +45,8 @@ import { HighchartsChartModule } from 'highcharts-angular';
     TableModule,
     ReactiveFormsModule,
     HighchartsChartModule,
+    MatDialogModule,
+    ToastrModule.forRoot(),
   ],
 })
 export class StepsModule {}
