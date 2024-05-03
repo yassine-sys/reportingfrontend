@@ -1,11 +1,20 @@
 <p-card>
     <ng-template pTemplate="title"> Report preview</ng-template>
+
     <div>
         <textarea readonly class="form-control" rows="2">{{ chartData.query }}</textarea>
         <button class="btn btn-primary mt-2" (click)="copyQuery()">Copy Query</button>
     </div>
-    <highcharts-chart style="width:100%; display: block" [runOutsideAngular]="true" [Highcharts]="Highcharts"
-        [options]="chartOptions"></highcharts-chart>
+    <div *ngIf="!errorMessage">
+        <highcharts-chart style="width:100%; display: block" [runOutsideAngular]="true" [Highcharts]="Highcharts"
+            [options]="chartOptions"></highcharts-chart>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible d-flex align-items-center fade show">
+        <i class="bi-exclamation-octagon-fill"></i>
+        <strong class="mx-2">Error!</strong> {{ errorMessage }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 
     <ng-template pTemplate="footer">
         <div class="grid grid-nogutter justify-content-between d-flex">

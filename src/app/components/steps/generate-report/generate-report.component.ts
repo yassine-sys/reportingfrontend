@@ -17,106 +17,140 @@ export class GenerateReportComponent implements OnInit {
   constructor(public addService: AddReportService, private router: Router) {}
   chartData: any;
   chartOptions: Highcharts.Options;
+  query: any;
+  errorMessage: any;
 
   ngOnInit(): void {
     this.chartData = {
       query:
-        'SELECT t1.dateappel, t1.totalduree AS durationMSC, t2.totalduree AS surationOCS FROM (SELECT substr(dateappel,1,6) AS dateappel, sum(totalduree) AS totalduree FROM stat.stattraficmsc WHERE 1=1 GROUP BY dateappel ORDER BY dateappel DESC  LIMIT 100) AS t1 FULL JOIN (SELECT substr(dateappel,1,6) AS dateappel, sum(totalduree) AS totalduree FROM stat.stattraficocs WHERE 1=1 GROUP BY dateappel ORDER BY dateappel DESC  LIMIT 100) AS t2 ON t1.dateappel = t2.dateappel',
+        ' SELECT  T0.dateappel0 , T0.totalduree0, T1.totalduree1 FROM ( SELECT substr(dateappel,1,6) AS dateappel0 ,sum(totalduree) AS totalduree0 FROM stat.stattraficmsc WHERE 1=1 GROUP BY dateappel0 ORDER BY dateappel0 DESC  LIMIT 100) AS T0  FULL JOIN ( SELECT substr(dateappel,1,6) AS dateappel1 ,sum(totalduree) AS totalduree1 FROM stat.stattraficocs WHERE 1=1 GROUP BY dateappel1 ORDER BY dateappel1 DESC  LIMIT 100) AS T1 ON T1.dateappel1 =  T0.dateappel0',
       chart_type: 'line',
       chartName: 'test',
       data: [
-        ['240501', 16266739, 392439],
-        ['240501', 16266739, 37833930],
-        ['240501', 16266739, 10805776],
-        ['240501', 16266739, 34322699],
-        ['240501', 16266739, 3317416],
+        ['240502', 440953744, 352565613],
+        ['240501', 1400805329, 762217085],
+        ['240430', 1403104524, 756659205],
+        ['240429', 1136319822, 564617387],
+        ['240428', 1194242943, 615549181],
+        ['240427', 1347156195, 727653584],
+        ['240426', 1405531196, 758489503],
       ],
-      axisName: ['dateee', 'durationMSC', 'surationOCS'],
+      axisName: ['datteMSc', 'duration', 'durationOCS'],
       title: null,
+      erroMessage: null,
     };
-    this.renderChart();
+    this.getQuery();
+    this.fetchChartData();
   }
 
+  getQuery() {
+    this.addService.getQuery(this.addService.report).subscribe((data: any) => {
+      this.query = data;
+    });
+  }
   fetchChartData() {
-    this.addService
-      .getChartData(this.addService.report)
-      .subscribe((data: any) => {
-        this.chartData = data;
-        console.log(this.chartData);
-        this.renderChart();
-      });
+    this.addService.getChartData(this.addService.report).subscribe(
+      (data: any) => {
+        if (data.errorMessage) {
+          this.errorMessage = data.errorMessage;
+        } else {
+          this.chartData = data;
+          this.renderChart();
+        }
+      },
+      (error: any) => {
+        console.error('Error fetching chart data:', error.error.erroMessage);
+        this.errorMessage = error.error.erroMessage;
+      }
+    );
   }
 
   renderChart() {
-    const xAxisType =
-      this.chartData.axisName[0] === 'date' ? 'datetime' : 'category';
+    // Check if chartData exists and has data
+    if (
+      this.chartData &&
+      this.chartData.data &&
+      this.chartData.data.length > 0
+    ) {
+      // Extract x-axis data from the first column
+      const xAxisData = this.chartData.data.map((row: any) => row[0]);
 
-    this.chartOptions = {
-      chart: {
-        type: this.chartData.chart_type,
-        height: '40%',
-        animation: true,
-        colorCount: 100,
-        reflow: true,
-        plotBorderWidth: 1,
-        plotShadow: true,
-        borderRadius: 10,
-        style: {
-          fontFamily: "'Open Sans', sans-serif",
-        },
-        zooming: {
-          mouseWheel: {
-            enabled: false,
+      // Extract y-axis data from subsequent columns
+      const yAxisData = this.chartData.axisName
+        .slice(1)
+        .map((name: any, i: any) => ({
+          id: `series-${i}`,
+          name: name,
+          data: this.chartData.data.map((datum: any) =>
+            parseFloat(datum[i + 1])
+          ),
+        }));
+
+      // Determine xAxis type
+      const xAxisType =
+        typeof xAxisData[0] === 'string' ? 'category' : 'datetime';
+
+      this.chartOptions = {
+        chart: {
+          type: this.chartData.chart_type,
+          height: '40%',
+          animation: true,
+          colorCount: 100,
+          reflow: true,
+          plotBorderWidth: 1,
+          plotShadow: true,
+          borderRadius: 10,
+          style: {
+            fontFamily: "'Open Sans', sans-serif",
+          },
+          zooming: {
+            mouseWheel: {
+              enabled: false,
+            },
           },
         },
-      },
-      title: {
-        text: this.chartData.chartName || 'Chart',
-      },
-      responsive: {
-        rules: [
-          {
-            condition: {
-              maxWidth: 500,
-            },
-            chartOptions: {
-              legend: {
-                layout: 'horizontal',
-                align: 'center',
-                verticalAlign: 'bottom',
+        title: {
+          text: this.chartData.chartName || 'Chart',
+        },
+        responsive: {
+          rules: [
+            {
+              condition: {
+                maxWidth: 500,
+              },
+              chartOptions: {
+                legend: {
+                  layout: 'horizontal',
+                  align: 'center',
+                  verticalAlign: 'bottom',
+                },
               },
             },
+          ],
+        },
+        credits: {
+          enabled: false,
+        },
+        xAxis: {
+          type: xAxisType,
+          title: {
+            text: this.chartData.axisName[0],
           },
-        ],
-      },
-      credits: {
-        enabled: false,
-      },
-      xAxis: {
-        type: 'category',
-        title: {
-          text: this.chartData.axisName[0],
+          categories: xAxisType === 'category' ? xAxisData : null,
         },
-      },
-      yAxis: {
-        title: {
-          text: 'Values',
+        yAxis: {
+          title: {
+            text: 'Values',
+          },
         },
-      },
-      legend: {
-        enabled: true,
-      },
-      series: this.chartData.axisName.slice(0).map((name: any, i: any) => ({
-        id: `series-${i}`,
-        name: name,
-        data: this.chartData.data.map((datum: any) => [
-          datum[0],
-          parseFloat(datum[i + 1]),
-        ]),
-      })),
-    };
+        legend: {
+          enabled: true,
+        },
+        series: yAxisData,
+      };
 
-    console.log(this.chartOptions);
+      console.log(this.chartOptions);
+    }
   }
 
   copyQuery() {
