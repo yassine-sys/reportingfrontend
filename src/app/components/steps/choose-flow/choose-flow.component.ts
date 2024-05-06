@@ -16,8 +16,7 @@ export class ChooseFlowComponent implements OnInit {
   reportTypes: any[] = [
     { id: 1, name: 'Normal Report' },
     { id: 2, name: 'Custom Report' },
-    { id: 3, name: 'Cdrs Report' },
-    // Add more report types as needed
+    { id: 3, name: 'Detailled Report' },
   ];
 
   constructor(public addService: AddReportService, private router: Router) {}
@@ -33,7 +32,12 @@ export class ChooseFlowComponent implements OnInit {
     if (this.selectedReportType && this.selectedFlow) {
       this.addService.report.report_type = this.selectedReportType.id;
       this.addService.report.flow = this.selectedFlow;
-      this.router.navigate(['/dashboard/steps/fields']);
+
+      if (this.selectedReportType.name === 'Detailled Report') {
+        this.router.navigate(['/dashboard/steps/detailledfields']);
+      } else {
+        this.router.navigate(['/dashboard/steps/fields']);
+      }
       return;
     }
 

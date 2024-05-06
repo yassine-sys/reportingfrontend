@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -63,5 +63,21 @@ export class AddReportService {
       'http://localhost/reporting/rapport/add',
       modifiedReportInfo
     );
+  }
+
+  assignReport(parentId: number, subReportId: number): Observable<any> {
+    const url = 'http://localhost:8080/reporting/rapport/assignReport';
+    const body = new FormData();
+    body.append('parentId', parentId.toString());
+    body.append('subReportId', subReportId.toString());
+
+    // You can add headers if needed
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/x-www-form-urlencoded',
+      }),
+    };
+
+    return this.httpClient.post<any>(url, body, httpOptions);
   }
 }

@@ -1,0 +1,20 @@
+<p-button label="Assign Reports" (click)="openDialog()"  icon="pi pi-angle-left"></p-button>
+
+<p-table [value]="reports">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Name</th>
+        <th>Title</th>
+        <th>Chart Type</th>
+        <!-- Add more headers as needed -->
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-report>
+      <tr>
+        <td>{{ report[0] }}</td>
+        <td>{{ report[1] }}</td>
+        <td>{{ report[2] }}</td>
+        <!-- Display more properties as needed -->
+      </tr>
+    </ng-template>
+  </p-table>

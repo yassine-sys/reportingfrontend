@@ -6,6 +6,10 @@ import { ChooseFlowComponent } from './choose-flow/choose-flow.component';
 import { FieldsComponent } from './fields/fields.component';
 import { ReportInfoComponent } from './report-info/report-info.component';
 import { GenerateReportComponent } from './generate-report/generate-report.component';
+import { DetailledfieldsComponent } from './detailledfields/detailledfields.component';
+import { ReprapportComponent } from './reprapport/reprapport.component';
+import { ReportDetailsComponent } from './report-details/report-details.component';
+import { ListdetailledreportsComponent } from './listdetailledreports/listdetailledreports.component';
 
 const routes: Routes = [
   {
@@ -31,6 +35,27 @@ const routes: Routes = [
       {
         path: 'confirmation',
         component: GenerateReportComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'detailledfields',
+        component: DetailledfieldsComponent,
+        canActivate: [AuthGuard],
+      },
+
+      {
+        path: 'reprapport',
+        component: ReprapportComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'addreport',
+        component: ReportDetailsComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'listdetailledreport',
+        component: ListdetailledreportsComponent,
         canActivate: [AuthGuard],
       },
     ],

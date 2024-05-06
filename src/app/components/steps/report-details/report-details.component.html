@@ -1,0 +1,59 @@
+<div class="card">
+    <p-treeTable [columns]="cols" [value]="[reportInfo]" [tableStyle]="{ 'min-width': '50rem' }">
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+                <th *ngFor="let col of columns">
+                    {{ col.header }}
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+            <tr>
+                <td *ngFor="let col of columns">
+                    {{ col.field }}
+                </td>
+            </tr>
+
+        </ng-template>
+    </p-treeTable>
+</div>
+
+
+<div class="card">
+    <p-treeTable [columns]="rows" [value]="reportInfo.rep_rapports_x" [tableStyle]="{ 'min-width': '50rem' }">
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+                <th>
+                    field_name
+                </th>
+                <th>
+                    field_reporting
+                </th>
+                <th>
+                    operation
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+            <tr>
+                <td *ngFor="let col of columns">
+                    {{ col.field_name }}
+                </td>
+                <td *ngFor="let col of columns">
+                    {{ col.field_reporting }}
+                </td>
+                <td *ngFor="let col of columns">
+                    {{ col.operation }}
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+            <div class="grid grid-nogutter justify-content-between d-flex">
+                <p-button label="Confirm" (onClick)="confirmReport()" icon="pi pi-angle-left"></p-button>
+            </div>
+        </ng-template>
+    </p-treeTable>
+
+
+</div>
