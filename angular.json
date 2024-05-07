@@ -27,6 +27,8 @@
               "src/manifest.webmanifest"
             ],
             "styles": [
+              "node_modules/minireset.css/minireset.css",
+              "node_modules/minireset.css/minireset.css",
               "src/assets/css/ionicons.min.css",
               "src/assets/css/source-sans-pro.css",
               "src/assets/css/material-icons.css",
@@ -43,6 +45,7 @@
               "node_modules/highcharts/css/stocktools/gui.css",
               "node_modules/highcharts/css/annotations/popup.css",
               "node_modules/leaflet/dist/leaflet.css",
+              "node_modules/igniteui-angular/styles/igniteui-angular.css",
               {
                 "input": "src/lara-light-blue.css",
                 "bundleName": "lara-light-blue",
@@ -79,10 +82,14 @@
               "src/assets/dist/js/leaflet-src.js",
               "src/assets/dist/js/leaflet.markercluster-src.js",
               "src/assets/js/svg2pdf.js",
-              "src/assets/js/jspdf.js"
+              "src/assets/js/jspdf.js",
+              "./node_modules/hammerjs/hammer.min.js"
             ],
             "serviceWorker": true,
-            "ngswConfigPath": "ngsw-config.json"
+            "ngswConfigPath": "ngsw-config.json",
+            "stylePreprocessorOptions": {
+              "includePaths": ["node_modules"]
+            }
           },
           "configurations": {
             "production": {
@@ -147,7 +154,10 @@
               "src/manifest.webmanifest"
             ],
             "styles": ["src/styles.css"],
-            "scripts": []
+            "scripts": ["./node_modules/hammerjs/hammer.min.js"],
+            "stylePreprocessorOptions": {
+              "includePaths": ["node_modules"]
+            }
           }
         }
       }

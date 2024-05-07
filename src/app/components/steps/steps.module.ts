@@ -26,6 +26,10 @@ import { ReprapportComponent } from './reprapport/reprapport.component';
 import { ReportDetailsComponent } from './report-details/report-details.component';
 import { ListdetailledreportsComponent } from './listdetailledreports/listdetailledreports.component';
 import { AssigndialogComponent } from './assigndialog/assigndialog.component';
+import { IgxQueryBuilderModule } from 'igniteui-angular';
+import { DialogModule } from 'primeng/dialog';
+import { DialogService } from 'primeng/dynamicdialog';
+import { DynamicDialogModule } from 'primeng/dynamicdialog';
 
 @NgModule({
   declarations: [
@@ -58,6 +62,10 @@ import { AssigndialogComponent } from './assigndialog/assigndialog.component';
     MatDialogModule,
     TreeTableModule,
     ToastrModule.forRoot(),
+    IgxQueryBuilderModule,
+    DialogModule,
+    DynamicDialogModule,
   ],
+  providers: [DialogService],
 })
 export class StepsModule {}

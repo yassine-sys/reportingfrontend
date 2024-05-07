@@ -1,10 +1,9 @@
 @import "~primeicons/primeicons.css";
-
 /* * {
   font-family: "Saira Condensed", sans-serif;
 } */
 /* For WebKit browsers (e.g., Chrome, Safari) */
-::-webkit-scrollbar {
+::-webkit-scrollbar  {
   width: 12px; /* Set the width of the scrollbar */
 }
 

@@ -1,1 +1,14 @@
-<!-- <query-builder [(ngModel)]='query'></query-builder> -->
+<div class="wrapper">
+    <igx-query-builder #queryBuilder [fields]="fields" [expressionTree]="expressionTree">
+        <igx-query-builder-header [title]="'Generate Filter Query'" [showLegend]="true">
+        </igx-query-builder-header>
+    </igx-query-builder>
+
+    <div class="output-area">
+        <pre><b>WHERE </b>{{generateWhereClause(queryBuilder.expressionTree)}}</pre>
+    </div>
+
+    <div class="footer">
+        <button pButton type="button" label="Submit" (click)="onSubmit(queryBuilder.expressionTree)"></button>
+    </div>
+</div>

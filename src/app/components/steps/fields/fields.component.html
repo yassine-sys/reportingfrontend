@@ -1,4 +1,5 @@
 <div class="stepsdemo-content">
+    <!-- <app-querybuilder></app-querybuilder> -->
     <p-card>
         <ng-template pTemplate="title">Fields Informations</ng-template>
         <ng-template pTemplate="subtitle">Choose your axis for</ng-template>
@@ -50,7 +51,8 @@
                             <td>
                                 <p-cellEditor>
                                     <ng-template pTemplate="input">
-                                        <input pInputText type="text" [(ngModel)]="field.filtre" />
+                                        <input (click)="openDialog(f,field)" pInputText type="text"
+                                            [(ngModel)]="field.filtre" />
                                     </ng-template>
                                     <ng-template pTemplate="output">
                                         {{ field.filtre }}

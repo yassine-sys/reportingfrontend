@@ -1,22 +1,31 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AddReportService } from 'src/app/services/add-report.service';
 import { RepRapportX } from '../models/rep_rapports_x';
 import { RepRapportsY } from '../models/rep_rapports_y';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { QuerybuilderComponent } from '../querybuilder/querybuilder.component';
+import { colorSets } from '@swimlane/ngx-charts';
 
 @Component({
   selector: 'app-fields',
   templateUrl: './fields.component.html',
   styleUrls: ['./fields.component.css'],
 })
-export class FieldsComponent implements OnInit {
+export class FieldsComponent implements OnInit, OnDestroy {
   selectedFieldsMap: Map<string, any[]> = new Map(); // Map to hold selected fields for each flow
   selectedFieldsYMap: Map<string, any[]> = new Map(); // Map to hold selected Y fields for each flow
   flow: any;
   repRapportsXMap: Map<string, RepRapportX[]> = new Map(); // Map to hold RepRapportX for each flow
   showYDropdownMap: Map<string, boolean> = new Map();
 
-  constructor(public addService: AddReportService, private router: Router) {}
+  ref: DynamicDialogRef;
+
+  constructor(
+    public addService: AddReportService,
+    private router: Router,
+    private dialogService: DialogService
+  ) {}
 
   ngOnInit(): void {
     this.flow = this.addService.report.flow;
@@ -181,5 +190,29 @@ export class FieldsComponent implements OnInit {
   prevPage() {
     this.addService.report.rep_rapports_x = [];
     this.router.navigate(['/dashboard/steps/choose-flow']);
+  }
+
+  openDialog(flow: any, field: any) {
+    this.ref = this.dialogService.open(QuerybuilderComponent, {
+      header: 'Filter',
+      width: '40%',
+      data: { flow },
+      maximizable: true,
+    });
+
+    // Handle dialog closure and get the result
+    this.ref.onClose.subscribe((filter: string) => {
+      console.log('Dialog closed with filter:', filter);
+      if (filter) {
+        field.filtre = filter;
+        console.log(field);
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.ref) {
+      this.ref.close();
+    }
   }
 }
