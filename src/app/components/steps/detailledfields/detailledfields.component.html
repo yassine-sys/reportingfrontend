@@ -21,8 +21,8 @@
                             <th style="width: 20%">Filtre</th>
                             <th style="width: 20%">Field Reporting</th>
                             <th style="width: 20%">Operation</th>
-                            <th style="width: 20%">Table Join</th>
-                            <th style="width: 20%">Is Y Cust Field 1</th>
+                            <!-- <th style="width: 20%">Table Join</th>
+                            <th style="width: 20%">Is Y Cust Field 1</th> -->
                             <th style="width: 20%"></th>
                         </tr>
                     </ng-template>
@@ -33,12 +33,20 @@
                             <td>
                                 <p-cellEditor>
                                     <ng-template pTemplate="input">
+                                      <input (click)="openDialogF(flow, field)" pInputText type="text" [(ngModel)]="field.filtre" />
+                                    </ng-template>
+                                    <ng-template pTemplate="output">
+                                      {{ field.filtre }}
+                                    </ng-template>
+                                  </p-cellEditor>
+                                <!-- <p-cellEditor>
+                                    <ng-template pTemplate="input">
                                         <input pInputText type="text" [(ngModel)]="field.filtre">
                                     </ng-template>
                                     <ng-template pTemplate="output">
                                         {{ field.filtre }}
                                     </ng-template>
-                                </p-cellEditor>
+                                </p-cellEditor> -->
                             </td>
                             <td>
                                 <p-cellEditor>
@@ -53,14 +61,15 @@
                             <td>
                                 <p-cellEditor>
                                     <ng-template pTemplate="input">
-                                        <input pInputText type="text" [(ngModel)]="field.operation">
+                                        <input (click)="openDialogOperation(field)" pInputText type="text"
+                                            [(ngModel)]="field.operation" />
                                     </ng-template>
                                     <ng-template pTemplate="output">
                                         {{ field.operation }}
                                     </ng-template>
                                 </p-cellEditor>
                             </td>
-                            <td>
+                            <!-- <td>
                                 <p-cellEditor>
                                     <ng-template pTemplate="input">
                                         <input pInputText type="text" [(ngModel)]="field.table_join">
@@ -79,7 +88,7 @@
                                         {{ field.isYcustfield1 }}
                                     </ng-template>
                                 </p-cellEditor>
-                            </td>
+                            </td> -->
                             <td>
                                 <div class="flex align-items-center justify-content-center gap-2">
                                     <button *ngIf="!editing" pButton pRipple type="button" pInitEditableRow

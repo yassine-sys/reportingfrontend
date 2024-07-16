@@ -11,10 +11,12 @@ export class RepRapportX {
   tableref_field_query: string;
   col1: string;
   col2: string;
-  table_join: string;
-  isycustfield: boolean = false;
-  is_join: boolean = false;
-  isYcustfield1: boolean = false;
+  tableJoin: string;
+  // isycustfield: boolean = false;
+  // is_join: boolean = false;
+  join: boolean = false;;
+  // isYcustfield1: boolean = false;
+  ycustField: boolean = false;
   list_rep_rapport_y: RepRapportsY[] = [];
 
   constructor() {}

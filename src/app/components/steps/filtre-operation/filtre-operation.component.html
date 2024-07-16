@@ -1,0 +1,18 @@
+<div class="wrapper">
+    <igx-query-builder #queryBuilderC [fields]="fields" [expressionTree]="expressionTree">
+        <igx-query-builder-header [title]="'Generate Filter Query'" [showLegend]="true">
+        </igx-query-builder-header>
+    </igx-query-builder>
+
+    <div class="output-area">
+        <label for="username">Output</label>
+
+        <textarea rows="3" cols="30" pInputTextarea [(ngModel)]="modifiedResult"
+            [value]="generateWhereClause(queryBuilderC.expressionTree)" class="form-control" [style]="{'width':'100%'}">
+</textarea>
+    </div>
+
+    <div class="footer">
+        <button pButton type="button" label="Submit" (click)="onSubmit(queryBuilderC.expressionTree)"></button>
+    </div>
+</div>

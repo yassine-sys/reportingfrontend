@@ -11,7 +11,7 @@ import { rapport } from '../models/rapport';
 })
 export class ReprapportComponent implements OnInit {
   reportnfo: any;
-  highchartsTypes = HIGHCHARTS_TYPES;
+  highchartsTypes = [{ label: 'Table', value: 'table' }];
   submitted: boolean = false;
 
   constructor(public addService: AddReportService, private router: Router) {}
@@ -27,10 +27,10 @@ export class ReprapportComponent implements OnInit {
     if (
       this.reportnfo.name &&
       this.reportnfo.title &&
-      this.reportnfo.chartType
+      this.reportnfo.chart_type
     ) {
       const rep: rapport = {
-        chart_type: this.reportnfo.chartType.label,
+        chart_type: this.reportnfo.chart_type.value,
         name: this.reportnfo.name,
         seriessubtitle: '',
         title: this.reportnfo.title,
@@ -39,7 +39,7 @@ export class ReprapportComponent implements OnInit {
         isfieldmerge: false,
         col1: '',
         col2: '',
-        table_join: '',
+        tableJoin: '',
         isjointable: false,
         isycustfield: false,
         iscustomise: false,

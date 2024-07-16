@@ -1,0 +1,50 @@
+<div class="wrapper">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="function-selector">
+                    <p-dropdown appendTo="body" [options]="functionOptions" [(ngModel)]="selectedFunction"
+                        optionLabel="label" placeholder="Select Function" [filter]="true"
+                        filterPlaceholder="Search"></p-dropdown>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="column-name">
+                    <input type="text" [(ngModel)]="columnName" placeholder="Enter Column Name"
+                        (ngModelChange)="generateSQLExpression()" class="form-control">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="param-inputs" *ngIf="selectedFunction && selectedFunction.requiresParams">
+                    <input *ngFor="let i of getParamIndices(selectedFunction.paramCount); let j = index" type="text"
+                        [(ngModel)]="paramInputs[j]" [placeholder]="'Parameter ' + (j + 1)"
+                        (ngModelChange)="generateSQLExpression()" class="form-control">
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <b>Generated Expression:</b>
+            <div class="p-chips">
+                <div class="row" *ngIf="selectedFunction">
+                    <div class="col-md-8">
+                        <div>
+                            <input type="text" [value]="generateSQLExpression()" class="form-control"
+                                [style]="{'width':'100%'}">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <button pButton pRipple type="button" icon="pi pi-plus-circle"
+                            class="p-button-rounded p-button-text mr-2" (click)="useAsColumnName()"></button>
+                        <button type="button" pButton icon="pi pi-minus-circle"
+                            class="p-button-rounded p-button-text mr-2"
+                            (click)="removeFunction(selectedFunction)"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="footer">
+    <button type="button" class="btn btn-primary" (click)="onSubmit()">Submit</button>
+</div>

@@ -1,3 +1,7 @@
+<!-- <div class="card">
+    <label for="selectedDate">Select Date</label>
+    <p-calendar [(ngModel)]="selectedDate" dateFormat="yy-mm-dd"></p-calendar>
+  </div>
 <div class="card">
     <p-treeTable [columns]="cols" [value]="[reportInfo]" [tableStyle]="{ 'min-width': '50rem' }">
         <ng-template pTemplate="header" let-columns>
@@ -56,4 +60,116 @@
     </p-treeTable>
 
 
-</div>
+</div> -->
+
+
+    <label for="selectedDate">Select Date</label>
+    <p-calendar [(ngModel)]="selectedDate" dateFormat="yy-mm-dd"></p-calendar>
+ 
+  
+  <div class="card">
+    <p-table [columns]="cols" [value]="[reportInfo]" [tableStyle]="{ 'min-width': '50rem' }">
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns">
+            {{ col.header }}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns">
+            {{ col.field }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  
+  <div class="card">
+    <p-table [value]="rows" [tableStyle]="{ 'min-width': '50rem' }">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Filtre</th>
+          <th>Field Name</th>
+          <th>Field Reporting</th>
+          <th>Operation</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData>
+        <tr>
+          <td>{{ rowData.filtre }}</td>
+          <td>{{ rowData.field_name }}</td>
+          <td>{{ rowData.field_reporting }}</td>
+          <td>{{ rowData.operation }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <tr>
+          <td colspan="4">
+           
+            <div class="grid grid-nogutter justify-content-between d-flex">
+              <p-button label="Confirm" (onClick)="confirmReport()" icon="pi pi-check"></p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+
+  <!-- <div class="card">
+    <p-table [columns]="cols" [value]="[reportInfo]" [tableStyle]="{ 'min-width': '50rem' }">
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns">
+            {{ col.header }}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns">
+            {{ col.field }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  
+  <div class="card">
+    <p-table [value]="rows" [tableStyle]="{ 'min-width': '50rem' }">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Filtre</th>
+          <th>Field Name</th>
+          <th>Field Reporting</th>
+          <th>Operation</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData>
+        <tr>
+          <td>{{ rowData.filtre }}</td>
+          <td>{{ rowData.field_name }}</td>
+          <td>{{ rowData.field_reporting }}</td>
+          <td>{{ rowData.operation }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <tr>
+          <td colspan="4">
+            <div class="grid grid-nogutter justify-content-between d-flex">
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  
+  <div class="card">
+    <label for="selectedDate">Select Date</label>
+    <p-calendar [(ngModel)]="selectedDate" dateFormat="yy-mm-dd" appendTo="body" class="centered-calendar"></p-calendar>
+    <div class="grid grid-nogutter justify-content-between d-flex">
+      <p-button label="Confirm" (onClick)="confirmReport()" icon="pi pi-check"></p-button>
+    </div>
+  </div> -->

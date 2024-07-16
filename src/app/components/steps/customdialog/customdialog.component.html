@@ -1,0 +1,56 @@
+<p-card class="modern-card">
+    <p-card class="modern-card">
+      <!-- <ng-template pTemplate="title">Edit</ng-template> -->
+      <ng-template pTemplate="content" class="dialog-content">
+        <div class="p-fluid formgrid grid">
+        <div class="field edit" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: center;">
+          <label for="selectedFlow">Selected Flow:</label>
+          <input pInputText id="selectedFlow" type="text" [value]="selectedFlow?.table_name" disabled>
+  
+          <label for="selectedFields">Selected Fields:</label>
+          <input pInputText id="selectedFields" type="text" [value]="getSelectedFields()" disabled>
+        </div>
+        <br>
+        <br>
+        <div class="field edit" style="display: flex; justify-content: center; align-items: center;">
+          <label for="isCustomized">Is Joinable:</label>
+          <input type="checkbox" id="isCustomized" [(ngModel)]="isCustomized">
+        </div>
+        <br>
+        <div class="field edit" *ngIf="isCustomized" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: center;">
+          <label for="tables">Select your TableRef:</label>
+          <p-dropdown id="tables" [options]="tables" [(ngModel)]="selectedTable" (onChange)="onTableSelect()" placeholder="Select a table"></p-dropdown>
+        </div>
+        <br>
+        <div class="field edit" *ngIf="selectedTable">
+          <div class="field edit" *ngIf="isCustomized" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: center;">
+            <label for="column1">Select Column 1:</label>
+            <p-dropdown id="column1" [options]="selectedColumns1" [(ngModel)]="selectedColumn1" placeholder="Select a column" (ngModelChange)="onChange($event, 'selectedColumn1')"></p-dropdown>
+        
+            <label for="column2">Select Column 2:</label>
+            <p-dropdown id="column2" [options]="selectedColumns2" [(ngModel)]="selectedColumn2" placeholder="Select a column" (ngModelChange)="onChange($event, 'selectedColumn2')"></p-dropdown>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+    
+    <ng-template pTemplate="footer">
+      <br>
+    <br>      <br>
+    <br>
+      <div class="grid grid-nogutter justify-content-between d-flex">
+        <button pButton type="button" label="Cancel" (click)="onCancel()" class="p-button-text"></button>
+        <button pButton type="button" label="Save" (click)="onSave()" class="p-button-primary"></button>
+      </div>
+    </ng-template>
+  </p-card>
+  
+  <style>
+    .edit {
+      font-family: serif;
+      font-size: 16px;
+      font-weight: bold;
+      color: #494848;
+    }
+  </style>
+  

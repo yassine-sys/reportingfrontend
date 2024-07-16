@@ -12,7 +12,7 @@ import { rapport } from '../models/rapport';
 })
 export class ReportInfoComponent implements OnInit {
   reportnfo: any;
-  highchartsTypes = HIGHCHARTS_TYPES;
+  highchartsTypes = [{ label: 'Table', value: 'table' }];
   submitted: boolean = false;
 
   constructor(public addService: AddReportService, private router: Router) {}
@@ -41,7 +41,7 @@ export class ReportInfoComponent implements OnInit {
         isfieldmerge: false,
         col1: '',
         col2: '',
-        table_join: '',
+        tableJoin: '',
         isjointable: false,
         isycustfield: false,
         iscustomise: false,

@@ -1,15 +1,15 @@
-<p-card class="modern-card">
+<!-- <p-card class="modern-card">
     <ng-template pTemplate="title">Assign Reports</ng-template>
     <ng-template pTemplate="content">
         <div class="p-fluid formgrid grid">
             <div class="field">
-                <label for="reportshasdetails">Report pere</label>
-                <p-dropdown id="reportshasdetails" [options]="reportshasdetails" placeholder="Select a report" [filter]="true" filterPlaceholder="Search fields"  
+                <label for="reports">Report pere</label>
+                <p-dropdown id="reports" [options]="reports" placeholder="Select a report" [filter]="true" filterPlaceholder="Search fields"  
                 (onChange)="onReportChange2()" [(ngModel)]="selectedIdReport"></p-dropdown>
             </div>
             <div class="field">
-                <label for="reports">Report fils</label>
-                <p-dropdown id="reports" [options]="reports" defaultLabel="Select Report" [filter]="true" filterPlaceholder="Search fields" (onChange)="onReportChange()"
+                <label for="reportshasdetails">Report fils</label>
+                <p-dropdown id="reportshasdetails" [options]="reportshasdetails" placeholder="Select Report" [filter]="true" filterPlaceholder="Search fields" (onChange)="onReportChange()"
                 [(ngModel)]="selectedReportId"></p-dropdown>
             </div>
             <div class="field">
@@ -32,6 +32,45 @@
                     <button pButton type="button" label="Save" (click)="onSave(selectedIdReport, selectedReportId)" class="p-button-primary"></button>
                 </div>
             </ng-template>
+        </div>
+    </ng-template>
+</p-card> -->
+
+
+<p-card class="modern-card">
+    <ng-template pTemplate="title">Assign Reports</ng-template>
+    <ng-template pTemplate="content">
+        <div class="p-fluid formgrid grid">
+            <div class="field">
+                <label for="reports">Report pere</label>
+                <p-dropdown id="reports" [options]="reports" placeholder="Select a report" [filter]="true" filterPlaceholder="Search fields"  
+                (onChange)="onReportChange2()" [(ngModel)]="selectedIdReport"></p-dropdown>
+            </div>
+            <div class="field">
+                <label for="reportshasdetails">Report fils</label>
+                <p-dropdown id="reportshasdetails" [options]="reportshasdetails" placeholder="Select Report" [filter]="true" filterPlaceholder="Search fields" (onChange)="onReportChange()"
+                [(ngModel)]="selectedReportId"></p-dropdown>
+            </div>
+            <div class="field">
+                <label for="dropdownOptions">Level</label>
+                <p-dropdown id="dropdownOptions" [options]="dropdownOptions" placeholder="Select Level" [(ngModel)]="selectedValue" optionLabel="label"></p-dropdown>
+            </div>
+            <div class="field">
+                <label for="selectedFields">Wherefield fils</label>
+                <p-dropdown id="selectedFields" [options]="selectedFields" defaultLabel="Select Fields" optionLabel="field_name"  filterPlaceholder="Search fields"
+              ></p-dropdown>
+            </div>
+            <div class="field">
+                <label for="selectedFields2">wherefield pere</label>
+                <p-dropdown id="selectedFields2" [options]="selectedFields2" defaultLabel="Select Fields" optionLabel="field_name" filterPlaceholder="Search fields"
+                ></p-dropdown>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <div class="grid grid-nogutter justify-content-between d-flex">
+            <button pButton type="button" label="Cancel" (click)="onCancel()" class="p-button-text"></button>
+            <button pButton type="button" label="Save" (click)="onSave()" class="p-button-primary"></button>
         </div>
     </ng-template>
 </p-card>

@@ -60,6 +60,13 @@ export class NavService implements OnDestroy {
         icon: 'plus-circle',
         type: 'link',
       },
+
+      {
+        path: 'assign-report',
+        title: 'Assign Report',
+        icon: 'plus-circle',
+        type: 'link',
+      },
     ],
   };
   monetoring: Menu = {

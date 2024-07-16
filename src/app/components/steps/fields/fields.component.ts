@@ -148,10 +148,10 @@ export class FieldsComponent implements OnInit, OnDestroy {
           tableref_field_query: '',
           col1: '',
           col2: '',
-          table_join: field.table_join,
-          isycustfield: false,
-          is_join: false,
-          isYcustfield1: false,
+          tableJoin: field.tableJoin,
+          ycustField: false,
+          join: false,
+          // isYcustfield1: false,
           list_rep_rapport_y: [],
         };
 

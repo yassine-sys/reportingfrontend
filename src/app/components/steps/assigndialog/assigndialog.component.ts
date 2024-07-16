@@ -12,9 +12,9 @@ import { AddReportService } from 'src/app/services/add-report.service';
 })
 export class AssigndialogComponent implements OnInit {
   reportshasdetails: any;
-  reports: any;
+  reports: any[];
   selectedFieldValue: any;
-  selectedValue: number; // Property to store the selected value from the dropdown
+  selectedValue: { label: string, value: number };  // Property to store the selected value from the dropdown
   dropdownOptions = [
     { label: '1', value: 1 },
     { label: '2', value: 2 },
@@ -29,45 +29,84 @@ export class AssigndialogComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadreportshasdetails();
+   // this.loadreportshasdetails();
     this.loadReports();
   }
 
-  loadreportshasdetails() {
-    return this.http
-      .get('http://localhost:8080/reporting/rapport/gethasdetailledreports')
-      .subscribe((reportshasdetails) => {
-        this.reportshasdetails = reportshasdetails;
-      });
-  }
+  // loadreportshasdetails() {
+  //   return this.http
+  //     .get('http://localhost:8080/reporting/rapport/gethasdetailledreports')
+  //     .subscribe((reportshasdetails) => {
+  //       this.reportshasdetails = reportshasdetails;
+  //     });
+  // }
+
+  // loadReports() {
+  //   return this.http
+  //     .get('http://localhost:8080/reporting/rapport/list')
+  //     .subscribe((reports) => {
+  //       this.reports = reports;
+
+  //       if (this.selectedIdReport) {
+  //         this.reportshasdetails = this.reports.filter((report:any) => report.id !== this.selectedIdReport);
+  //       } else {
+  //         this.reportshasdetails = this.reports;
+  //       }
+  //     });
+  // }
 
   loadReports() {
-    return this.http
-      .get('http://localhost:8080/reporting/rapport/listdetailled')
-      .subscribe((reports) => {
-        this.reports = reports;
+
+   this.reportService.loadReports()
+      .subscribe((reports: any) => {
+        // Format reports for parent dropdown
+        this.reports = reports.map((report: any) => ({ label: report.name, value: report.id }));
+        console.log('Selected parent report ID:', this.selectedIdReport);
+
+        // Format reports for child dropdown
+        if (this.selectedIdReport) {
+          console.log(this.selectedIdReport)
+          this.reportshasdetails = reports.filter((report: any) => report.id !== this.selectedIdReport)
+                                            .map((report: any) => ({ label: report.name, value: report.id }));
+        } else {
+          this.reportshasdetails = this.reports;
+        }
       });
   }
+  
 
   selectedReportId: any;
   selectedFields: any;
   onReportChange() {
-    this.http
-      .get(
-        `http://localhost:8080/reporting/rapport/rapport_fields/${this.selectedReportId}`
-      )
-      .subscribe((fields) => {
+    this.reportService.getReportFields(this.selectedReportId).subscribe(
+      (fields: any) => {
         this.selectedFields = fields;
-      });
+      },
+      (error) => {
+        console.error('Failed to load report fields:', error);
+        // Optionally, display an error message
+      }
+    );
   }
+  // onReportChange() {
+  //   this.http
+  //     .get(
+  //       `http://localhost:8080/reporting/rapport/rapport_fields/${this.selectedReportId}`
+  //     )
+  //     .subscribe((fields) => {
+  //       this.selectedFields = fields;
+  //     });
+  // }
 
   selectedIdReport: any;
   selectedFields2: any;
   onReportChange2() {
-    this.http
-      .get(
-        `http://localhost:8080/reporting/rapport/rapport_fields/${this.selectedIdReport}`
-      )
+    this.loadReports();
+    this.reportService.getReportFields(this.selectedIdReport)
+    // this.http
+    //   .get(
+    //     `http://localhost:8080/reporting/rapport/rapport_fields/${this.selectedIdReport}`
+    //   )
       .subscribe((fields2) => {
         this.selectedFields2 = fields2;
       });
@@ -77,16 +116,31 @@ export class AssigndialogComponent implements OnInit {
     this.dialog.closeAll();
   }
 
-  onSave(parentId: number, subReportId: number): void {
-    this.reportService.assignReport(parentId, subReportId).subscribe(
-      (response) => {
-        console.log('Report assigned successfully:', response);
-        // Handle success response
-      },
-      (error) => {
-        console.error('Failed to assign report:', error);
-        // Handle error response
-      }
-    );
+  onSave(): void {
+
+    const wherefield = this.selectedFields.map((field:any) => field.field_name).join(', '); // Assuming 'field_name' is the property you want
+    const wherefieldreppere = this.selectedFields2.map((field:any) => field.field_name).join(', '); // Assuming 'field_name' is the property you want
+  
+    
+    const reportData = {
+      parentId: this.selectedIdReport,
+      subReportId: this.selectedReportId,
+      level: this.selectedValue.value,
+             wherefield: wherefield, // Assuming these are strings, adjust as needed
+      wherefieldreppere: wherefieldreppere // Assuming these are strings, adjust as needed
+    };
+console.log(this.selectedValue)
+    this.reportService.assignReport(reportData)
+      .subscribe(
+        response => {
+          console.log('Report assigned successfully:', response);
+          this.dialog.closeAll();
+          // Handle success response
+        },
+        error => {
+          console.error('Failed to assign report:', error);
+          // Handle error response
+        }
+      );
   }
 }

@@ -10,6 +10,11 @@ import { DetailledfieldsComponent } from './detailledfields/detailledfields.comp
 import { ReprapportComponent } from './reprapport/reprapport.component';
 import { ReportDetailsComponent } from './report-details/report-details.component';
 import { ListdetailledreportsComponent } from './listdetailledreports/listdetailledreports.component';
+import { QuerymodalComponent } from './querymodal/querymodal.component';
+import { ReportinfoComponent } from './reportinfo/reportinfo.component';
+import { CustomComponent } from './custom/custom.component';
+import { GenerateCustomiseComponent } from './generate-customise/generate-customise.component';
+import { ReportassignComponent } from '../reportassign/reportassign.component';
 
 const routes: Routes = [
   {
@@ -17,6 +22,7 @@ const routes: Routes = [
     component: StepsComponent,
     canActivate: [AuthGuard],
     children: [
+     
       {
         path: 'choose-flow',
         component: ChooseFlowComponent,
@@ -56,6 +62,35 @@ const routes: Routes = [
       {
         path: 'listdetailledreport',
         component: ListdetailledreportsComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'queryreport',
+        component: QuerymodalComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'confirmation',
+        component: GenerateCustomiseComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'custom',
+        component: CustomComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'report-info',
+        component: ReportInfoComponent,
+        canActivate: [AuthGuard],
+      }, {
+        path: 'reportinfo',
+        component: ReportinfoComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'fields',
+        component: FieldsComponent,
         canActivate: [AuthGuard],
       },
     ],

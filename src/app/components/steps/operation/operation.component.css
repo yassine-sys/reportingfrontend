@@ -1,0 +1,27 @@
+
+.operation-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.operation-item {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 5px;
+    background-color: rgb(229, 162, 192);
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.operation-item:hover {
+    background-color: rgb(202, 202, 202); /* Darker blue on hover */
+}
+.edit {
+    font-family: serif;
+    font-size: 16px;
+    font-weight: bold;
+    color: #494848;
+  }
+  

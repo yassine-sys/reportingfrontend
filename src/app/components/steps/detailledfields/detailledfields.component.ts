@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { RepRapportX } from '../models/rep_rapports_x';
 import { AddReportService } from 'src/app/services/add-report.service';
 import { Router } from '@angular/router';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { OperationQueryComponent } from '../operation-query/operation-query.component';
+import { FiltreOperationComponent } from '../filtre-operation/filtre-operation.component';
 
 @Component({
   selector: 'app-detailledfields',
@@ -12,7 +15,10 @@ export class DetailledfieldsComponent implements OnInit {
   selectedFields: any[] = []; // Array to hold selected fields
   flow: any;
   repRapportsXList: RepRapportX[] = [];
-  constructor(public addService: AddReportService, private router: Router) {}
+  ref: DynamicDialogRef;
+  filtreValue: string; 
+
+  constructor(public addService: AddReportService, private router: Router,private dialogService: DialogService) {}
 
   ngOnInit(): void {
     this.flow = this.addService.report.flow[0];
@@ -43,10 +49,10 @@ export class DetailledfieldsComponent implements OnInit {
       tableref_field_query: '',
       col1: '',
       col2: '',
-      table_join: field.table_join,
-      isycustfield: false,
-      is_join: false,
-      isYcustfield1: false,
+      tableJoin: field.tableJoin,
+        ycustField: false,
+        join: false,
+        // isYcustfield1: false,
       list_rep_rapport_y: [],
     };
     this.repRapportsXList.push(repX);
@@ -85,7 +91,7 @@ export class DetailledfieldsComponent implements OnInit {
   areAllFieldsFilled(): boolean {
     return this.selectedFields.every(
       (field) =>
-        //  field.filtre &&
+          field.filtre &&
         field.field_reporting && field.operation //&&
       // field.selectedFieldsY != undefined
     );
@@ -117,15 +123,15 @@ export class DetailledfieldsComponent implements OnInit {
         tableref_field_query: '',
         col1: '',
         col2: '',
-        table_join: field.table_join,
-        isycustfield: false,
-        is_join: false,
-        isYcustfield1: false,
+        tableJoin: field.tableJoin,
+        ycustField: false,
+        join: false,
+        // isYcustfield1: false,
         list_rep_rapport_y: [],
       };
       //create Y fields
 
-      //  this.repRapportsXList.push(repX);
+       //  this.repRapportsXList.push(repX);
     });
 
     this.addService.report.rep_rapports_x = this.repRapportsXList;
@@ -142,4 +148,47 @@ export class DetailledfieldsComponent implements OnInit {
     console.log(this.addService.report);
     this.router.navigate(['/dashboard/steps/choose-flow']);
   }
+
+  openDialogOperation(field: any) {
+    this.ref = this.dialogService.open(OperationQueryComponent, {
+      header: 'Operation Query',
+      width: '40%',
+      data: { columnName:field.operation || field.name_base },
+      maximizable: true,
+    });
+
+    // Handle dialog closure and get the result
+    this.ref.onClose.subscribe((query: string) => {
+      console.log('Dialog closed with query:', query);
+      if (query) {
+        field.operation = query;
+        console.log(field);
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.ref) {
+      this.ref.close();
+    }
+  }
+
+
+  openDialogF(flow: any, field: any) {
+    this.ref = this.dialogService.open(FiltreOperationComponent, {
+      header: 'Filter',
+      width: '40%',
+      data: { flow, filtreValue: field.filtre }, // Pass the field-specific filtreValue to the dialog
+      maximizable: true,
+    });
+  
+    this.ref.onClose.subscribe((result: any) => {
+      console.log('Dialog closed with filter:', result.filtreValue);
+      if (result && result.filtreValue) {
+        field.filtre = result.filtreValue; // Update the filtre value in the specific field
+        console.log(field);
+      }
+    });
+  }
+  
 }

@@ -1,6 +1,7 @@
-<p-button label="Assign Reports" (click)="openDialog()"  icon="pi pi-angle-left"></p-button>
+<p-button label="Assign Reports" (click)="openDialog()" ></p-button>
 
-<p-table [value]="reports">
+
+<p-table [value]="reports" [rows]="5" [paginator]="true">
     <ng-template pTemplate="header">
       <tr>
         <th>Name</th>
@@ -11,10 +12,12 @@
     </ng-template>
     <ng-template pTemplate="body" let-report>
       <tr>
-        <td>{{ report[0] }}</td>
-        <td>{{ report[1] }}</td>
-        <td>{{ report[2] }}</td>
+        <td>{{ report.name }}</td>
+        <td>{{ report.title }}</td>
+        <td>{{ report.chartType }}</td>
         <!-- Display more properties as needed -->
       </tr>
     </ng-template>
   </p-table>
+
+  <p-button label="Show Report" (click)="showreport()" ></p-button>

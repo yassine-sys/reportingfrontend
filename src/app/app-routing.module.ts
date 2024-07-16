@@ -30,6 +30,7 @@ import { UserchartComponent } from './components/userchart/userchart.component';
 import { PlaylistdashboardComponent } from './components/playlistdashboard/playlistdashboard.component';
 import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
 import { StepsModule } from './components/steps/steps.module';
+import { ReportassignComponent } from './components/reportassign/reportassign.component';
 
 const routes: Routes = [
   { path: 'unauthorized', component: UnauthorizedComponent },
@@ -77,6 +78,11 @@ const routes: Routes = [
         path: 'users',
         component: UserManagmentComponent,
         canActivate: [authGuard2],
+      },
+      {
+        path: 'assign-report',
+        component: ReportassignComponent,
+        canActivate: [AuthGuard],
       },
       {
         path: 'collect',

@@ -30,6 +30,22 @@ import { IgxQueryBuilderModule } from 'igniteui-angular';
 import { DialogModule } from 'primeng/dialog';
 import { DialogService } from 'primeng/dynamicdialog';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
+import { CalendarModule } from 'primeng/calendar';
+import { ShowreportComponent } from './showreport/showreport.component';
+import { QuerymodalComponent } from './querymodal/querymodal.component';
+import { MessagesModule } from 'primeng/messages';
+import { MessageModule } from 'primeng/message';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { OperationQueryComponent } from './operation-query/operation-query.component';
+import { FiltreOperationComponent } from './filtre-operation/filtre-operation.component';
+import { CustomComponent } from './custom/custom.component';
+import { CustomdialogComponent } from './customdialog/customdialog.component';
+import { GenerateCustomiseComponent } from './generate-customise/generate-customise.component';
+import { OperationComponent } from './operation/operation.component';
+import { ReportinfoComponent } from './reportinfo/reportinfo.component';
+import { QuerybuilderCComponent } from './querybuilder-c/querybuilder-c.component';
+import { ReportassignComponent } from '../reportassign/reportassign.component';
 
 @NgModule({
   declarations: [
@@ -44,6 +60,16 @@ import { DynamicDialogModule } from 'primeng/dynamicdialog';
     ReportDetailsComponent,
     ListdetailledreportsComponent,
     AssigndialogComponent,
+    ShowreportComponent,
+    QuerymodalComponent,
+    OperationQueryComponent,
+    FiltreOperationComponent,
+    CustomComponent,
+    CustomdialogComponent,
+    GenerateCustomiseComponent,
+    OperationComponent,
+    ReportinfoComponent,
+    QuerybuilderCComponent,
   ],
   imports: [
     CommonModule,
@@ -65,6 +91,12 @@ import { DynamicDialogModule } from 'primeng/dynamicdialog';
     IgxQueryBuilderModule,
     DialogModule,
     DynamicDialogModule,
+    CalendarModule,
+    HighchartsChartModule,
+    MessagesModule,
+    MessageModule,
+    MatTableModule,
+    MatPaginatorModule,
   ],
   providers: [DialogService],
 })

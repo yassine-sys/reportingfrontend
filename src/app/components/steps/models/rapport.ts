@@ -8,7 +8,7 @@ export class rapport {
   isfieldmerge: boolean = false;
   col1: string;
   col2: string;
-  table_join: string;
+  tableJoin: string;
   isjointable: boolean = false;
   isycustfield: boolean = false;
   iscustomise: boolean = false;

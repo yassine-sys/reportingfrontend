@@ -1,0 +1,20 @@
+<div class="text-right"> <!-- Align content to the right -->
+    <button class="btn btn-secondary mt-2" (click)="onCancel()">
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
+  <p-card>
+<div>
+    <textarea 
+    rows="5"
+    cols="120" 
+    pInputTextarea 
+    [disabled]="true">
+    {{query}}
+</textarea>
+</div>
+<button class="btn btn-primary mt-2" (click)="copyQuery()">Copy Query</button>
+<figure>
+  <div id="container"></div>
+</figure>
+</p-card>

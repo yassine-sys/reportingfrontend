@@ -3,6 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AssigndialogComponent } from '../assigndialog/assigndialog.component';
+import { ShowreportComponent } from '../showreport/showreport.component';
+import { AddReportService } from 'src/app/services/add-report.service';
 
 @Component({
   selector: 'app-listdetailledreports',
@@ -12,7 +14,7 @@ import { AssigndialogComponent } from '../assigndialog/assigndialog.component';
 export class ListdetailledreportsComponent  implements OnInit{
   reports:any
 
-  constructor(private router: Router, private http: HttpClient,private dialog:MatDialog) { }
+  constructor(private router: Router, private http: HttpClient,private dialog:MatDialog, private addService: AddReportService) { }
 
 
   ngOnInit(): void {
@@ -20,7 +22,7 @@ export class ListdetailledreportsComponent  implements OnInit{
   }
 
   loadReports() {
-    return this.http.get('http://localhost:8080/reporting/rapport/listdetailled') .subscribe(reports => {
+    return this.addService.loadReports().subscribe(reports => {
       this.reports = reports;
     });
   }
@@ -28,6 +30,19 @@ openDialog(): void {
   const dialogRef = this.dialog.open(AssigndialogComponent, {
     width: '600px',
     height: '600px',
+   
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+    console.log('The dialog was closed');
+  });
+}
+
+
+showreport(): void {
+  const dialogRef = this.dialog.open(ShowreportComponent, {
+    width: '1000px', // Set the width to auto
+    height: '600px', // Set the height to auto
    
   });
 

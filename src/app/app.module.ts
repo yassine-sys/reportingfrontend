@@ -127,6 +127,8 @@ import { BadgeModule } from 'primeng/badge';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { ToggleButtonModule } from 'primeng/togglebutton';
+import { ReportassignComponent } from './components/reportassign/reportassign.component';
+import { CardModule } from 'primeng/card';
 
 @NgModule({
   declarations: [
@@ -185,6 +187,7 @@ import { ToggleButtonModule } from 'primeng/togglebutton';
     FeatherIconsComponent,
     SidebarComponent,
     SearchComponent,
+    ReportassignComponent
   ],
   imports: [
     InputSwitchModule,
@@ -244,6 +247,8 @@ import { ToggleButtonModule } from 'primeng/togglebutton';
     RecaptchaModule, //this is the recaptcha main module
     RecaptchaFormsModule, //this is the module for form incase form validation
     BadgeModule,
+    CalendarModule,
+    CardModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),
       // Register the ServiceWorker as soon as the application is stable

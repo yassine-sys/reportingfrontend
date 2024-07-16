@@ -32,6 +32,9 @@ export class StepsComponent implements OnInit {
         label: 'Confirmation',
         routerLink: 'confirmation',
       },
+      
+
+      
     ];
 
     this.subscription = this.addService.reportComplete$.subscribe((info) => {});
